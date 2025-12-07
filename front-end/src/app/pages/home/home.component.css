@@ -1,0 +1,16 @@
+/* Optional CSS */
+    .avatar-sm {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .post-img {
+      max-height: 300px;
+      object-fit: cover;
+      width: 100%;
+    }
+    .sidebar-section {
+      position: sticky;
+      top: 80px;
+    }
