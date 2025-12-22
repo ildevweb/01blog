@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+
 
 interface Post {
   text: string;
@@ -13,7 +15,8 @@ interface Post {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    NavbarComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
