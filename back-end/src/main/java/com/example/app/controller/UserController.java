@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.app.entity.User;
 import com.example.app.service.UserService;
 import com.example.app.dto.RegisterRequest;
+import com.example.app.dto.LoginRequest;
 
 
 @RestController
@@ -23,6 +24,15 @@ public class UserController {
 
         return userService.register(
             request.getUsername(),
+            request.getEmail(),
+            request.getPassword()
+        );
+    }
+
+    @PostMapping("/login")
+    public User login(@RequestBody LoginRequest request) {
+
+        return userService.login(
             request.getEmail(),
             request.getPassword()
         );
