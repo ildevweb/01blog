@@ -1,7 +1,5 @@
 package com.example.app.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import com.example.app.entity.User;
@@ -16,27 +14,23 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public User register(String username, String email, String password) {
+
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = new User();
+        user.setName(username);
+        user.setEmail(email);
+        user.setPassword(password); // hash later
+
+        return userRepository.save(user);
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
-
-    public User createUser(User user) {
-        return userRepository.save(user);
-    }
-
-    public User updateUser(Long id, User user) {
-        User existing = getUserById(id);
-        existing.setName(user.getName());
-        existing.setEmail(user.getEmail());
-        return userRepository.save(existing);
-    }
-
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
 }
+
