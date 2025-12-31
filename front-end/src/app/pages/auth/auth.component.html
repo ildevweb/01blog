@@ -2,8 +2,12 @@
 <link href="./auth.component.css" rel="stylesheet"/>
 
 <div class="auth-container">
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
+  <div *ngIf="errorMessage$ | async as error" class="alert alert-danger text-center mt-2">
+    {{ error }}
+  </div>
+
+  <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
+    {{ success }}
   </div>
 
 

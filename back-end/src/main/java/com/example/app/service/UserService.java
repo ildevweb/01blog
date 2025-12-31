@@ -1,6 +1,8 @@
 package com.example.app.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.entity.User;
 import com.example.app.repository.UserRepository;
@@ -17,7 +19,7 @@ public class UserService {
     public User register(String username, String email, String password) {
 
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already exists");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
         User user = new User();

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -11,7 +12,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 })
 export class AuthComponent {
   isLogin = true;
-  errorMessage: string = '';
+  errorMessage$ = new BehaviorSubject<string | null>(null);
+  successMessage$ = new BehaviorSubject<string | null>(null);
 
   validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,8 +58,8 @@ export class AuthComponent {
 
   onLogin() {
     if (this.loginData.email == '' || this.loginData.password == '') {
-      this.errorMessage = 'Some input is empty';
-      setTimeout(() => this.errorMessage = '', 100);
+      this.errorMessage$.next('Some input is empty');
+      //setTimeout(() => this.errorMessage = '', 100);
       return;
     }
 
@@ -67,29 +69,41 @@ export class AuthComponent {
       'http://localhost:8080/api/auth/login',
       this.loginData
     ).subscribe({
-      next: res => console.log('Login success', res),
-      error: err => this.errorMessage = err.error?.message || 'Login failed'
+      next: res => {
+        console.log('Login success', res)
+        this.successMessage$.next("Logged Successfully")
+        this.errorMessage$.next(null)
+      },
+      error: err => {
+        this.errorMessage$.next(err.error?.message || 'Login failed')
+        this.successMessage$.next(null)
+      }
     });
   }
 
   onRegister() {
     if (this.registerData.email == '' || this.registerData.username == '' || this.registerData.password == '' || this.registerData.confirmPassword == '') {
-      this.errorMessage = 'some input is empty';
-      setTimeout(() => this.errorMessage = '', 100);
+      this.errorMessage$.next('Some input is empty');
       return;
     }
 
     if (this.registerData.password !== this.registerData.confirmPassword) {
-      this.errorMessage = 'Passwords do not match';
-      setTimeout(() => this.errorMessage = '', 100);
+      this.errorMessage$.next('Passwords do not match');
       return;
     }
 
-    /*if (!this.validateEmail(this.registerData.email) || !this.validateUsername(this.registerData.username) || !this.validatePassword(this.registerData.password)) {
-      this.errorMessage = 'Invalid data';
-      setTimeout(() => this.errorMessage = '', 100);
+    if (!this.validateEmail(this.registerData.email)) {
+      this.errorMessage$.next('Invalid email');
       return;
-    }*/
+    }
+    if (!this.validateUsername(this.registerData.username)) {
+      this.errorMessage$.next('Invalid username');
+      return;
+    }
+    if (!this.validatePassword(this.registerData.password)) {
+      this.errorMessage$.next('Invalid password');
+      return;
+    }
 
     const payload = {
       username: this.registerData.username,
@@ -103,8 +117,16 @@ export class AuthComponent {
       'http://localhost:8080/api/auth/register',
       payload
     ).subscribe({
-      next: res => console.log('Register success', res),
-      error: err => this.errorMessage = err.error?.message || 'Registration failed'
+      next: res => {
+        console.log('Register success', res)
+        this.errorMessage$.next(null)
+        this.successMessage$.next("Registered Successfully")
+      },
+      error: err => {
+        console.log("this is the error:", err)
+        this.errorMessage$.next(err.error?.message || 'Registration failed')
+        this.successMessage$.next(null)
+      }
     });
   }
 }
