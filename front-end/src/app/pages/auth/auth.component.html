@@ -2,6 +2,11 @@
 <link href="./auth.component.css" rel="stylesheet"/>
 
 <div class="auth-container">
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+
   <h2 class="text-center mb-4">
     {{ isLogin ? 'Login' : 'Register' }}
   </h2>
