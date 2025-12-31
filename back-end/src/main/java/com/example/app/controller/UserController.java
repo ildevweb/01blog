@@ -1,7 +1,10 @@
 package com.example.app.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.entity.User;
 import com.example.app.security.JwtUtil;
@@ -19,10 +22,12 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -36,14 +41,6 @@ public class UserController {
         );
     }
 
-    /*@PostMapping("/login")
-    public User login(@RequestBody LoginRequest request) {
-
-        return userService.login(
-            request.getEmail(),
-            request.getPassword()
-        );
-    }*/
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -53,8 +50,15 @@ public class UserController {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        /*if (!user.getPassword().equals(request.getPassword())) {
             throw new RuntimeException("Invalid email or password");
+        }*/
+
+        if (!passwordEncoder.matches(user.getPassword(), request.getPassword())) {
+            throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid email or password"
+            );
         }
 
         String token = JwtUtil.generateToken(

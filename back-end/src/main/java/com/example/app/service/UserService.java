@@ -1,6 +1,7 @@
 package com.example.app.service;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -11,9 +12,11 @@ import com.example.app.repository.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User register(String username, String email, String password) {
@@ -25,7 +28,9 @@ public class UserService {
         User user = new User();
         user.setName(username);
         user.setEmail(email);
-        user.setPassword(password); // hash later
+        
+        String hashedPassword = passwordEncoder.encode(password);
+        user.setPassword(hashedPassword);
 
         return userRepository.save(user);
     }
