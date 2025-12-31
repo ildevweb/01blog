@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -46,7 +47,7 @@ export class AuthComponent {
     confirmPassword: ''
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   showLogin() {
     this.isLogin = true;
@@ -74,6 +75,7 @@ export class AuthComponent {
         localStorage.setItem('token', res.token)
         this.successMessage$.next("Logged Successfully")
         this.errorMessage$.next(null)
+        this.router.navigate(['/home']);
       },
       error: err => {
         this.errorMessage$.next(err.error?.message || 'Login failed')

@@ -12,12 +12,12 @@ import com.example.app.repository.UserRepository;
 import com.example.app.security.JwtUtil;
 
 @Service
-public class UserService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -48,8 +48,8 @@ public class UserService {
         }
 
         String token = JwtUtil.generateToken(
-                user.getId(),
-                user.getEmail()
+            user.getId(),
+            user.getEmail()
         );
 
         return ResponseEntity.ok(new LoginResponse(token));

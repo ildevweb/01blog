@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.app.entity.User;
-import com.example.app.service.UserService;
+import com.example.app.service.AuthService;
 import com.example.app.dto.RegisterRequest;
 import com.example.app.dto.LoginRequest;
 import com.example.app.dto.LoginResponse;
@@ -13,19 +13,19 @@ import com.example.app.dto.LoginResponse;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200")
-public class UserController {
+public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
 
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
 
-        return userService.register(
+        return authService.register(
             request.getUsername(),
             request.getEmail(),
             request.getPassword()
@@ -35,11 +35,11 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        return userService.login(request.getEmail(), request.getPassword());
+        return authService.login(request.getEmail(), request.getPassword());
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+        return authService.getUserById(id);
     }
 }
