@@ -65,12 +65,13 @@ export class AuthComponent {
 
     console.log('LOGIN JSON:', this.loginData);
 
-    this.http.post(
+    this.http.post<LoginResponse>(
       'http://localhost:8080/api/auth/login',
       this.loginData
     ).subscribe({
       next: res => {
         console.log('Login success', res)
+        localStorage.setItem('token', res.token)
         this.successMessage$.next("Logged Successfully")
         this.errorMessage$.next(null)
       },
@@ -129,4 +130,7 @@ export class AuthComponent {
       }
     });
   }
+}
+export interface LoginResponse {
+  token: string;
 }
