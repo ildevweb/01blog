@@ -1,4 +1,4 @@
-/* Redirects to /dashboard if already logged in */
+/* Redirects to /home if already logged in */
 
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
