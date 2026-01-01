@@ -32,26 +32,26 @@ public class PostController {
             @RequestParam("image") MultipartFile image
     ) throws IOException {
 
-        // 1️⃣ Create upload folder
+        // Create upload folder
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
-        // 2️⃣ Generate unique file name
+        // Generate unique file name
         String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
         String filePath = UPLOAD_DIR + fileName;
 
-        // 3️⃣ Save image to disk
+        // Save image to disk
         Files.copy(image.getInputStream(), Paths.get(filePath));
 
-        // 4️⃣ Save Post to DB
+        // Save Post to DB
         Post post = new Post();
         post.setContent(content);
         post.setMedia(filePath);
 
         postRepository.save(post);
 
-        return ResponseEntity.ok("Post created successfully");
+        return ResponseEntity.ok(post);
     }
 }

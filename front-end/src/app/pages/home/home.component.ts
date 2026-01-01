@@ -17,7 +17,7 @@ export class HomeComponent {
 
   constructor(private http: HttpClient) {}
 
-  // 1️⃣ Capture image from input
+  // Capture image from input
   onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
 
@@ -26,7 +26,7 @@ export class HomeComponent {
     }
   }
 
-  // 2️⃣ Send post to backend
+  // Send post to backend
   onCreate() {
     const formData = new FormData();
     formData.append('content', this.content);
@@ -34,8 +34,8 @@ export class HomeComponent {
 
     this.http.post('http://localhost:8080/api/post/create', formData)
       .subscribe({
-        next: () => {
-          console.log('Post created');
+        next: res => {
+          console.log('Post created :', res);
           this.content = '';
         },
         error: err => console.error(err)
