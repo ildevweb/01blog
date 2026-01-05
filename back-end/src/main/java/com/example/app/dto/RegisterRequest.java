@@ -7,6 +7,7 @@ public class RegisterRequest {
     private String username;
     private String email;
     private String password;
+    private String role;
 
     public String getUsername() {
         return username;
@@ -17,6 +18,14 @@ public class RegisterRequest {
             throw new RuntimeException("Invalid username");
         }
         this.username = username;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getRole(String role) {
+        return this.role;
     }
 
     public String getEmail() {
