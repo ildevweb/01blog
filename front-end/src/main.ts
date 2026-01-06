@@ -8,7 +8,7 @@ import { routes } from './app/app.routes';
 bootstrapApplication(App, {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()), // ✅ REQUIRED
+    provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
