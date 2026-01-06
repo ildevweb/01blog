@@ -41,7 +41,6 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/post/**").hasRole("user")
                 .anyRequest().authenticated()
             )
             // Add JWT filter before username/password auth filter

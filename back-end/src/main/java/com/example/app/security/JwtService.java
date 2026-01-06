@@ -24,7 +24,8 @@ public class JwtService {
 
     // Extract userId from JWT
     public String extractUserId(String token) {
-        return extractAllClaims(token).getSubject(); // sub
+        Claims claims = extractAllClaims(token);
+        return claims.getSubject();
     }
 
     // Extract email
@@ -48,12 +49,17 @@ public class JwtService {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 
-    // Extract all claims
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            System.out.println("MESSAGE: " + e.getMessage());
+            throw e;
+        }
     }
+
 }
