@@ -50,7 +50,8 @@ public class AuthService {
 
         String token = JwtUtil.generateToken(
             user.getId(),
-            user.getEmail()
+            user.getEmail(),
+            user.getRole()
         );
 
         return ResponseEntity.ok(new LoginResponse(token));
