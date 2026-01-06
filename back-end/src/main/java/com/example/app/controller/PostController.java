@@ -7,11 +7,14 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.entity.Post;
 import com.example.app.repository.PostRepository;
+import com.example.app.security.UserPrincipal;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/post")
@@ -45,10 +48,16 @@ public class PostController {
         // Save image to disk
         Files.copy(image.getInputStream(), Paths.get(filePath));
 
+        //get owner id
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        Long userId = user.getId();
+
         // Save Post to DB
         Post post = new Post();
         post.setContent(content);
         post.setMedia(filePath);
+        post.setOwnerId(userId);
 
         postRepository.save(post);
 
