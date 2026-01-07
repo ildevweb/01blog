@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,24 @@ public class PostController {
     @PostMapping("/create")
     public ResponseEntity<?> createPost(
             @RequestParam("content") String content,
-            @RequestParam("image") MultipartFile image
+            @RequestParam(value = "image", required = false) MultipartFile image
     ) throws IOException {
+        if (content.isEmpty() && image == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("inputs empty");
+        }
+
+        //get owner id
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        Long userId = user.getId();
+
+        if (image == null) {
+            Post post = new Post();
+            post.setContent(content);
+            post.setOwnerId(userId);
+            postRepository.save(post);
+            return ResponseEntity.ok(post);
+        }
 
         // Create upload folder
         File uploadDir = new File(UPLOAD_DIR);
@@ -45,13 +62,10 @@ public class PostController {
         String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
         String filePath = UPLOAD_DIR + fileName;
 
+        
+
         // Save image to disk
         Files.copy(image.getInputStream(), Paths.get(filePath));
-
-        //get owner id
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
-        Long userId = user.getId();
 
         // Save Post to DB
         Post post = new Post();

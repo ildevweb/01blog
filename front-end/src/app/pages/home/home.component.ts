@@ -40,8 +40,12 @@ export class HomeComponent {
           console.log('Post created :', res);
           this.content = '';
           this.successMessage$.next("Post created successfully");
+          setTimeout(() => this.successMessage$.next(null), 1000);
         },
-        error: _ => this.errorMessage$.next("Creating post failed")
+        error: _ => {
+          this.errorMessage$.next("Creating post failed");
+          setTimeout(() => this.errorMessage$.next(null), 1000);
+        }
       });
   }
 }
