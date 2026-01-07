@@ -33,7 +33,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // or any unique identifier
+        return user.getName();
     }
 
     public Long getId() {
