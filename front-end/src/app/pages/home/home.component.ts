@@ -13,7 +13,8 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class HomeComponent implements OnInit {
 
-  posts: any[] = [];
+  //posts: any[] = [];
+  posts$ = new BehaviorSubject<any[]>([]);
   isLoading = false;
 
   errorMessage$ = new BehaviorSubject<string | null>(null);
@@ -39,7 +40,7 @@ export class HomeComponent implements OnInit {
       .subscribe({
         next: posts => {
           console.log("this is the whole posts:", posts);
-          this.posts = posts;
+          this.posts$.next(posts);
           this.isLoading = false;
         },
         error: err => {
@@ -76,7 +77,6 @@ export class HomeComponent implements OnInit {
       .subscribe({
         next: () => {
           this.content = '';
-          this.selectedImage = undefined;
 
           this.successMessage$.next('Post created successfully');
           setTimeout(() => this.successMessage$.next(null), 1000);

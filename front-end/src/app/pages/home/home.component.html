@@ -48,27 +48,51 @@
       <section class="col-12 col-md-6">
         <!-- Posts feed -->
         <div id="feed">
-          <!-- Example post card -->
-          <div class="card mb-3 shadow-sm">
+
+          <!-- Posts list -->
+          <div *ngFor="let post of posts$ | async" class="card mb-3 shadow-sm">
+
+            <!-- Header -->
             <div class="card-header d-flex align-items-center gap-2">
-              <img src="https://via.placeholder.com/32" alt="Avatar" class="avatar-sm" />
-              <strong>username</strong>
-              <small class="text-muted ms-auto">timestamp</small>
+              <img
+                src="https://via.placeholder.com/32"
+                alt="Avatar"
+                class="avatar-sm"
+              />
+              <strong>{{ post.username }}</strong>
+              <small class="text-muted ms-auto">
+                {{ post.time }}
+              </small>
             </div>
+
+            <!-- Body -->
             <div class="card-body">
-              <!-- Post text or image placeholder -->
-              <p>post_text</p>
-              <!-- Or image example -->
-              <!-- <img src="{{post_image}}" alt="Post Image" class="post-img rounded" /> -->
-               <img src="http://localhost:8080/uploads/992ec924-217f-4c9c-8b4a-c609907613e8_Screenshot 2026-01-01 023222.png" alt="Post Image" class="post-img rounded" />
+              <p *ngIf="post.content">
+                {{ post.content }}
+              </p>
+              <img
+                *ngIf="post.media"
+                [src]="'http://localhost:8080/' + post.media"
+                alt="Post Image"
+                class="post-img rounded"
+              />
+
             </div>
+
+            <!-- Footer -->
             <div class="card-footer d-flex justify-content-between">
-              <button type="button" class="btn btn-sm btn-outline-primary">Like</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary">Comment</button>
-              <button type="button" class="btn btn-sm btn-outline-success">Share</button>
+              <button type="button" class="btn btn-sm btn-outline-primary">
+                Like
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary">
+                Comment
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-success">
+                Share
+              </button>
             </div>
           </div>
-          <!-- Repeat posts as needed -->
+
         </div>
         <div class="d-grid">
           <button id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
