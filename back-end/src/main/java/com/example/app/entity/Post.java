@@ -19,6 +19,7 @@ public class Post {
     private Long ownerId;
     private Long time;
 
+
     public Post() {
     }
 
@@ -70,4 +71,5 @@ public class Post {
     public void setTime(Long time) {
         this.time = time;
     }
+
 }

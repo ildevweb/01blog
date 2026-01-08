@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.app.entity.Post;
 import com.example.app.repository.PostRepository;
 import com.example.app.security.UserPrincipal;
+import com.example.app.dto.PostInfos;
+import com.example.app.service.PostService;
 import org.springframework.security.core.Authentication;
 
 @RestController
@@ -24,11 +27,13 @@ import org.springframework.security.core.Authentication;
 public class PostController {
 
     private final PostRepository postRepository;
+    private final PostService postService;
 
     private static final String UPLOAD_DIR = "uploads/";
 
-    public PostController(PostRepository postRepository) {
+    public PostController(PostRepository postRepository, PostService postService) {
         this.postRepository = postRepository;
+        this.postService = postService;
     }
 
     @PostMapping("/create")
@@ -51,7 +56,7 @@ public class PostController {
         if (image == null) {
             Post post = new Post(content, userId, nowSeconds);
             postRepository.save(post);
-            postInfos infos = new postInfos(user.getUsername(), nowSeconds, content);
+            PostInfos infos = new PostInfos(user.getUsername(), nowSeconds, content);
             return ResponseEntity.ok(infos);
         }
 
@@ -74,43 +79,17 @@ public class PostController {
 
         postRepository.save(post);
 
-        postInfos infos = new postInfos(user.getUsername(), nowSeconds, content, filePath);
+        PostInfos infos = new PostInfos(user.getUsername(), nowSeconds, content, filePath);
 
         return ResponseEntity.ok(infos);
     }
+
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PostInfos>> getPosts() {
+        List<PostInfos> allPosts = postService.getAllPosts();
+        return ResponseEntity.ok(allPosts);
+    }
 }
 
 
-class postInfos {
-    private String username;
-    private Long time;
-    private String content;
-    private String media;
-
-    public postInfos(String username, Long time, String content, String media) {
-        this.username = username;
-        this.time = time;
-        this.content = content;
-        this.media = media;
-    }
-
-    public postInfos(String username, Long time, String content) {
-        this.username = username;
-        this.time = time;
-        this.content = content;
-    }
-
-    public String getUsername() {
-        return this.username;
-    }
-    public Long getTime() {
-        return this.time;
-    }
-    public String getContent() {
-        return this.content;
-    }
-    public String getMedia() {
-        return this.media;
-    }
-
-}
