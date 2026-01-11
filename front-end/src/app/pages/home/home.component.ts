@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -22,6 +24,9 @@ export class HomeComponent implements OnInit {
 
   content: string = '';
   selectedImage?: File;
+
+  selectedPost: any = null;
+  comments: any[] = [];
 
   private readonly API = 'http://localhost:8080/api/post';
 
@@ -48,6 +53,43 @@ export class HomeComponent implements OnInit {
           this.isLoading = false;
         }
       });
+  }
+
+
+  //GET comments
+  openComments(post: any) {
+    this.selectedPost = post;
+
+    // example comments (replace with API call)
+    this.comments = [
+      {
+        id: 1,
+        text: 'Nice post!',
+        likes: 2,
+        liked: false,
+        username: 'ilyass',
+        createdAt: '2026-01-10T21:30:00'
+      },
+      {
+        id: 2,
+        text: 'Very helpful 👌',
+        likes: 5,
+        liked: false,
+        username: 'amina',
+        createdAt: '2026-01-10T22:05:00'
+      }
+    ];
+
+    const modal = new bootstrap.Modal(
+      document.getElementById('commentsModal')
+    );
+    modal.show();
+  }
+
+  //comment likes
+  toggleLike(comment: any) {
+    comment.liked = !comment.liked;
+    comment.likes += comment.liked ? 1 : -1;
   }
 
   // Capture image
