@@ -107,27 +107,43 @@
             <!-- Header -->
             <div class="modal-header">
               <h5 class="modal-title">Comments</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <!-- Body -->
             <div class="modal-body">
+              <!-- Comment Form -->
+              <form (ngSubmit)="submitComment()" class="mb-4">
 
-              <div
-                *ngFor="let comment of comments"
-                class="d-flex gap-3 mb-3 pb-3 border-bottom"
-              >
+                <div class="d-flex gap-3">
+                  <!-- Avatar -->
+                  <img src="../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40"/>
+
+                  <!-- Input -->
+                  <div class="flex-grow-1">
+                    <textarea
+                      class="form-control"
+                      rows="2"
+                      placeholder="Write a comment..."
+                      [(ngModel)]="newCommentContent"
+                      name="comment"
+                      required
+                    ></textarea>
+
+                    <div class="text-end mt-2">
+                      <button class="btn btn-primary btn-sm" type="submit" [disabled]="isSubmittingComment || !newCommentContent.trim()">
+                        Comment
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+
+
+              <div *ngFor="let comment of comments" class="d-flex gap-3 mb-3 pb-3 border-bottom">
                 <!-- Avatar (optional) -->
-                <img
-                  src="../../../assets/images/avatar.png"
-                  class="rounded-circle"
-                  width="40"
-                  height="40"
-                />
+                <img src="../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40"/>
 
                 <!-- Comment content -->
                 <div class="flex-grow-1">
@@ -142,10 +158,7 @@
                     {{ comment.text }}
                   </p>
 
-                  <button
-                    class="btn btn-sm p-0 text-primary"
-                    (click)="toggleLike(comment)"
-                  >
+                  <button class="btn btn-sm p-0 text-primary" (click)="toggleLike(comment)">
                     👍 {{ comment.likes }}
                   </button>
                 </div>
@@ -159,11 +172,7 @@
 
             <!-- Footer -->
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                 Close
               </button>
             </div>

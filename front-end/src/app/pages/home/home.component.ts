@@ -28,6 +28,9 @@ export class HomeComponent implements OnInit {
   selectedPost: any = null;
   comments: any[] = [];
 
+  newCommentContent: string = '';
+  isSubmittingComment = false;
+
   private readonly API = 'http://localhost:8080/api/post';
 
   constructor(private http: HttpClient) {}
@@ -91,6 +94,34 @@ export class HomeComponent implements OnInit {
     comment.liked = !comment.liked;
     comment.likes += comment.liked ? 1 : -1;
   }
+
+  //create comment
+  submitComment() {
+    if (!this.newCommentContent.trim() || !this.selectedPost) {
+      return;
+    }
+
+    this.isSubmittingComment = true;
+
+    // TEMP: frontend-only (replace with API call)
+    const newComment = {
+      id: Date.now(),
+      text: this.newCommentContent,
+      likes: 0,
+      liked: false,
+      username: 'you', // later from auth
+      createdAt: new Date().toISOString()
+    };
+
+    // Add comment at TOP
+    this.comments = [newComment, ...this.comments];
+
+    this.newCommentContent = '';
+    this.isSubmittingComment = false;
+
+    // 🔌 Later: call backend here
+  }
+
 
   // Capture image
   onImageSelected(event: Event): void {
