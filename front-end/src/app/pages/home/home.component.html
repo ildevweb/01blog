@@ -137,7 +137,9 @@
                     </div>
                   </div>
                 </div>
-
+                <div *ngIf="commentErrorMessage$ | async as error" class="alert alert-danger text-center mt-2">
+                  {{ error }}
+                </div>
               </form>
 
 

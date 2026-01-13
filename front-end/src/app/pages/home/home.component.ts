@@ -26,8 +26,8 @@ export class HomeComponent implements OnInit {
   selectedImage?: File;
 
   selectedPost: any = null;
-  //comments: any[] = [];
   comments$ = new BehaviorSubject<any[]>([]);
+  commentErrorMessage$ = new BehaviorSubject<string | null>(null);
 
   //comment content
   commentData = {
@@ -68,7 +68,15 @@ export class HomeComponent implements OnInit {
   //GET comments
   openComments(post: any) {
     this.selectedPost = post;
+    this.fetchComments();
 
+    const modal = new bootstrap.Modal(
+      document.getElementById('commentsModal')
+    );
+    modal.show();
+  }
+
+  fetchComments() {
     this.http.get<any[]>(`${this.commentAPI}/all`, {
       params: {
         postId: this.selectedPost.id
@@ -82,11 +90,6 @@ export class HomeComponent implements OnInit {
         console.error('Failed to load comments:', err);
       }
     });
-
-    const modal = new bootstrap.Modal(
-      document.getElementById('commentsModal')
-    );
-    modal.show();
   }
 
   //comment likes
@@ -108,20 +111,16 @@ export class HomeComponent implements OnInit {
     this.http.post(`${this.commentAPI}/create`, this.commentData)
       .subscribe({
         next: res => {
-          this.openComments(this.selectedPost);
+          this.fetchComments();
           this.commentData.content = '';
           this.commentData.postId = 0;
           console.log("this is comment", res);
           this.isSubmittingComment = false;
-
-
-          //this.successMessage$.next('Post created successfully');
-          //setTimeout(() => this.successMessage$.next(null), 1000);
         },
         error: err => {
           console.log("comment creation error:", err);
-          //this.errorMessage$.next('Creating post failed');
-          //setTimeout(() => this.errorMessage$.next(null), 1000);
+          this.commentErrorMessage$.next('Creating comment failed');
+          setTimeout(() => this.commentErrorMessage$.next(null), 1000);
         }
       });
   }
