@@ -141,32 +141,32 @@
               </form>
 
 
-              <div *ngFor="let comment of comments" class="d-flex gap-3 mb-3 pb-3 border-bottom">
-                <!-- Avatar (optional) -->
+              <div *ngFor="let comment of (comments$ | async)" class="d-flex gap-3 mb-3 pb-3 border-bottom">
                 <img src="../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40"/>
 
-                <!-- Comment content -->
                 <div class="flex-grow-1">
                   <div class="d-flex align-items-center gap-2">
                     <strong>{{ comment.username }}</strong>
                     <small class="text-muted">
-                      {{ comment.createdAt | date:'short' }}
+                      {{ comment.time }}
                     </small>
                   </div>
 
                   <p class="mb-1">
-                    {{ comment.text }}
+                    {{ comment.content }}
                   </p>
 
                   <button class="btn btn-sm p-0 text-primary" (click)="toggleLike(comment)">
-                    👍 {{ comment.likes }}
+                    👍 0
                   </button>
                 </div>
               </div>
 
-              <div *ngIf="comments.length === 0" class="text-muted text-center">
+              <!-- Empty state -->
+              <div *ngIf="(comments$ | async)?.length === 0" class="text-muted text-center">
                 No comments yet
               </div>
+
 
             </div>
 
@@ -191,7 +191,7 @@
             <h5>Suggested Users</h5>
             <ul class="list-group list-group-flush">
               <li class="list-group-item d-flex align-items-center gap-2">
-                <img src="https://via.placeholder.com/32" alt="User Avatar" class="avatar-sm" />
+                <img src="./../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm" />
                 <span>suggested_username</span>
                 <button class="btn btn-sm btn-outline-primary ms-auto">Follow</button>
               </li>

@@ -26,7 +26,8 @@ export class HomeComponent implements OnInit {
   selectedImage?: File;
 
   selectedPost: any = null;
-  comments: any[] = [];
+  //comments: any[] = [];
+  comments$ = new BehaviorSubject<any[]>([]);
 
   //comment content
   commentData = {
@@ -68,25 +69,19 @@ export class HomeComponent implements OnInit {
   openComments(post: any) {
     this.selectedPost = post;
 
-    // example comments (replace with API call)
-    this.comments = [
-      {
-        id: 1,
-        text: 'Nice post!',
-        likes: 2,
-        liked: false,
-        username: 'ilyass',
-        createdAt: '2026-01-10T21:30:00'
-      },
-      {
-        id: 2,
-        text: 'Very helpful 👌',
-        likes: 5,
-        liked: false,
-        username: 'amina',
-        createdAt: '2026-01-10T22:05:00'
+    this.http.get<any[]>(`${this.commentAPI}/all`, {
+      params: {
+        postId: this.selectedPost.id
       }
-    ];
+    }).subscribe({
+      next: comments => {
+        console.log('this is the whole comments:', comments);
+        this.comments$.next(comments);
+      },
+      error: err => {
+        console.error('Failed to load comments:', err);
+      }
+    });
 
     const modal = new bootstrap.Modal(
       document.getElementById('commentsModal')
@@ -106,31 +101,19 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-
-    // TEMP: frontend-only (replace with API call)
-    const newComment = {
-      id: Date.now(),
-      text: this.commentData.content,
-      likes: 0,
-      liked: false,
-      username: 'you', // later from auth
-      createdAt: new Date().toISOString()
-    };
-
-    // Add comment at TOP
-    //this.comments = [newComment, ...this.comments];
-
     this.isSubmittingComment = true;
     this.commentData.postId = this.selectedPost.id;
 
-    // 🔌 Later: call backend here
+    
     this.http.post(`${this.commentAPI}/create`, this.commentData)
       .subscribe({
         next: res => {
+          this.openComments(this.selectedPost);
           this.commentData.content = '';
           this.commentData.postId = 0;
           console.log("this is comment", res);
           this.isSubmittingComment = false;
+
 
           //this.successMessage$.next('Post created successfully');
           //setTimeout(() => this.successMessage$.next(null), 1000);
