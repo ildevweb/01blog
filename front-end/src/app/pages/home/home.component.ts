@@ -28,10 +28,15 @@ export class HomeComponent implements OnInit {
   selectedPost: any = null;
   comments: any[] = [];
 
-  newCommentContent: string = '';
-  isSubmittingComment = false;
+  //comment content
+  commentData = {
+    content: '',
+    postId: 0
+  }
+  isSubmittingComment: boolean = false;
 
-  private readonly API = 'http://localhost:8080/api/post';
+  private readonly postAPI = 'http://localhost:8080/api/post';
+  private readonly commentAPI = 'http://localhost:8080/api/comment';
 
   constructor(private http: HttpClient) {}
 
@@ -44,7 +49,7 @@ export class HomeComponent implements OnInit {
   fetchPosts(): void {
     this.isLoading = true;
 
-    this.http.get<any[]>(`${this.API}/all`)
+    this.http.get<any[]>(`${this.postAPI}/all`)
       .subscribe({
         next: posts => {
           console.log("this is the whole posts:", posts);
@@ -97,16 +102,15 @@ export class HomeComponent implements OnInit {
 
   //create comment
   submitComment() {
-    if (!this.newCommentContent.trim() || !this.selectedPost) {
+    if (!this.commentData.content.trim() || !this.selectedPost) {
       return;
     }
 
-    this.isSubmittingComment = true;
 
     // TEMP: frontend-only (replace with API call)
     const newComment = {
       id: Date.now(),
-      text: this.newCommentContent,
+      text: this.commentData.content,
       likes: 0,
       liked: false,
       username: 'you', // later from auth
@@ -114,12 +118,29 @@ export class HomeComponent implements OnInit {
     };
 
     // Add comment at TOP
-    this.comments = [newComment, ...this.comments];
+    //this.comments = [newComment, ...this.comments];
 
-    this.newCommentContent = '';
-    this.isSubmittingComment = false;
+    this.isSubmittingComment = true;
+    this.commentData.postId = this.selectedPost.id;
 
     // 🔌 Later: call backend here
+    this.http.post(`${this.commentAPI}/create`, this.commentData)
+      .subscribe({
+        next: res => {
+          this.commentData.content = '';
+          this.commentData.postId = 0;
+          console.log("this is comment", res);
+          this.isSubmittingComment = false;
+
+          //this.successMessage$.next('Post created successfully');
+          //setTimeout(() => this.successMessage$.next(null), 1000);
+        },
+        error: err => {
+          console.log("comment creation error:", err);
+          //this.errorMessage$.next('Creating post failed');
+          //setTimeout(() => this.errorMessage$.next(null), 1000);
+        }
+      });
   }
 
 
@@ -146,7 +167,7 @@ export class HomeComponent implements OnInit {
       formData.append('image', this.selectedImage);
     }
 
-    this.http.post(`${this.API}/create`, formData)
+    this.http.post(`${this.postAPI}/create`, formData)
       .subscribe({
         next: () => {
           this.content = '';

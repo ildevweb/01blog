@@ -27,6 +27,7 @@ public class PostService {
                 String time = timeAgo(post.getTime());
 
                 return new PostInfos(
+                    post.getId(),
                     user.getName(),
                     time,
                     post.getContent(),

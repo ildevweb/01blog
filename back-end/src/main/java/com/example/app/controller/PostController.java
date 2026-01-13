@@ -56,7 +56,7 @@ public class PostController {
         if (image == null) {
             Post post = new Post(content, userId, nowSeconds);
             postRepository.save(post);
-            PostInfos infos = new PostInfos(user.getUsername(), nowSeconds.toString(), content);
+            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content);
             return ResponseEntity.ok(infos);
         }
 
@@ -79,7 +79,7 @@ public class PostController {
 
         postRepository.save(post);
 
-        PostInfos infos = new PostInfos(user.getUsername(), nowSeconds.toString(), content, filePath);
+        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath);
 
         return ResponseEntity.ok(infos);
     }
