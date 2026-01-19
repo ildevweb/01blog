@@ -92,10 +92,24 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  //comment likes
-  toggleLike(comment: any) {
-    comment.liked = !comment.liked;
-    comment.likes += comment.liked ? 1 : -1;
+  likeComments(comment: any) {
+
+    this.http.post<any>(`${this.commentAPI}/like`, { commentId: comment.id })
+      .subscribe({
+        next: res => {
+          console.log("comment liked successfully:", res);
+          // Replace the post in the posts array
+          const comments = this.comments$.value.map(c =>
+            c.id === comment.id
+              ? { ...c, liked: res.liked, count: res.liked ? c.count + 1 : c.count - 1 }
+              : c
+          );
+          this.comments$.next(comments);
+        },
+        error: err => {
+          console.log("comment liking failed :", err);
+        }
+      });
   }
 
   //create comment
@@ -168,8 +182,6 @@ export class HomeComponent implements OnInit {
   }
 
   likePosts(post: any) {
-    if (post.isLiking) return;
-    post.isLiking = true;
 
     this.http.post<any>(`${this.postAPI}/like`, { postId: post.id })
       .subscribe({
@@ -178,14 +190,13 @@ export class HomeComponent implements OnInit {
           // Replace the post in the posts array
           const posts = this.posts$.value.map(p =>
             p.id === post.id
-              ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1, isLiking: false }
+              ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1}
               : p
           );
           this.posts$.next(posts);
         },
         error: err => {
           console.log("post liking failed :", err);
-          post.isLiking = false;
         }
       });
   }

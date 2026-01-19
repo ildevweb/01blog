@@ -1,6 +1,8 @@
 package com.example.app.service;
 
 import org.springframework.stereotype.Service;
+
+import com.example.app.repository.CommentLikeRepository;
 import com.example.app.repository.CommentRepository;
 import com.example.app.dto.CommentInfos;
 import com.example.app.entity.User;
@@ -13,10 +15,14 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final AuthService authService;
+    private final CommentLikeService commentLikeService;
+    private final CommentLikeRepository commentLikeRepository;
 
-    public CommentService(CommentRepository commentRepository, AuthService authService) {
+    public CommentService(CommentRepository commentRepository, AuthService authService, CommentLikeService commentLikeService, CommentLikeRepository commentLikeRepository) {
         this.commentRepository = commentRepository;
         this.authService = authService;
+        this.commentLikeService = commentLikeService;
+        this.commentLikeRepository = commentLikeRepository;
     }
 
     public List<CommentInfos> getByPostId(Long postId) {
@@ -26,11 +32,15 @@ public class CommentService {
                 User user = authService.getUserById(comment.getOwnerId());
                 String time = timeAgo(comment.getTime());
 
+                boolean liked = commentLikeService.isLiked(comment.getId(), user);
+
                 return new CommentInfos(
                     comment.getId(),
                     user.getName(),
                     time,
-                    comment.getContent()
+                    comment.getContent(),
+                    liked,
+                    commentLikeRepository.countByCommentId(comment.getId())
                 );
             })
             .toList();

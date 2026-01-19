@@ -19,7 +19,7 @@ import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
-import com.example.app.dto.LikePostRequest;
+import com.example.app.dto.LikeRequest;
 import com.example.app.service.PostService;
 import com.example.app.service.PostLikeService;
 import org.springframework.security.core.Authentication;
@@ -104,7 +104,7 @@ public class PostController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<?> toggleLike( @RequestBody LikePostRequest request) {
+    public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
