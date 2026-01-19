@@ -166,4 +166,20 @@ export class HomeComponent implements OnInit {
         }
       });
   }
+
+  likePosts(post: any) {
+    const payload = {
+      postId: post.id
+    };
+
+    this.http.post(`${this.postAPI}/like`, payload)
+      .subscribe({
+        next: res => {
+          console.log("post liked successfully :", res);
+        },
+        error: err => {
+          console.error('Post like failed:', err);
+        }
+      });
+  }
 }
