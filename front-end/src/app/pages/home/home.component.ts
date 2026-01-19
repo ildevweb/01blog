@@ -168,17 +168,24 @@ export class HomeComponent implements OnInit {
   }
 
   likePosts(post: any) {
-    const payload = {
-      postId: post.id
-    };
+    if (post.isLiking) return;
+    post.isLiking = true;
 
-    this.http.post(`${this.postAPI}/like`, payload)
+    this.http.post<any>(`${this.postAPI}/like`, { postId: post.id })
       .subscribe({
         next: res => {
-          console.log("post liked successfully :", res);
+          console.log("post liked successfully:", res);
+          // Replace the post in the posts array
+          const posts = this.posts$.value.map(p =>
+            p.id === post.id
+              ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1, isLiking: false }
+              : p
+          );
+          this.posts$.next(posts);
         },
         error: err => {
-          console.error('Post like failed:', err);
+          console.log("post liking failed :", err);
+          post.isLiking = false;
         }
       });
   }

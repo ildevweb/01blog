@@ -1,6 +1,8 @@
 package com.example.app.service;
 
 import org.springframework.stereotype.Service;
+
+import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
@@ -13,10 +15,14 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final AuthService authService;
+    private final PostLikeRepository postLikeRepository;
+    private final PostLikeService postLikeService;
 
-    public PostService(PostRepository postRepository, AuthService authService) {
+    public PostService(PostRepository postRepository, AuthService authService, PostLikeRepository postLikeRepository, PostLikeService postLikeService) {
         this.postRepository = postRepository;
         this.authService = authService;
+        this.postLikeRepository = postLikeRepository;
+        this.postLikeService = postLikeService;
     }
 
     public List<PostInfos> getAllPosts() {
@@ -26,12 +32,16 @@ public class PostService {
                 User user = authService.getUserById(post.getOwnerId());
                 String time = timeAgo(post.getTime());
 
+                boolean liked = postLikeService.isLiked(post.getId(), user);
+
                 return new PostInfos(
                     post.getId(),
                     user.getName(),
                     time,
                     post.getContent(),
-                    post.getMedia()
+                    post.getMedia(),
+                    liked,
+                    postLikeRepository.countByPostId(post.getId())
                 );
             })
             .toList();

@@ -44,4 +44,18 @@ public class PostLikeService {
             return true;
         }
     }
+
+    public boolean isLiked(Long postId, User currentUser) {
+        Optional<PostLike> existingLike =
+            postLikeRepository.findByPostIdAndUserId(postId, currentUser.getId());
+
+        if (existingLike.isPresent()) {
+            return true;
+        } else {
+            postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+            return false;
+        }
+    }
 }

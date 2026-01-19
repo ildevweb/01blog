@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.entity.Post;
 import com.example.app.entity.User;
+import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
@@ -32,13 +33,15 @@ public class PostController {
     private final PostRepository postRepository;
     private final PostService postService;
     private final PostLikeService postLikeService;
+    private final PostLikeRepository postLikeRepository;
 
     private static final String UPLOAD_DIR = "uploads/";
 
-    public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService) {
+    public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService, PostLikeRepository postLikeRepository) {
         this.postRepository = postRepository;
         this.postService = postService;
         this.postLikeService = postLikeService;
+        this.postLikeRepository = postLikeRepository;
     }
 
     @PostMapping("/create")
@@ -54,14 +57,17 @@ public class PostController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         Long userId = user.getId();
+        User currentUser = user.getUser();
 
         //get time now with second
         Long nowSeconds = Instant.now().getEpochSecond();
 
+
         if (image == null) {
             Post post = new Post(content, userId, nowSeconds);
             postRepository.save(post);
-            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content);
+            boolean liked = postLikeService.isLiked(post.getId(), currentUser);
+            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()));
             return ResponseEntity.ok(infos);
         }
 
@@ -84,7 +90,8 @@ public class PostController {
 
         postRepository.save(post);
 
-        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath);
+        boolean liked = postLikeService.isLiked(post.getId(), currentUser);
+        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()));
 
         return ResponseEntity.ok(infos);
     }
@@ -103,8 +110,6 @@ public class PostController {
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         User currentUser = user.getUser();
         
-        System.out.println("this is the current user:");
-        System.out.println(currentUser.getName());
         boolean liked = postLikeService.toggleLike(
             request.getPostId(),
             currentUser
