@@ -1,14 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 
-
-interface Post {
-  text: string;
-  image?: string;
-  timestamp: string;
-}
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-profile',
@@ -21,40 +18,192 @@ interface Post {
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
 })
-export class ProfileComponent {
-  // User info
-  username = 'John Doe';
-  bio = 'Frontend developer';
-  profilePhotoUrl = '../../../assets/images/avatar.jpg';
-  profileBannerUrl = '../../../assets/images/banner.jpg';
+export class ProfileComponent implements OnInit {
+  posts$ = new BehaviorSubject<any[]>([]);
+  isLoading = false;
 
-  followersCount = 120;
-  followingCount = 75;
+  errorMessage$ = new BehaviorSubject<string | null>(null);
+  successMessage$ = new BehaviorSubject<string | null>(null);
 
-  // Admin logic (converted from JS)
-  isAdmin = false;
+  content: string = '';
+  selectedImage?: File;
 
-  // Posts
-  posts: Post[] = [
-    {
-      text: 'My first post!',
-      timestamp: '2h ago',
-      image: 'assets/post1.jpg',
-    },
-    {
-      text: 'Another day coding 🚀',
-      timestamp: '1d ago',
-    },
-  ];
+  selectedPost: any = null;
+  comments$ = new BehaviorSubject<any[]>([]);
+  commentErrorMessage$ = new BehaviorSubject<string | null>(null);
 
+  users$ = new BehaviorSubject<any[]>([]);
 
-  isEditProfileOpen = false;
+  //comment content
+  commentData = {
+    content: '',
+    postId: 0
+  }
+  isSubmittingComment: boolean = false;
 
-  openEditProfile() {
-    this.isEditProfileOpen = true;
+  private readonly postAPI = 'http://localhost:8080/api/post';
+  private readonly commentAPI = 'http://localhost:8080/api/comment';
+  private readonly userAPI = 'http://localhost:8080/api/user';
+
+  constructor(private http: HttpClient) {}
+
+  // Called every time Profile is entered
+  ngOnInit(): void {
+    this.fetchPosts();
   }
 
-  closeEditProfile() {
-    this.isEditProfileOpen = false;
+  // GET posts from backend
+  fetchPosts(): void {
+    this.isLoading = true;
+
+    this.http.get<any[]>(`${this.postAPI}/mine`)
+      .subscribe({
+        next: posts => {
+          console.log("this is the whole posts:", posts);
+          this.posts$.next(posts);
+          this.isLoading = false;
+        },
+        error: err => {
+          console.log('Failed to load posts:', err);
+          this.isLoading = false;
+        }
+      });
+  }
+
+  //GET comments
+  openComments(post: any) {
+    this.selectedPost = post;
+    this.fetchComments();
+
+    const modal = new bootstrap.Modal(
+      document.getElementById('commentsModal')
+    );
+    modal.show();
+  }
+
+  fetchComments() {
+    this.http.get<any[]>(`${this.commentAPI}/all`, {
+      params: {
+        postId: this.selectedPost.id
+      }
+    }).subscribe({
+      next: comments => {
+        console.log('this is the whole comments:', comments);
+        this.comments$.next(comments);
+      },
+      error: err => {
+        console.error('Failed to load comments:', err);
+      }
+    });
+  }
+
+  likeComments(comment: any) {
+
+    this.http.post<any>(`${this.commentAPI}/like`, { commentId: comment.id })
+      .subscribe({
+        next: res => {
+          console.log("comment liked successfully:", res);
+          // Replace the post in the posts array
+          const comments = this.comments$.value.map(c =>
+            c.id === comment.id
+              ? { ...c, liked: res.liked, count: res.liked ? c.count + 1 : c.count - 1 }
+              : c
+          );
+          this.comments$.next(comments);
+        },
+        error: err => {
+          console.log("comment liking failed :", err);
+        }
+      });
+  }
+
+
+  //create comment
+  submitComment() {
+    if (!this.commentData.content.trim() || !this.selectedPost) {
+      return;
+    }
+
+    this.isSubmittingComment = true;
+    this.commentData.postId = this.selectedPost.id;
+
+    
+    this.http.post(`${this.commentAPI}/create`, this.commentData)
+      .subscribe({
+        next: res => {
+          this.fetchComments();
+          this.commentData.content = '';
+          this.commentData.postId = 0;
+          console.log("this is comment", res);
+          this.isSubmittingComment = false;
+        },
+        error: err => {
+          console.log("comment creation error:", err);
+          this.commentErrorMessage$.next('Creating comment failed');
+          setTimeout(() => this.commentErrorMessage$.next(null), 1000);
+        }
+      });
+  }
+
+
+  // Capture image
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedImage = input.files[0];
+    }
+  }
+
+  // Create post
+  onCreate(): void {
+    if (!this.content.trim() && !this.selectedImage) {
+      this.errorMessage$.next('Post cannot be empty');
+      setTimeout(() => this.errorMessage$.next(null), 1000);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('content', this.content);
+
+    if (this.selectedImage) {
+      formData.append('image', this.selectedImage);
+    }
+
+    this.http.post(`${this.postAPI}/create`, formData)
+      .subscribe({
+        next: () => {
+          this.content = '';
+
+          this.successMessage$.next('Post created successfully');
+          setTimeout(() => this.successMessage$.next(null), 1000);
+
+          // Refresh posts immediately
+          this.fetchPosts();
+        },
+        error: () => {
+          this.errorMessage$.next('Creating post failed');
+          setTimeout(() => this.errorMessage$.next(null), 1000);
+        }
+      });
+  }
+
+  likePosts(post: any) {
+
+    this.http.post<any>(`${this.postAPI}/like`, { postId: post.id })
+      .subscribe({
+        next: res => {
+          console.log("post liked successfully:", res);
+          // Replace the post in the posts array
+          const posts = this.posts$.value.map(p =>
+            p.id === post.id
+              ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1}
+              : p
+          );
+          this.posts$.next(posts);
+        },
+        error: err => {
+          console.log("post liking failed :", err);
+        }
+      });
   }
 }

@@ -15,7 +15,6 @@ declare var bootstrap: any;
 })
 export class HomeComponent implements OnInit {
 
-  //posts: any[] = [];
   posts$ = new BehaviorSubject<any[]>([]);
   isLoading = false;
 

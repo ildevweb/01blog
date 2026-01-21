@@ -1,9 +1,12 @@
 package com.example.app.service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
+import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
 
@@ -47,6 +50,32 @@ public class PostService {
             .toList();
     }
 
+
+    public List<PostInfos> getMinePosts() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
+        Long userId = loggedUser.getId();
+
+        return postRepository.findByOwnerId(userId)
+            .stream()
+            .map(post -> {
+                User user = authService.getUserById(post.getOwnerId());
+                String time = timeAgo(post.getTime());
+
+                boolean liked = postLikeService.isLiked(post.getId(), user);
+
+                return new PostInfos(
+                    post.getId(),
+                    user.getName(),
+                    time,
+                    post.getContent(),
+                    post.getMedia(),
+                    liked,
+                    postLikeRepository.countByPostId(post.getId())
+                );
+            })
+            .toList();
+    }
 
     public static String timeAgo(long postSeconds) {
 

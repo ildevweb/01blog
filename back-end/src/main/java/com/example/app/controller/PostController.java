@@ -103,6 +103,12 @@ public class PostController {
         return ResponseEntity.ok(allPosts);
     }
 
+    @GetMapping("/mine")
+    public ResponseEntity<List<PostInfos>> getMinePosts() {
+        List<PostInfos> minePosts = postService.getMinePosts();
+        return ResponseEntity.ok(minePosts);
+    }
+
     @PostMapping("/like")
     public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         
