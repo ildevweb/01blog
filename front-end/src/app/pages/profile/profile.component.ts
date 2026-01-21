@@ -29,6 +29,9 @@ export class ProfileComponent implements OnInit {
 
   profileData$ = new BehaviorSubject<any>(null);
 
+  mine$ = new BehaviorSubject<boolean | undefined>(undefined);
+
+
   //comment content
   commentData = {
     content: '',
@@ -51,8 +54,10 @@ export class ProfileComponent implements OnInit {
       if (idParam) {
         this.userId = Number(idParam);
         this.loadUserProfile(this.userId);
+        this.mine$.next(false);
       } else {
         this.loadMyProfile();
+        this.mine$.next(true);
       }
     });
   }
@@ -79,14 +84,28 @@ export class ProfileComponent implements OnInit {
     this.http.get(`${this.userAPI}/profile/me`).subscribe({
       next: (data: any) => {
         console.log("My profile data:", data);
+        this.profileData$.next(data);
         this.userId = data.id;
         this.fetchPosts(); // fetch my posts
       },
       error: err => {
         console.error('Failed to load my profile:', err);
+        this.profileData$.next(null);
         this.router.navigate(['/notfound']);
       }
     });
+  }
+
+  //Follow system
+  follow(userId: number) {
+
+    this.http.post<any>(`${this.userAPI}/follow`, { userId: userId })
+      .subscribe({
+        next: res => {
+          console.log("this is the follow res :", res);
+        },
+        error: err => console.error("Follow failed:", err)
+      });
   }
 
   // Fetch posts for userId or logged-in user
