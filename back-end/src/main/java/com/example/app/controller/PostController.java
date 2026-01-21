@@ -109,6 +109,12 @@ public class PostController {
         return ResponseEntity.ok(minePosts);
     }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<PostInfos>> getUserPosts(@PathVariable Long id) {
+        List<PostInfos> userPosts = postService.getPostsByUser(id);
+        return ResponseEntity.ok(userPosts);
+    }
+
     @PostMapping("/like")
     public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         

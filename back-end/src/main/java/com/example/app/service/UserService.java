@@ -29,9 +29,24 @@ public class UserService {
                 return new UserInfos(
                     usr.getId(),
                     usr.getName(),
+                    0,
+                    0,
                     false
                 );
             })
             .toList();
     }
+
+    public UserInfos getProfile(Long userId) {
+    return userRepository.findById(userId)
+        .map(user -> new UserInfos(
+            user.getId(),
+            user.getName(),
+            0,
+            0,
+            false
+        ))
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
 }

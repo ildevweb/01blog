@@ -11,11 +11,11 @@
   <div class="profile-info container">
     <img src="../../../assets/images/avatar.png" class="profile-photo" />
 
-    <div class="ms-3">
-      <h2>Ilyass</h2>
+    <div class="ms-3" *ngIf="profileData$ | async as data">
+      <h2> {{ data.username }} </h2>
       <div class="d-flex gap-3 text-muted">
-        <div><strong> 170 </strong> Followers</div>
-        <div><strong> 20 </strong> Following</div>
+        <div><strong> {{ data.followers }} </strong> Followers</div>
+        <div><strong> {{ data.followeds }} </strong> Following</div>
 
         <button class="btn btn-outline-primary ms-auto">
           Edit Profile
@@ -24,36 +24,6 @@
     </div>
   </div>
 </header>
-
-<!-- Create Post Section -->
-<section class="col-12 mb-4">
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form id="createPostForm">
-        <div class="mb-3">
-          <textarea
-            class="form-control"
-            placeholder="What's on your mind, username?"
-            rows="3"
-            name="postText"
-            [(ngModel)]="content"
-            required
-          ></textarea>
-        </div>
-        <div class="mb-3">
-          <input type="file" class="form-control" name="postImage" accept="image/*" (change)="onImageSelected($event)"/>
-        </div>
-        <button type="submit" class="btn btn-primary" (click)="onCreate()">Post</button>
-      </form>
-    </div>
-    <div *ngIf="errorMessage$ | async as error" class="alert alert-danger text-center mt-2">
-      {{ error }}
-    </div>
-    <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
-      {{ success }}
-    </div>
-  </div>
-</section>
 
 
 <div class="container">

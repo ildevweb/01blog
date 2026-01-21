@@ -77,6 +77,30 @@ public class PostService {
             .toList();
     }
 
+
+    public List<PostInfos> getPostsByUser(Long userId) {
+
+        return postRepository.findByOwnerId(userId)
+            .stream()
+            .map(post -> {
+                User user = authService.getUserById(post.getOwnerId());
+                String time = timeAgo(post.getTime());
+
+                boolean liked = postLikeService.isLiked(post.getId(), user);
+
+                return new PostInfos(
+                    post.getId(),
+                    user.getName(),
+                    time,
+                    post.getContent(),
+                    post.getMedia(),
+                    liked,
+                    postLikeRepository.countByPostId(post.getId())
+                );
+            })
+            .toList();
+    }
+
     public static String timeAgo(long postSeconds) {
 
         long now = Instant.now().getEpochSecond();

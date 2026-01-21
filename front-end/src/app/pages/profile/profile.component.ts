@@ -4,6 +4,7 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -22,17 +23,11 @@ export class ProfileComponent implements OnInit {
   posts$ = new BehaviorSubject<any[]>([]);
   isLoading = false;
 
-  errorMessage$ = new BehaviorSubject<string | null>(null);
-  successMessage$ = new BehaviorSubject<string | null>(null);
-
-  content: string = '';
-  selectedImage?: File;
-
   selectedPost: any = null;
   comments$ = new BehaviorSubject<any[]>([]);
   commentErrorMessage$ = new BehaviorSubject<string | null>(null);
 
-  users$ = new BehaviorSubject<any[]>([]);
+  profileData$ = new BehaviorSubject<any>(null);
 
   //comment content
   commentData = {
@@ -41,36 +36,77 @@ export class ProfileComponent implements OnInit {
   }
   isSubmittingComment: boolean = false;
 
+  userId?: number; // Profile owner ID
+
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
-  // Called every time Profile is entered
   ngOnInit(): void {
-    this.fetchPosts();
+    // Get optional ID from route
+    this.route.paramMap.subscribe(params => {
+      const idParam = params.get('id');
+      if (idParam) {
+        this.userId = Number(idParam);
+        this.loadUserProfile(this.userId);
+      } else {
+        this.loadMyProfile();
+      }
+    });
   }
 
-  // GET posts from backend
-  fetchPosts(): void {
+  // Fetch user profile by ID
+  private loadUserProfile(id: number) {
+    this.http.get(`${this.userAPI}/profile/${id}`).subscribe({
+      next: data => {
+        console.log("User profile data:", data);
+        this.profileData$.next(data);
+        this.userId = id;
+        this.fetchPosts(this.userId);
+      },
+      error: err => {
+        console.error('Failed to load user profile:', err);
+        this.profileData$.next(null)
+      }
+    });
+  }
+
+  // Fetch logged-in user profile
+  private loadMyProfile() {
+    this.http.get(`${this.userAPI}/profile/me`).subscribe({
+      next: (data: any) => {
+        console.log("My profile data:", data);
+        this.userId = data.id;
+        this.fetchPosts(); // fetch my posts
+      },
+      error: err => console.error('Failed to load my profile:', err)
+    });
+  }
+
+  // Fetch posts for userId or logged-in user
+  fetchPosts(userId?: number): void {
     this.isLoading = true;
 
-    this.http.get<any[]>(`${this.postAPI}/mine`)
-      .subscribe({
-        next: posts => {
-          console.log("this is the whole posts:", posts);
-          this.posts$.next(posts);
-          this.isLoading = false;
-        },
-        error: err => {
-          console.log('Failed to load posts:', err);
-          this.isLoading = false;
-        }
-      });
+    const url = userId
+      ? `${this.postAPI}/user/${userId}`
+      : `${this.postAPI}/mine`;
+
+    this.http.get<any[]>(url).subscribe({
+      next: posts => {
+        console.log("Fetched posts:", posts);
+        this.posts$.next(posts);
+        this.isLoading = false;
+      },
+      error: err => {
+        console.error('Failed to load posts:', err);
+        this.isLoading = false;
+      }
+    });
   }
 
-  //GET comments
+  // Comments
   openComments(post: any) {
     this.selectedPost = post;
     this.fetchComments();
@@ -88,22 +124,17 @@ export class ProfileComponent implements OnInit {
       }
     }).subscribe({
       next: comments => {
-        console.log('this is the whole comments:', comments);
+        console.log('Comments:', comments);
         this.comments$.next(comments);
       },
-      error: err => {
-        console.error('Failed to load comments:', err);
-      }
+      error: err => console.error('Failed to load comments:', err)
     });
   }
 
   likeComments(comment: any) {
-
     this.http.post<any>(`${this.commentAPI}/like`, { commentId: comment.id })
       .subscribe({
         next: res => {
-          console.log("comment liked successfully:", res);
-          // Replace the post in the posts array
           const comments = this.comments$.value.map(c =>
             c.id === comment.id
               ? { ...c, liked: res.liked, count: res.liked ? c.count + 1 : c.count - 1 }
@@ -111,99 +142,42 @@ export class ProfileComponent implements OnInit {
           );
           this.comments$.next(comments);
         },
-        error: err => {
-          console.log("comment liking failed :", err);
-        }
+        error: err => console.error("Comment like failed:", err)
       });
   }
 
-
-  //create comment
   submitComment() {
-    if (!this.commentData.content.trim() || !this.selectedPost) {
-      return;
-    }
+    if (!this.commentData.content.trim() || !this.selectedPost) return;
 
     this.isSubmittingComment = true;
     this.commentData.postId = this.selectedPost.id;
 
-    
-    this.http.post(`${this.commentAPI}/create`, this.commentData)
-      .subscribe({
-        next: res => {
-          this.fetchComments();
-          this.commentData.content = '';
-          this.commentData.postId = 0;
-          console.log("this is comment", res);
-          this.isSubmittingComment = false;
-        },
-        error: err => {
-          console.log("comment creation error:", err);
-          this.commentErrorMessage$.next('Creating comment failed');
-          setTimeout(() => this.commentErrorMessage$.next(null), 1000);
-        }
-      });
-  }
-
-
-  // Capture image
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedImage = input.files[0];
-    }
-  }
-
-  // Create post
-  onCreate(): void {
-    if (!this.content.trim() && !this.selectedImage) {
-      this.errorMessage$.next('Post cannot be empty');
-      setTimeout(() => this.errorMessage$.next(null), 1000);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('content', this.content);
-
-    if (this.selectedImage) {
-      formData.append('image', this.selectedImage);
-    }
-
-    this.http.post(`${this.postAPI}/create`, formData)
-      .subscribe({
-        next: () => {
-          this.content = '';
-
-          this.successMessage$.next('Post created successfully');
-          setTimeout(() => this.successMessage$.next(null), 1000);
-
-          // Refresh posts immediately
-          this.fetchPosts();
-        },
-        error: () => {
-          this.errorMessage$.next('Creating post failed');
-          setTimeout(() => this.errorMessage$.next(null), 1000);
-        }
-      });
+    this.http.post(`${this.commentAPI}/create`, this.commentData).subscribe({
+      next: res => {
+        this.fetchComments();
+        this.commentData.content = '';
+        this.commentData.postId = 0;
+        this.isSubmittingComment = false;
+      },
+      error: err => {
+        console.error("Creating comment failed:", err);
+        this.commentErrorMessage$.next('Creating comment failed');
+        setTimeout(() => this.commentErrorMessage$.next(null), 1000);
+      }
+    });
   }
 
   likePosts(post: any) {
-
-    this.http.post<any>(`${this.postAPI}/like`, { postId: post.id })
-      .subscribe({
-        next: res => {
-          console.log("post liked successfully:", res);
-          // Replace the post in the posts array
-          const posts = this.posts$.value.map(p =>
-            p.id === post.id
-              ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1}
-              : p
-          );
-          this.posts$.next(posts);
-        },
-        error: err => {
-          console.log("post liking failed :", err);
-        }
-      });
+    this.http.post<any>(`${this.postAPI}/like`, { postId: post.id }).subscribe({
+      next: res => {
+        const posts = this.posts$.value.map(p =>
+          p.id === post.id
+            ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1 }
+            : p
+        );
+        this.posts$.next(posts);
+      },
+      error: err => console.error("Post like failed:", err)
+    });
   }
 }
