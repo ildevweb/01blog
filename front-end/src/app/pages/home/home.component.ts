@@ -29,6 +29,8 @@ export class HomeComponent implements OnInit {
   comments$ = new BehaviorSubject<any[]>([]);
   commentErrorMessage$ = new BehaviorSubject<string | null>(null);
 
+  users$ = new BehaviorSubject<any[]>([]);
+
   //comment content
   commentData = {
     content: '',
@@ -38,13 +40,31 @@ export class HomeComponent implements OnInit {
 
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
+  private readonly userAPI = 'http://localhost:8080/api/user';
 
   constructor(private http: HttpClient) {}
 
   // Called every time Home is entered
   ngOnInit(): void {
     this.fetchPosts();
+    this.fetchUsers();
   }
+
+  //GET users from backend
+  fetchUsers(): void {
+    this.http.get<any[]>(`${this.userAPI}/all`)
+      .subscribe({
+        next: users => {
+          console.log("this is the whole users:", users);
+          this.users$.next(users);
+        },
+        error: err => {
+          console.log('Failed to load users:', err);
+        }
+      });
+  }
+
+  follow(userId: number) {}
 
   // GET posts from backend
   fetchPosts(): void {

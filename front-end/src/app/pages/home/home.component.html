@@ -201,13 +201,21 @@
           <div class="mb-4">
             <h5>Suggested Users</h5>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex align-items-center gap-2">
-                <img src="./../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm" />
-                <span>suggested_username</span>
-                <button class="btn btn-sm btn-outline-primary ms-auto">Follow</button>
+              <li
+                class="list-group-item d-flex align-items-center gap-2"
+                *ngFor="let user of users$ | async"
+              >
+                <img src="./../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm"/>
+
+                <span>{{ user.username }}</span>
+
+                <!-- Follow button -->
+                <button class="btn btn-sm btn-outline-primary ms-auto" (click)="follow(user.id)">
+                  Follow
+                </button>
               </li>
-              <!-- Repeat suggested users -->
             </ul>
+
           </div>
 
           <!-- Trending Tags -->
