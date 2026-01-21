@@ -4,7 +4,7 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -42,7 +42,7 @@ export class ProfileComponent implements OnInit {
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
 
-  constructor(private http: HttpClient, private route: ActivatedRoute) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {
     // Get optional ID from route
@@ -69,6 +69,7 @@ export class ProfileComponent implements OnInit {
       error: err => {
         console.error('Failed to load user profile:', err);
         this.profileData$.next(null)
+        this.router.navigate(['/notfound']);
       }
     });
   }
@@ -81,7 +82,10 @@ export class ProfileComponent implements OnInit {
         this.userId = data.id;
         this.fetchPosts(); // fetch my posts
       },
-      error: err => console.error('Failed to load my profile:', err)
+      error: err => {
+        console.error('Failed to load my profile:', err);
+        this.router.navigate(['/notfound']);
+      }
     });
   }
 
