@@ -53,7 +53,7 @@ export class ProfileComponent implements OnInit {
       const idParam = params.get('id');
       if (idParam) {
         this.userId = Number(idParam);
-        this.loadUserProfile(this.userId);
+        this.loadUserProfile(this.userId, true);
         this.mine$.next(false);
       } else {
         this.loadMyProfile();
@@ -63,13 +63,16 @@ export class ProfileComponent implements OnInit {
   }
 
   // Fetch user profile by ID
-  private loadUserProfile(id: number) {
+  private loadUserProfile(id: number, loadPosts = false) {
     this.http.get(`${this.userAPI}/profile/${id}`).subscribe({
       next: data => {
         console.log("User profile data:", data);
         this.profileData$.next(data);
         this.userId = id;
-        this.fetchPosts(this.userId);
+
+        if (loadPosts) {
+          this.fetchPosts(this.userId);
+        }
       },
       error: err => {
         console.error('Failed to load user profile:', err);
