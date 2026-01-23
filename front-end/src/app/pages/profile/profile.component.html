@@ -17,8 +17,18 @@
         <div><strong> {{ data.followers }} </strong> Followers</div>
         <div><strong> {{ data.followeds }} </strong> Following</div>
 
-        <button *ngIf="!(mine$ | async)" (click)="follow(data.id)" class="btn btn-outline-primary ms-auto">
-          Follow
+        <button
+          *ngIf="!(mine$ | async)"
+          (click)="follow(data.id)"
+          class="btn ms-auto"
+          [ngClass]="data.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
+
+          <i
+            class="bi me-1"
+            [ngClass]="data.followed ? 'bi-person-dash' : 'bi-person-plus'">
+          </i>
+
+          {{ data.followed ? 'Unfollow' : 'Follow' }}
         </button>
         
       </div>

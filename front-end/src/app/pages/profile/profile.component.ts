@@ -103,6 +103,7 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: res => {
           console.log("this is the follow res :", res);
+          this.loadUserProfile(userId);
         },
         error: err => console.error("Follow failed:", err)
       });

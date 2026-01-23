@@ -19,7 +19,7 @@ public class FollowService {
 
     //Follow a user
     @Transactional
-    public void follow(Long followerId, Long followedId) {
+    public Follow follow(Long followerId, Long followedId) {
 
         if (followerId.equals(followedId)) {
             throw new IllegalArgumentException("You cannot follow yourself");
@@ -29,7 +29,9 @@ public class FollowService {
             followRepository.existsByFollowerIdAndFollowedId(followerId, followedId);
 
         if (alreadyFollowing) {
-            return;
+            unfollow(followerId, followedId);
+            Follow follow = new Follow();
+            return follow;
         }
 
 
@@ -44,6 +46,8 @@ public class FollowService {
         follow.setFollowed(followed);
 
         followRepository.save(follow);
+
+        return follow;
     }
 
     //Unfollow a user
@@ -60,7 +64,12 @@ public class FollowService {
     }
 
     //Count followers of a user
-    public long countFollowers(Long userId) {
+    public int countFollowers(Long userId) {
         return followRepository.countByFollowedId(userId);
+    }
+
+    //Count followeds of a user
+    public int countFolloweds(Long userId) {
+        return followRepository.countByFollowerId(userId);
     }
 }

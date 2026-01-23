@@ -50,8 +50,8 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         User currentUser = user.getUser();
-        followService.follow(currentUser.getId(), request.getUserId());
+        
 
-        return ResponseEntity.ok("Followed Successfully");
+        return ResponseEntity.ok(followService.follow(currentUser.getId(), request.getUserId()));
     }
 }
