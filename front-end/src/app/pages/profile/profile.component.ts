@@ -32,6 +32,7 @@ export class ProfileComponent implements OnInit {
   mine$ = new BehaviorSubject<boolean | undefined>(undefined);
 
   followers$ = new BehaviorSubject<any[]>([]);
+  followeds$ = new BehaviorSubject<any[]>([]);
 
 
   //comment content
@@ -212,12 +213,17 @@ export class ProfileComponent implements OnInit {
   }
 
   // Show modal
-  openFollowsModal() {
+  openFollowsModal(flag: string) {
     const modalEl = document.getElementById('followersModal');
     if (modalEl) {
       const modal = new bootstrap.Modal(modalEl);
       modal.show();
-      this.getFollowers();
+      if (flag == "followers") {
+        this.getFollowers();
+      } else if (flag == "followeds") {
+        this.getFolloweds();
+      }
+      
     }
   }
 
@@ -227,11 +233,30 @@ export class ProfileComponent implements OnInit {
       next: (users) => {
         console.log("Followers:", users);
         this.followers$.next(users);
+        this.followeds$.next([]);
       },
       error: (err) => {
         console.error("Failed to load followers:", err);
       }
     });
+  }
+
+  //get followeds
+  getFolloweds() {
+    this.http.get<any[]>(`${this.userAPI}/followeds/${this.userId}`).subscribe({
+      next: (users) => {
+        console.log("Followeds:", users);
+        this.followeds$.next(users);
+        this.followers$.next([]);
+      },
+      error: (err) => {
+        console.error("Failed to load followeds:", err);
+      }
+    });
+  }
+
+  get activeUsers$() {
+    return (this.followers$.value?.length ? this.followers$ : this.followeds$) as BehaviorSubject<any[]>;
   }
 
   //redirect to user profile
@@ -241,7 +266,7 @@ export class ProfileComponent implements OnInit {
       const modalInstance = bootstrap.Modal.getInstance(modalEl);
       if (modalInstance) modalInstance.hide();
     }
-    
+
     this.router.navigate(['/profile', id]);
   }
 }

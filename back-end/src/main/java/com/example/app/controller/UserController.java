@@ -59,4 +59,9 @@ public class UserController {
     public ResponseEntity<List<UserInfos>> getFollowers(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getFollowers(id));
     }
+
+    @GetMapping("/followeds/{id}")
+    public ResponseEntity<List<UserInfos>> getFolloweds(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getFolloweds(id));
+    }
 }

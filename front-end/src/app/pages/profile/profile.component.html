@@ -14,8 +14,8 @@
     <div class="ms-3" *ngIf="profileData$ | async as data">
       <h2> {{ data.username }} </h2>
       <div class="d-flex gap-3 text-muted">
-        <div class="clickable" (click)="openFollowsModal()"><strong> {{ data.followers }} </strong> Followers</div>
-        <div class="clickable"><strong> {{ data.followeds }} </strong> Following</div>
+        <div class="clickable" (click)="openFollowsModal('followers')"><strong> {{ data.followers }} </strong> Followers</div>
+        <div class="clickable" (click)="openFollowsModal('followeds')"><strong> {{ data.followeds }} </strong> Following</div>
 
         <button
           *ngIf="!(mine$ | async)"
@@ -214,12 +214,12 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Followers</h5>
+        <h5 class="modal-title"> {{ (followers$ | async)?.length ? 'Followers' : 'Following' }} </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <div class="modal-body">
-        <div *ngFor="let user of (followers$ | async)" class="d-flex align-items-center mb-3">
+        <div *ngFor="let user of (activeUsers$ | async)" class="d-flex align-items-center mb-3">
           <img [src]="user.avatar || 'assets/images/avatar.png'" class="rounded-circle me-2" width="40" height="40" />
 
           <span (click)="goToProfile(user.id)" class="clickable flex-grow-1">{{ user.username }}</span>

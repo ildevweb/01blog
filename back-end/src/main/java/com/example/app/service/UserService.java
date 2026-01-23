@@ -81,4 +81,25 @@ public class UserService {
             .toList();
     }
 
+    public List<UserInfos> getFolloweds(Long userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+
+
+        return followRepository.findByFollowerId(userId)
+            .stream()
+            .map(follow -> {
+                User usr = follow.getFollowed();
+
+                return new UserInfos(
+                    usr.getId(),
+                    usr.getName(),
+                    followService.countFollowers(usr.getId()),
+                    followService.countFolloweds(usr.getId()),
+                    followService.isFollowing(user.getId(), usr.getId())
+                );
+            })
+            .toList();
+    }
+
 }
