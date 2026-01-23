@@ -207,11 +207,22 @@
               >
                 <img src="./../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm"/>
 
-                <span>{{ user.username }}</span>
+                <span class="username clickable" (click)="goToProfile(user.id)">
+                  {{ user.username }}
+                </span>
 
                 <!-- Follow button -->
-                <button class="btn btn-sm btn-outline-primary ms-auto" (click)="follow(user.id)">
-                  Follow
+                <button
+                  (click)="follow(user.id)"
+                  class="btn follow-btn ms-auto"
+                  [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
+
+                  <i
+                    class="bi me-1"
+                    [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'">
+                  </i>
+
+                  {{ user.followed ? 'Unfollow' : 'Follow' }}
                 </button>
               </li>
             </ul>

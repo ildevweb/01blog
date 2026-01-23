@@ -29,10 +29,13 @@ public class PostService {
     }
 
     public List<PostInfos> getAllPosts() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+        User user = userPrincipal.getUser();
+
         return postRepository.findAll()
             .stream()
             .map(post -> {
-                User user = authService.getUserById(post.getOwnerId());
                 String time = timeAgo(post.getTime());
 
                 boolean liked = postLikeService.isLiked(post.getId(), user);

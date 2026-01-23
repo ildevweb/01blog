@@ -1,16 +1,25 @@
 /* Optional CSS */
-    .avatar-sm {
-      width: 32px;
-      height: 32px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-    .post-img {
-      max-height: 300px;
-      object-fit: cover;
-      width: 100%;
-    }
-    .sidebar-section {
-      position: sticky;
-      top: 80px;
-    }
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.post-img {
+  max-height: 300px;
+  object-fit: cover;
+  width: 100%;
+}
+.sidebar-section {
+  position: sticky;
+  top: 80px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.follow-btn {
+  min-width: 140px;        /* Follow width */
+  transition: min-width 0.25s ease, padding 0.25s ease;
+}

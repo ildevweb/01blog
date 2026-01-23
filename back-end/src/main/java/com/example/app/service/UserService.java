@@ -32,9 +32,9 @@ public class UserService {
                 return new UserInfos(
                     usr.getId(),
                     usr.getName(),
-                    0,
-                    0,
-                    false
+                    followService.countFollowers(usr.getId()),
+                    followService.countFolloweds(usr.getId()),
+                    followService.isFollowing(userId, usr.getId())
                 );
             })
             .toList();

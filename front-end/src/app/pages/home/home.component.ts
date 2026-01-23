@@ -4,6 +4,7 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -41,7 +42,7 @@ export class HomeComponent implements OnInit {
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   // Called every time Home is entered
   ngOnInit(): void {
@@ -63,7 +64,18 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  follow(userId: number) {}
+  //Follow system
+  follow(userId: number) {
+
+    this.http.post<any>(`${this.userAPI}/follow`, { userId: userId })
+      .subscribe({
+        next: res => {
+          console.log("this is the follow res :", res);
+          this.fetchUsers();
+        },
+        error: err => console.error("Follow failed:", err)
+      });
+  }
 
   // GET posts from backend
   fetchPosts(): void {
@@ -218,5 +230,10 @@ export class HomeComponent implements OnInit {
           console.log("post liking failed :", err);
         }
       });
+  }
+
+  //redirect to user profile
+  goToProfile(id: number) {
+    this.router.navigate(['/profile', id]);
   }
 }
