@@ -31,6 +31,8 @@ export class ProfileComponent implements OnInit {
 
   mine$ = new BehaviorSubject<boolean | undefined>(undefined);
 
+  followers$ = new BehaviorSubject<any[]>([]);
+
 
   //comment content
   commentData = {
@@ -107,6 +109,7 @@ export class ProfileComponent implements OnInit {
         next: res => {
           console.log("this is the follow res :", res);
           this.loadUserProfile(userId);
+          this.getFollowers();
         },
         error: err => console.error("Follow failed:", err)
       });
@@ -206,5 +209,39 @@ export class ProfileComponent implements OnInit {
       },
       error: err => console.error("Post like failed:", err)
     });
+  }
+
+  // Show modal
+  openFollowsModal() {
+    const modalEl = document.getElementById('followersModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+      this.getFollowers();
+    }
+  }
+
+  //get followers
+  getFollowers() {
+    this.http.get<any[]>(`${this.userAPI}/followers/${this.userId}`).subscribe({
+      next: (users) => {
+        console.log("Followers:", users);
+        this.followers$.next(users);
+      },
+      error: (err) => {
+        console.error("Failed to load followers:", err);
+      }
+    });
+  }
+
+  //redirect to user profile
+  goToProfile(id: number) {
+    const modalEl = document.getElementById('followersModal');
+    if (modalEl) {
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+    }
+    
+    this.router.navigate(['/profile', id]);
   }
 }

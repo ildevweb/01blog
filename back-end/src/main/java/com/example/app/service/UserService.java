@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.example.app.dto.UserInfos;
 import com.example.app.entity.User;
+import com.example.app.repository.FollowRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 
@@ -14,10 +15,12 @@ import com.example.app.security.UserPrincipal;
 public class UserService {
     private final UserRepository userRepository;
     private final FollowService followService;
+    private final FollowRepository followRepository;
 
-    public UserService(UserRepository userRepository, FollowService followService) {
+    public UserService(UserRepository userRepository, FollowService followService, FollowRepository followRepository) {
         this.userRepository = userRepository;
         this.followService = followService;
+        this.followRepository = followRepository;
     }
     
     public List<UserInfos> getAllUsers() {
@@ -54,6 +57,28 @@ public class UserService {
                 followService.isFollowing(currentUser.getId(), user.getId())
             ))
             .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    public List<UserInfos> getFollowers(Long userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+
+
+        return followRepository.findByFollowedId(userId)
+            .stream()
+            .map(follow -> {
+                User usr = follow.getFollower();
+
+                return new UserInfos(
+                    usr.getId(),
+                    usr.getName(),
+                    followService.countFollowers(usr.getId()),
+                    followService.countFolloweds(usr.getId()),
+                    followService.isFollowing(user.getId(), usr.getId())
+                );
+            })
+            .toList();
     }
 
 }

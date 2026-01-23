@@ -14,8 +14,8 @@
     <div class="ms-3" *ngIf="profileData$ | async as data">
       <h2> {{ data.username }} </h2>
       <div class="d-flex gap-3 text-muted">
-        <div><strong> {{ data.followers }} </strong> Followers</div>
-        <div><strong> {{ data.followeds }} </strong> Following</div>
+        <div class="clickable" (click)="openFollowsModal()"><strong> {{ data.followers }} </strong> Followers</div>
+        <div class="clickable"><strong> {{ data.followeds }} </strong> Following</div>
 
         <button
           *ngIf="!(mine$ | async)"
@@ -208,3 +208,36 @@
   </div>
 </div>
 
+
+<!-- Followers Modal -->
+<div class="modal fade" id="followersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Followers</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngFor="let user of (followers$ | async)" class="d-flex align-items-center mb-3">
+          <img [src]="user.avatar || 'assets/images/avatar.png'" class="rounded-circle me-2" width="40" height="40" />
+
+          <span (click)="goToProfile(user.id)" class="clickable flex-grow-1">{{ user.username }}</span>
+
+          <button
+            (click)="follow(user.id)"
+            class="btn ms-auto"
+            [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
+
+            <i
+              class="bi me-1"
+              [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'">
+            </i>
+
+            {{ user.followed ? 'Unfollow' : 'Follow' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

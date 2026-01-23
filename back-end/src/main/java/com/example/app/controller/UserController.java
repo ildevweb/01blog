@@ -54,4 +54,9 @@ public class UserController {
 
         return ResponseEntity.ok(followService.follow(currentUser.getId(), request.getUserId()));
     }
+
+    @GetMapping("/followers/{id}")
+    public ResponseEntity<List<UserInfos>> getFollowers(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getFollowers(id));
+    }
 }
