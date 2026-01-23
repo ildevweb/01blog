@@ -26,7 +26,7 @@ public class CommentService {
     }
 
     public List<CommentInfos> getByPostId(Long postId) {
-        return commentRepository.findByPostId(postId)
+        return commentRepository.findByPostIdOrderByTimeDesc(postId)
             .stream()
             .map(comment -> {
                 User user = authService.getUserById(comment.getOwnerId());

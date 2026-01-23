@@ -10,6 +10,8 @@ import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
 
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 import java.time.Instant;
 
@@ -33,7 +35,7 @@ public class PostService {
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
         User user = userPrincipal.getUser();
 
-        return postRepository.findAll()
+        return postRepository.findAll(Sort.by(Sort.Direction.DESC, "time"))
             .stream()
             .map(post -> {
                 String time = timeAgo(post.getTime());
