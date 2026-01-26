@@ -67,7 +67,7 @@ public class PostController {
             Post post = new Post(content, userId, nowSeconds);
             postRepository.save(post);
             boolean liked = postLikeService.isLiked(post.getId(), currentUser);
-            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()));
+            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true);
             return ResponseEntity.ok(infos);
         }
 
@@ -91,7 +91,7 @@ public class PostController {
         postRepository.save(post);
 
         boolean liked = postLikeService.isLiked(post.getId(), currentUser);
-        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()));
+        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true);
 
         return ResponseEntity.ok(infos);
     }

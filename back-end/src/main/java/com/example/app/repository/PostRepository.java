@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByOwnerId(Long ownerId);
+    List<Post> findByOwnerIdOrderByTimeDesc(Long ownerId);
+
+    boolean existsByOwnerIdAndId(Long ownerId, Long id);
 }

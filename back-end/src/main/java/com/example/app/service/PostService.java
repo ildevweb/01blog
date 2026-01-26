@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
+import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
@@ -22,12 +23,14 @@ public class PostService {
     private final AuthService authService;
     private final PostLikeRepository postLikeRepository;
     private final PostLikeService postLikeService;
+    private final UserRepository userRepository;
 
-    public PostService(PostRepository postRepository, AuthService authService, PostLikeRepository postLikeRepository, PostLikeService postLikeService) {
+    public PostService(PostRepository postRepository, AuthService authService, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.authService = authService;
         this.postLikeRepository = postLikeRepository;
         this.postLikeService = postLikeService;
+        this.userRepository = userRepository;
     }
 
     public List<PostInfos> getAllPosts() {
@@ -42,14 +45,18 @@ public class PostService {
 
                 boolean liked = postLikeService.isLiked(post.getId(), user);
 
+                User owner = userRepository.findById(post.getOwnerId())
+                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+
                 return new PostInfos(
                     post.getId(),
-                    user.getName(),
+                    owner.getName(),
                     time,
                     post.getContent(),
                     post.getMedia(),
                     liked,
-                    postLikeRepository.countByPostId(post.getId())
+                    postLikeRepository.countByPostId(post.getId()),
+                    postRepository.existsByOwnerIdAndId(user.getId(), post.getId())
                 );
             })
             .toList();
@@ -60,23 +67,27 @@ public class PostService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         Long userId = loggedUser.getId();
+        User user = loggedUser.getUser();
 
-        return postRepository.findByOwnerId(userId)
+        return postRepository.findByOwnerIdOrderByTimeDesc(userId)
             .stream()
             .map(post -> {
-                User user = authService.getUserById(post.getOwnerId());
                 String time = timeAgo(post.getTime());
 
                 boolean liked = postLikeService.isLiked(post.getId(), user);
 
+                User owner = userRepository.findById(post.getOwnerId())
+                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+
                 return new PostInfos(
                     post.getId(),
-                    user.getName(),
+                    owner.getName(),
                     time,
                     post.getContent(),
                     post.getMedia(),
                     liked,
-                    postLikeRepository.countByPostId(post.getId())
+                    postLikeRepository.countByPostId(post.getId()),
+                    postRepository.existsByOwnerIdAndId(user.getId(), post.getId())
                 );
             })
             .toList();
@@ -84,23 +95,30 @@ public class PostService {
 
 
     public List<PostInfos> getPostsByUser(Long userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
+        User user = loggedUser.getUser();
 
-        return postRepository.findByOwnerId(userId)
+        
+        return postRepository.findByOwnerIdOrderByTimeDesc(userId)
             .stream()
             .map(post -> {
-                User user = authService.getUserById(post.getOwnerId());
                 String time = timeAgo(post.getTime());
 
                 boolean liked = postLikeService.isLiked(post.getId(), user);
 
+                User owner = userRepository.findById(post.getOwnerId())
+                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+
                 return new PostInfos(
                     post.getId(),
-                    user.getName(),
+                    owner.getName(),
                     time,
                     post.getContent(),
                     post.getMedia(),
                     liked,
-                    postLikeRepository.countByPostId(post.getId())
+                    postLikeRepository.countByPostId(post.getId()),
+                    postRepository.existsByOwnerIdAndId(user.getId(), post.getId())
                 );
             })
             .toList();

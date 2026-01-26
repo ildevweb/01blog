@@ -8,8 +8,9 @@ public class PostInfos {
     private String media;
     private boolean liked;
     private Long count;
+    private boolean mine;
 
-    public PostInfos(Long id, String username, String time, String content, String media, boolean liked, Long count) {
+    public PostInfos(Long id, String username, String time, String content, String media, boolean liked, Long count, boolean mine) {
         this.id = id;
         this.username = username;
         this.time = time;
@@ -17,15 +18,17 @@ public class PostInfos {
         this.media = media;
         this.liked = liked;
         this.count = count;
+        this.mine = mine;
     }
 
-    public PostInfos(Long id, String username, String time, String content, boolean liked, Long count) {
+    public PostInfos(Long id, String username, String time, String content, boolean liked, Long count, boolean mine) {
         this.id = id;
         this.username = username;
         this.time = time;
         this.content = content;
         this.liked = liked;
         this.count = count;
+        this.mine = mine;
     }
 
     public Long getId() {
@@ -48,6 +51,9 @@ public class PostInfos {
     }
     public Long getCount() {
         return this.count;
+    }
+    public boolean getMine() {
+        return this.mine;
     }
 
 }
