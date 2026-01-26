@@ -24,6 +24,7 @@ export class HomeComponent implements OnInit {
 
   content: string = '';
   selectedImage?: File;
+  currentPostId?: number;
 
   selectedPost: any = null;
   comments$ = new BehaviorSubject<any[]>([]);
@@ -176,6 +177,7 @@ export class HomeComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedImage = input.files[0];
+      console.log("Selected file:", this.selectedImage.name, this.selectedImage.type)
     }
   }
 
@@ -243,6 +245,55 @@ export class HomeComponent implements OnInit {
         console.error('Failed to delete post:', err);
       }
     });
+  }
+
+  //open edit modal
+  openEditModal(postId: number) {
+    this.currentPostId = postId;
+
+    const modalElement = document.getElementById('editPostModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  }
+
+
+  onUpdatePost() {
+    if (!this.currentPostId) return;
+
+    if (!this.content.trim() && !this.selectedImage) {
+      this.errorMessage$.next('Post cannot be empty');
+      setTimeout(() => this.errorMessage$.next(null), 1000);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('content', this.content);
+
+    if (this.selectedImage) {
+      formData.append('image', this.selectedImage);
+    }
+
+    this.http.post(`${this.postAPI}/update/${this.currentPostId}`, formData)
+      .subscribe({
+        next: () => {
+          this.content = '';
+
+          this.successMessage$.next('Post updated successfully');
+          setTimeout(() => this.successMessage$.next(null), 1000);
+
+          // Refresh posts immediately
+          this.fetchPosts();
+        },
+        error: () => {
+          this.errorMessage$.next('Updating post failed');
+          setTimeout(() => this.errorMessage$.next(null), 1000);
+        }
+      });
+
+    // After update, hide modal
+    const modalElement = document.getElementById('editPostModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal.hide();
   }
 
   //redirect to user profile
