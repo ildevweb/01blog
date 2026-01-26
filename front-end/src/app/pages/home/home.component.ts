@@ -232,6 +232,19 @@ export class HomeComponent implements OnInit {
       });
   }
 
+  //delete post
+  deletePost(postId: number) {
+    this.http.get(`${this.postAPI}/delete/${postId}`).subscribe({
+      next: () => {
+        console.log("Post deleted successfully");
+        this.fetchPosts();
+      },
+      error: err => {
+        console.error('Failed to delete post:', err);
+      }
+    });
+  }
+
   //redirect to user profile
   goToProfile(id: number) {
     this.router.navigate(['/profile', id]);

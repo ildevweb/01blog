@@ -20,14 +20,12 @@ import java.time.Instant;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final AuthService authService;
     private final PostLikeRepository postLikeRepository;
     private final PostLikeService postLikeService;
     private final UserRepository userRepository;
 
-    public PostService(PostRepository postRepository, AuthService authService, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository) {
         this.postRepository = postRepository;
-        this.authService = authService;
         this.postLikeRepository = postLikeRepository;
         this.postLikeService = postLikeService;
         this.userRepository = userRepository;
@@ -99,7 +97,7 @@ public class PostService {
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
 
-        
+
         return postRepository.findByOwnerIdOrderByTimeDesc(userId)
             .stream()
             .map(post -> {
@@ -161,6 +159,4 @@ public class PostService {
         return years + " years ago";
     }
 
-
-    
 }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.entity.Post;
 import com.example.app.entity.User;
@@ -130,6 +131,20 @@ public class PostController {
         return ResponseEntity.ok(Map.of(
             "liked", liked
         ));
+    }
+
+    @GetMapping("/delete/{id}")
+    public void deletePost(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+        User user = userPrincipal.getUser();
+
+        if (!postRepository.existsByOwnerIdAndId(user.getId(), id)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        postLikeRepository.deleteByPostId(id);
+        postRepository.deleteByIdAndOwnerId(id, user.getId());
     }
 }
 
