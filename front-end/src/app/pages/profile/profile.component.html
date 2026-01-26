@@ -225,7 +225,7 @@
           <span (click)="goToProfile(user.id)" class="clickable flex-grow-1">{{ user.username }}</span>
 
           <button
-            (click)="follow(user.id)"
+            (click)="follow(user.id, false)"
             class="btn ms-auto"
             [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
 
