@@ -74,14 +74,16 @@
 
               <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                 <li>
-                  <button class="dropdown-item d-flex align-items-center gap-2">
+                  <button 
+                    (click)="openEditModal(post.id)"
+                    class="dropdown-item d-flex align-items-center gap-2">
                     <i class="bi bi-pencil"></i>
                     Edit
                   </button>
                 </li>
                 <li>
                   <button
-                    
+                    (click)="deletePost(post.id)"
                     class="dropdown-item text-danger d-flex align-items-center gap-2"
                   >
                     <i class="bi bi-trash"></i>
@@ -267,6 +269,60 @@
             {{ user.followed ? 'Unfollow' : 'Follow' }}
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit Post Modal -->
+<div
+  class="modal fade"
+  id="editPostModal"
+  tabindex="-1"
+  aria-labelledby="editPostModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPostModalLabel">Edit Post</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form #editPostForm="ngForm" (ngSubmit)="onUpdatePost()">
+          <div class="mb-3">
+            <textarea
+              class="form-control"
+              placeholder="What's on your mind ?"
+              rows="3"
+              name="postText"
+              [(ngModel)]="content"
+              required
+            ></textarea>
+          </div>
+          <div class="mb-3">
+            <input
+              type="file"
+              class="form-control"
+              name="postImage"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+      </div>
+      <div *ngIf="errorMessage$ | async as error" class="alert alert-danger text-center mt-2">
+        {{ error }}
+      </div>
+      <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
+        {{ success }}
       </div>
     </div>
   </div>

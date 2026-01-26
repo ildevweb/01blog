@@ -146,6 +146,65 @@ public class PostController {
         postLikeRepository.deleteByPostId(id);
         postRepository.deleteByIdAndOwnerId(id, user.getId());
     }
+
+
+    @PostMapping("/update/{id}")
+    public void updatePost(
+        @PathVariable Long id,
+        @RequestParam("content") String content,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        if (content.isEmpty() && image == null) {
+            System.out.println("inputs are empty");
+            new RuntimeException("inputs empty");
+            return;
+        }
+
+        System.out.println("this is the post id");
+        System.out.println(id);
+
+        //get owner id
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        Long userId = user.getId();
+
+        //get time now with second
+        Long nowSeconds = Instant.now().getEpochSecond();
+
+        //get post from db
+        Post post = postRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (image == null) {
+            post.setContent(content);
+            post.setOwnerId(userId);
+            post.setTime(nowSeconds);
+            postRepository.save(post);
+            return;
+        }
+
+        // Create upload folder
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        // Generate unique file name
+        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        String filePath = UPLOAD_DIR + fileName;
+        
+
+        // Save image to disk
+        Files.copy(image.getInputStream(), Paths.get(filePath));
+
+        // Save Post to DB
+        post.setContent(content);
+        post.setMedia(filePath);
+        post.setOwnerId(userId);
+        post.setTime(nowSeconds);
+
+        postRepository.save(post);
+    }
 }
 
 

@@ -20,17 +20,22 @@ declare var bootstrap: any;
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit {
+  //posts
   posts$ = new BehaviorSubject<any[]>([]);
   isLoading = false;
 
+  //comments
   selectedPost: any = null;
   comments$ = new BehaviorSubject<any[]>([]);
   commentErrorMessage$ = new BehaviorSubject<string | null>(null);
-
+  
+  //profile data
   profileData$ = new BehaviorSubject<any>(null);
 
+  //check if profile is mine
   mine$ = new BehaviorSubject<boolean | undefined>(undefined);
 
+  //followers & followings
   followers$ = new BehaviorSubject<any[]>([]);
   followeds$ = new BehaviorSubject<any[]>([]);
 
@@ -41,6 +46,15 @@ export class ProfileComponent implements OnInit {
     postId: 0
   }
   isSubmittingComment: boolean = false;
+
+  //post data
+  content: string = '';
+  selectedImage?: File;
+  currentPostId?: number;
+
+  //post update errors
+  errorMessage$ = new BehaviorSubject<string | null>(null);
+  successMessage$ = new BehaviorSubject<string | null>(null);
 
   userId?: number; // Profile owner ID
 
@@ -212,6 +226,75 @@ export class ProfileComponent implements OnInit {
         this.posts$.next(posts);
       },
       error: err => console.error("Post like failed:", err)
+    });
+  }
+
+  //open edit modal
+  openEditModal(postId: number) {
+    this.currentPostId = postId;
+
+    const modalElement = document.getElementById('editPostModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  }
+
+  // Capture image
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedImage = input.files[0];
+    }
+  }
+
+  onUpdatePost() {
+    if (!this.currentPostId) return;
+
+    if (!this.content.trim() && !this.selectedImage) {
+      this.errorMessage$.next('Post cannot be empty');
+      setTimeout(() => this.errorMessage$.next(null), 1000);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('content', this.content);
+
+    if (this.selectedImage) {
+      formData.append('image', this.selectedImage);
+    }
+
+    this.http.post(`${this.postAPI}/update/${this.currentPostId}`, formData)
+      .subscribe({
+        next: () => {
+          this.content = '';
+
+          this.successMessage$.next('Post updated successfully');
+          setTimeout(() => this.successMessage$.next(null), 1000);
+
+          // Refresh posts immediately
+          this.fetchPosts();
+        },
+        error: () => {
+          this.errorMessage$.next('Updating post failed');
+          setTimeout(() => this.errorMessage$.next(null), 1000);
+        }
+      });
+
+    // After update, hide modal
+    const modalElement = document.getElementById('editPostModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal.hide();
+  }
+
+  //delete post
+  deletePost(postId: number) {
+    this.http.get(`${this.postAPI}/delete/${postId}`).subscribe({
+      next: () => {
+        console.log("Post deleted successfully");
+        this.fetchPosts();
+      },
+      error: err => {
+        console.error('Failed to delete post:', err);
+      }
     });
   }
 
