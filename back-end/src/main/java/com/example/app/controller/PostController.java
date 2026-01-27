@@ -106,7 +106,8 @@ public class PostController {
             .map(follower -> new Notification(
                 user.getUser(),
                 follower.getFollower(),
-                false
+                false,
+                nowSeconds
             ))
             .toList();
 

@@ -1,0 +1,12 @@
+/* Minimal custom CSS */
+.notif-card {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.notif-card:hover {
+    background-color: #f8f9fa;
+}
+.notif-time {
+    font-size: 0.8rem;
+    color: gray;
+}

@@ -25,10 +25,17 @@ public class Notification {
 
     private boolean readed;
 
-    public Notification(User fromUser, User toUser, boolean readed) {
+    private Long time;
+
+    public Notification(User fromUser, User toUser, boolean readed, Long time) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.readed = readed;
+        this.time = time;
+    }
+
+    public Long getId() {
+        return this.id;
     }
 
     public User getFromUser() {
@@ -40,6 +47,9 @@ public class Notification {
     public boolean getReaded() {
         return this.readed;
     }
+    public Long getTime() {
+        return this.time;
+    }
 
     public void setFromUser(User fromUser) {
         this.fromUser = fromUser;
@@ -49,5 +59,8 @@ public class Notification {
     }
     public void setReaded(boolean readed) {
         this.readed = readed;
+    }
+    public void setTime(Long time) {
+        this.time = time;
     }
 }

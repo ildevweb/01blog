@@ -8,50 +8,73 @@ import { AuthService } from '../auth/auth.service';
 })
 export class NotificationService {
 
-  private unreadCountSubject = new BehaviorSubject<number>(0);
-  private loaded = false;
+    private unreadCountSubject = new BehaviorSubject<number>(0);
+    private notifications = new BehaviorSubject<any[]>([]);
+    private loaded = false;
 
-  private readonly API_URL = 'http://localhost:8080/api/notifications';
+    private readonly notifications_API = 'http://localhost:8080/api/notifications';
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
+    constructor(
+        private http: HttpClient,
+        private authService: AuthService
+    ) {}
 
-  loadUnreadCount(): void {
-    if (this.loaded) return;
-    if (!this.authService.isLoggedIn()) return;
+    loadUnreadCount(): void {
+        if (this.loaded) return;
+        if (!this.authService.isLoggedIn()) return;
 
-    this.loaded = true;
+        this.loaded = true;
 
-    this.http
-      .get<any>(`${this.API_URL}/unread/count`)
-      .subscribe({
-        next: res => this.unreadCountSubject.next(res.count),
-        error: () => {
-          this.loaded = false;
-        }
-      });
-  }
+        this.http
+        .get<any>(`${this.notifications_API}/unread/count`)
+        .subscribe({
+            next: res => this.unreadCountSubject.next(res.count),
+            error: () => {
+            this.loaded = false;
+            }
+        });
+    }
 
-  getUnreadCount(): Observable<number> {
-    return this.unreadCountSubject.asObservable();
-  }
+    loadFollowers(): void {
+        if (this.loaded) return;
+        if (!this.authService.isLoggedIn()) return;
 
-  setUnreadCount(count: number): void {
-    this.unreadCountSubject.next(count);
-  }
+        this.loaded = true;
 
-  refreshUnreadCount(): void {
-    this.loaded = false;
-    this.loadUnreadCount();
-  }
+        this.http
+        .get<any[]>(`${this.notifications_API}/unread/get`)
+        .subscribe({
+            next: res => {
+                console.log("this is unreaded notifications :", res);
+                this.notifications.next(res);
+            },
+            error: err => {
+                console.log("failed getting notifications :", err);
+                this.loaded = false;
+            }
+        });
+    }
 
-  /**
-   * Reset state (call on logout)
-   */
-  reset(): void {
-    this.loaded = false;
-    this.unreadCountSubject.next(0);
-  }
+    getNotifications(): Observable<any[]> {
+        return this.notifications.asObservable();
+    }
+
+    getUnreadCount(): Observable<number> {
+        return this.unreadCountSubject.asObservable();
+    }
+
+    setUnreadCount(count: number): void {
+        this.unreadCountSubject.next(count);
+    }
+
+    refreshUnreadCount(): void {
+        this.loaded = false;
+        this.loadUnreadCount();
+    }
+
+    
+    reset(): void {
+        this.loaded = false;
+        this.unreadCountSubject.next(0);
+    }
 }
