@@ -99,12 +99,11 @@
             <p *ngIf="post.content">
               {{ post.content }}
             </p>
-            <img
-              *ngIf="post.media"
-              [src]="'http://localhost:8080/' + post.media"
-              alt="Post Image"
-              class="post-img rounded"
-            />
+
+            <div *ngIf="post.media">
+              <img class="post-img rounded" *ngIf="post.media.endsWith('.png') || post.media.endsWith('.jpg')" [src]="'http://localhost:8080/' + post.media" />
+              <video class="post-img rounded" *ngIf="post.media.endsWith('.mp4')" controls [src]="'http://localhost:8080/' + post.media"></video>
+            </div>
           </div>
 
           <!-- Footer -->

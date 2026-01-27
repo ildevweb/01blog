@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.app.entity.Follow;
 import com.example.app.entity.Post;
 import com.example.app.entity.User;
+import com.example.app.entity.Notification;
+import com.example.app.repository.FollowRepository;
+import com.example.app.repository.NotificationRepository;
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.security.UserPrincipal;
@@ -35,14 +39,18 @@ public class PostController {
     private final PostService postService;
     private final PostLikeService postLikeService;
     private final PostLikeRepository postLikeRepository;
+    private final FollowRepository followRepository;
+    private final NotificationRepository notificationRepository;
 
     private static final String UPLOAD_DIR = "uploads/";
 
-    public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService, PostLikeRepository postLikeRepository) {
+    public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService, PostLikeRepository postLikeRepository, FollowRepository followRepository, NotificationRepository notificationRepository) {
         this.postRepository = postRepository;
         this.postService = postService;
         this.postLikeService = postLikeService;
         this.postLikeRepository = postLikeRepository;
+        this.followRepository = followRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @PostMapping("/create")
@@ -91,6 +99,22 @@ public class PostController {
 
         postRepository.save(post);
 
+        //Save notification to all followers
+        List<Follow> followers = followRepository.findByFollowedId(user.getId());
+
+        //List<Long> followerIds = followRepository.findFollowerIdsByFollowedId(user.getId());
+
+        List<Notification> notifications = followers.stream()
+            .map(follower -> new Notification(
+                user.getUser(),
+                follower.getFollower(),
+                false
+            ))
+            .toList();
+
+        notificationRepository.saveAll(notifications);
+
+        //return a response
         boolean liked = postLikeService.isLiked(post.getId(), currentUser);
         PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true);
 
