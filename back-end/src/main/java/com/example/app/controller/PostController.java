@@ -102,8 +102,6 @@ public class PostController {
         //Save notification to all followers
         List<Follow> followers = followRepository.findByFollowedId(user.getId());
 
-        //List<Long> followerIds = followRepository.findFollowerIdsByFollowedId(user.getId());
-
         List<Notification> notifications = followers.stream()
             .map(follower -> new Notification(
                 user.getUser(),
