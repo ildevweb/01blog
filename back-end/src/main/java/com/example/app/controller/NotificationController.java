@@ -1,6 +1,5 @@
 package com.example.app.controller;
 
-import java.time.Instant;
 import java.util.*;
 
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +12,7 @@ import com.example.app.dto.NotificationInfos;
 import com.example.app.entity.Notification;
 import com.example.app.repository.NotificationRepository;
 import com.example.app.security.UserPrincipal;
+import com.example.app.service.PostService;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -31,7 +31,7 @@ public class NotificationController {
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         User currentUser = user.getUser();
 
-        int count = notificationRepository.countByToUser(currentUser);
+        int count = notificationRepository.countByToUserAndReaded(currentUser, false);
 
         return ResponseEntity.ok(Map.of("count", count));
     }
@@ -52,7 +52,7 @@ public class NotificationController {
                     return new NotificationInfos(
                         notif.getId(),
                         fromUser.getName(),
-                        timeAgo(notif.getTime()),
+                        PostService.timeAgo(notif.getTime()),
                         "has created a post",
                         notif.getReaded()
                     );
@@ -61,40 +61,16 @@ public class NotificationController {
     }
 
 
-    public static String timeAgo(long postSeconds) {
+    @GetMapping("/unread/mark_all_as_read")
+    public void markAllAsRead() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        User currentUser = user.getUser();
 
-        long now = Instant.now().getEpochSecond();
-        long diff = now - postSeconds;
+        Notification notification = notificationRepository.findByToUser(currentUser);
 
-        if (diff < 0) {
-            return "just now";
-        }
+        notification.setReaded(true);
 
-        if (diff < 60) {
-            return diff + " seconds ago";
-        }
-
-        long minutes = diff / 60;
-        if (minutes < 60) {
-            return minutes + " minutes ago";
-        }
-
-        long hours = minutes / 60;
-        if (hours < 24) {
-            return hours + " hours ago";
-        }
-
-        long days = hours / 24;
-        if (days < 30) {
-            return days + " days ago";
-        }
-
-        long months = days / 30;
-        if (months < 12) {
-            return months + " months ago";
-        }
-
-        long years = months / 12;
-        return years + " years ago";
+        notificationRepository.save(notification);
     }
 }

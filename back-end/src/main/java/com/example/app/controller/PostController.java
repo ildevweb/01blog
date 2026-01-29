@@ -198,9 +198,6 @@ public class PostController {
             return;
         }
 
-        System.out.println("this is the post id");
-        System.out.println(id);
-
         //get owner id
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();

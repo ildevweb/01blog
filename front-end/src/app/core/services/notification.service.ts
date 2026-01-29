@@ -8,8 +8,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class NotificationService {
 
-    private unreadCountSubject = new BehaviorSubject<number>(0);
-    private notifications = new BehaviorSubject<any[]>([]);
+    unreadCountSubject = new BehaviorSubject<number>(0);
     private loaded = false;
 
     private readonly notifications_API = 'http://localhost:8080/api/notifications';
@@ -20,43 +19,17 @@ export class NotificationService {
     ) {}
 
     loadUnreadCount(): void {
-        if (this.loaded) return;
-        if (!this.authService.isLoggedIn()) return;
-
-        this.loaded = true;
 
         this.http
         .get<any>(`${this.notifications_API}/unread/count`)
         .subscribe({
-            next: res => this.unreadCountSubject.next(res.count),
-            error: () => {
-            this.loaded = false;
-            }
-        });
-    }
-
-    loadNotifications(): void {
-        if (this.loaded) return;
-        if (!this.authService.isLoggedIn()) return;
-
-        this.loaded = true;
-
-        this.http
-        .get<any[]>(`${this.notifications_API}/unread/get`)
-        .subscribe({
             next: res => {
-                console.log("this is unreaded notifications :", res);
-                this.notifications.next(res);
+                this.unreadCountSubject.next(res.count);
             },
             error: err => {
-                console.log("failed getting notifications :", err);
-                this.loaded = false;
+                console.log("error getting notification count :", err);
             }
         });
-    }
-
-    getNotifications(): Observable<any[]> {
-        return this.notifications.asObservable();
     }
 
     getUnreadCount(): Observable<number> {
