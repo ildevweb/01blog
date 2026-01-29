@@ -22,23 +22,21 @@ interface Notification {
 })
 export class NotificationComponent implements OnInit {
 
-    constructor(private notificationService: NotificationService) {}
+  notifications = new BehaviorSubject<any[]>([]);
 
-    ngOnInit(): void {
-        //console.log("this is the notifications :", this.notificationService.getNotifications());
-        this.notificationService.getNotifications()
-        .subscribe(result => console.log("this is the notifications :", result));
-    }
+  constructor(private notificationService: NotificationService) {}
 
-  notifications$ = new BehaviorSubject<Notification[]>([
-    { id: 1, username: 'John Doe', content: 'liked your post', time: '2 hours ago', avatar: 'https://via.placeholder.com/40', read: false },
-    { id: 2, username: 'Jane Smith', content: 'commented: "Great work!"', time: '5 hours ago', avatar: 'https://via.placeholder.com/40', read: false },
-    { id: 3, username: 'Mike Johnson', content: 'started following you', time: '1 day ago', avatar: 'https://via.placeholder.com/40', read: false },
-  ]);
+  ngOnInit(): void {
+    this.notificationService.loadNotifications();
+
+    this.notificationService.getNotifications()
+    .subscribe(result => this.notifications.next(result));
+  }
+
 
   markAllAsRead() {
-    const updated = this.notifications$.value.map(notif => ({ ...notif, read: true }));
-    this.notifications$.next(updated);
+    const updated = this.notifications.value.map(notif => ({ ...notif, readed: true }));
+    this.notifications.next(updated);
   }
 }
 

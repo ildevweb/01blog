@@ -35,7 +35,7 @@ export class NotificationService {
         });
     }
 
-    loadFollowers(): void {
+    loadNotifications(): void {
         if (this.loaded) return;
         if (!this.authService.isLoggedIn()) return;
 

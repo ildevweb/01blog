@@ -19,17 +19,22 @@
 
         <div class="list-group">
             <div
-            *ngFor="let notif of notifications$ | async"
+            *ngFor="let notif of notifications | async"
             class="list-group-item list-group-item-action d-flex align-items-start gap-3"
-            [ngClass]="{ 'bg-light': !notif.read, 'bg-white text-muted': notif.read }"
+            [ngClass]="{ 'bg-light': !notif.readed, 'bg-white text-muted': notif.readed }"
             >
-            <img [src]="notif.avatar" class="rounded-circle flex-shrink-0" alt="Avatar" width="40" height="40">
-            <div class="flex-grow-1">
-                <div>
-                <strong>{{ notif.username }}</strong> {{ notif.content }}
+                <img src="../../../assets/images/avatar.png" class="rounded-circle flex-shrink-0" alt="Avatar" width="40" height="40">
+                <div class="flex-grow-1">
+                    <div>
+                    <strong>{{ notif.username }}</strong> {{ notif.content }}
+                    </div>
+                    <div class="text-muted" style="font-size:0.8rem">{{ notif.time }}</div>
                 </div>
-                <div class="text-muted" style="font-size:0.8rem">{{ notif.time }}</div>
-            </div>
+
+                <div class="ms-auto">
+                    <i *ngIf="!notif.readed" class="bi bi-envelope-fill text-primary"></i>
+                    <i *ngIf="notif.readed" class="bi bi-envelope-open text-muted"></i>
+                </div>
             </div>
         </div>
     </div>

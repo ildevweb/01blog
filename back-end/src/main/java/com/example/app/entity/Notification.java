@@ -27,6 +27,8 @@ public class Notification {
 
     private Long time;
 
+    public Notification() {}
+
     public Notification(User fromUser, User toUser, boolean readed, Long time) {
         this.fromUser = fromUser;
         this.toUser = toUser;

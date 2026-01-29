@@ -75,6 +75,21 @@ public class PostController {
         if (image == null) {
             Post post = new Post(content, userId, nowSeconds);
             postRepository.save(post);
+
+            //Save notification to all followers
+            List<Follow> followers = followRepository.findByFollowedId(user.getId());
+
+            List<Notification> notifications = followers.stream()
+                .map(follower -> new Notification(
+                    user.getUser(),
+                    follower.getFollower(),
+                    false,
+                    nowSeconds
+                ))
+                .toList();
+
+            notificationRepository.saveAll(notifications);
+
             boolean liked = postLikeService.isLiked(post.getId(), currentUser);
             PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true);
             return ResponseEntity.ok(infos);
