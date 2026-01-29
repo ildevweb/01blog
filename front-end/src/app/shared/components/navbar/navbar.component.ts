@@ -3,6 +3,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -12,6 +13,7 @@ import { RouterModule } from '@angular/router';
 export class NavbarComponent implements OnInit {
 
   unreadCount = 0;
+  isAdmin = new BehaviorSubject<boolean | undefined>(undefined);
 
   constructor(
     private notificationService: NotificationService,
@@ -23,5 +25,19 @@ export class NavbarComponent implements OnInit {
 
     this.notificationService.getUnreadCount()
       .subscribe(count => this.unreadCount = count);
+
+    this.checkAdmin();
+  }
+
+  getUserRole(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role;
+  }
+
+  checkAdmin() {
+    this.isAdmin.next(this.getUserRole() === 'admin');
   }
 }

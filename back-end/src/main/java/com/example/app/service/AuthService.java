@@ -28,10 +28,16 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
+        boolean isEmpty = !userRepository.existsBy();
+
         User user = new User();
         user.setName(username);
         user.setEmail(email);
-        user.setRole("user");
+        if (isEmpty) {
+            user.setRole("admin");
+        } else {
+            user.setRole("user");
+        }
         
         String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);

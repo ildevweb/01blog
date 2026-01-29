@@ -53,7 +53,7 @@
       </li>
 
       <!-- Admin Dashboard -->
-      <li class="nav-item d-none" id="admin-link">
+      <li *ngIf="isAdmin | async" class="nav-item">
         <a class="nav-link" routerLink="/admin" title="Admin">
           <i class="bi bi-speedometer2 fs-5"></i>
         </a>
