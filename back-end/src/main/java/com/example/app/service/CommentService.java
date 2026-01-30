@@ -1,9 +1,12 @@
 package com.example.app.service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.app.repository.CommentLikeRepository;
 import com.example.app.repository.CommentRepository;
+import com.example.app.security.UserPrincipal;
 import com.example.app.dto.CommentInfos;
 import com.example.app.entity.User;
 
@@ -26,10 +29,14 @@ public class CommentService {
     }
 
     public List<CommentInfos> getByPostId(Long postId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
+        User user = loggedUser.getUser();
+
+        
         return commentRepository.findByPostIdOrderByTimeDesc(postId)
             .stream()
             .map(comment -> {
-                User user = authService.getUserById(comment.getOwnerId());
                 String time = timeAgo(comment.getTime());
 
                 boolean liked = commentLikeService.isLiked(comment.getId(), user);

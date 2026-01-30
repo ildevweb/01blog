@@ -3,16 +3,20 @@ package com.example.app.dto;
 public class UserInfos {
     private Long id;
     private String username;
+    private String email;
     private int followers;
     private int followeds;
     private boolean followed;
+    private String status;
 
-    public UserInfos(Long id, String username, int followers, int followeds, boolean followed) {
+    public UserInfos(Long id, String username, String email, int followers, int followeds, boolean followed, String status) {
         this.id = id;
         this.username = username;
+        this.email = email;
         this.followers = followers;
         this.followeds = followeds;
         this.followed = followed;
+        this.status = status;
     }
 
     public Long getId() {
@@ -20,6 +24,9 @@ public class UserInfos {
     }
     public String getUsername() {
         return this.username;
+    }
+    public String getEmail() {
+        return this.email;
     }
     public boolean getFollowed() {
         return this.followed;
@@ -29,6 +36,9 @@ public class UserInfos {
     }
     public int getFolloweds() {
         return this.followeds;
+    }
+    public String getStatus() {
+        return this.status;
     }
 
 }

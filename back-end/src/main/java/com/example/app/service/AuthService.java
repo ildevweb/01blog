@@ -38,6 +38,7 @@ public class AuthService {
         } else {
             user.setRole("user");
         }
+        user.setStatus("active");
         
         String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);

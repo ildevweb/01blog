@@ -35,9 +35,11 @@ public class UserService {
                 return new UserInfos(
                     usr.getId(),
                     usr.getName(),
+                    usr.getEmail(),
                     followService.countFollowers(usr.getId()),
                     followService.countFolloweds(usr.getId()),
-                    followService.isFollowing(userId, usr.getId())
+                    followService.isFollowing(userId, usr.getId()),
+                    usr.getStatus()
                 );
             })
             .toList();
@@ -52,9 +54,11 @@ public class UserService {
             .map(user -> new UserInfos(
                 user.getId(),
                 user.getName(),
+                user.getEmail(),
                 followService.countFollowers(user.getId()),
                 followService.countFolloweds(user.getId()),
-                followService.isFollowing(currentUser.getId(), user.getId())
+                followService.isFollowing(currentUser.getId(), user.getId()),
+                user.getStatus()
             ))
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
@@ -73,9 +77,11 @@ public class UserService {
                 return new UserInfos(
                     usr.getId(),
                     usr.getName(),
+                    usr.getEmail(),
                     followService.countFollowers(usr.getId()),
                     followService.countFolloweds(usr.getId()),
-                    followService.isFollowing(user.getId(), usr.getId())
+                    followService.isFollowing(user.getId(), usr.getId()),
+                    usr.getStatus()
                 );
             })
             .toList();
@@ -94,9 +100,11 @@ public class UserService {
                 return new UserInfos(
                     usr.getId(),
                     usr.getName(),
+                    usr.getEmail(),
                     followService.countFollowers(usr.getId()),
                     followService.countFolloweds(usr.getId()),
-                    followService.isFollowing(user.getId(), usr.getId())
+                    followService.isFollowing(user.getId(), usr.getId()),
+                    usr.getStatus()
                 );
             })
             .toList();

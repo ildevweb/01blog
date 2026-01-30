@@ -18,15 +18,17 @@ public class User {
     private String email;
     private String password;
     private String role;
+    private String status;
 
     public User() {
     }
 
-    public User(String name, String email, String password, String role) {
+    public User(String name, String email, String password, String role, String status) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.status = status;
     }
 
     public Long getId() {
@@ -63,5 +65,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
