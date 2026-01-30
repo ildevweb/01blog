@@ -18,4 +18,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Transactional
     void deleteByIdAndOwnerId(Long id, Long ownerId);
+
+    int countBy();
 }

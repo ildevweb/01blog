@@ -26,7 +26,7 @@
     <div class="container-fluid p-4">
 
       <!-- ================= Dashboard Home ================= -->
-      <section id="dashboard">
+      <section *ngIf="adminData | async as data" id="dashboard">
         <h4 class="mb-4">Dashboard Overview</h4>
 
         <!-- Summary Cards -->
@@ -36,7 +36,7 @@
               <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                   <h6>Total Users</h6>
-                  <h3 class="mb-0">1,245</h3>
+                  <h3 class="mb-0"> {{ data.usersCount }} </h3>
                 </div>
                 <i class="bi bi-people fs-1 opacity-75"></i>
               </div>
@@ -48,7 +48,7 @@
               <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                   <h6>Total Posts</h6>
-                  <h3 class="mb-0">3,782</h3>
+                  <h3 class="mb-0"> {{ data.postsCount }} </h3>
                 </div>
                 <i class="bi bi-file-post fs-1 opacity-75"></i>
               </div>
@@ -60,7 +60,7 @@
               <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                   <h6>Pending Reports</h6>
-                  <h3 class="mb-0">18</h3>
+                  <h3 class="mb-0"> {{ data.reportsCount }} </h3>
                 </div>
                 <i class="bi bi-flag fs-1 opacity-75"></i>
               </div>
