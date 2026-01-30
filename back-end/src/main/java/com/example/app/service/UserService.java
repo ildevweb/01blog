@@ -1,13 +1,18 @@
 package com.example.app.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 import com.example.app.dto.UserInfos;
 import com.example.app.entity.User;
 import com.example.app.repository.FollowRepository;
+import com.example.app.repository.NotificationRepository;
+import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 
@@ -16,11 +21,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final FollowService followService;
     private final FollowRepository followRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final NotificationRepository notificationRepository;
 
-    public UserService(UserRepository userRepository, FollowService followService, FollowRepository followRepository) {
+    public UserService(UserRepository userRepository, FollowService followService, FollowRepository followRepository, PostLikeRepository postLikeRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.followService = followService;
         this.followRepository = followRepository;
+        this.postLikeRepository = postLikeRepository;
+        this.notificationRepository = notificationRepository;
     }
     
     public List<UserInfos> getAllUsers() {
@@ -110,4 +119,16 @@ public class UserService {
             .toList();
     }
 
+
+    public void deleteUser(Long userId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        postLikeRepository.deleteByUserId(userId);
+        notificationRepository.deleteByFromUserOrToUser(userId);
+        followRepository.deleteByFollowedOrFollower(userId);
+        userRepository.deleteById(userId);
+    }
 }

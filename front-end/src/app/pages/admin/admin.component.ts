@@ -65,8 +65,8 @@ export class AdminComponent implements OnInit {
     //send request to delete user
     deleteUser(userId: number) {
         this.http.get(`${this.userAPI}/delete/${userId}`).subscribe({
-            next: res => {
-                console.log("success delete user:", res);
+            next: () => {
+                console.log("success delete user:");
             },
             error: err => {
                 console.error('Failed to delete user :', err);

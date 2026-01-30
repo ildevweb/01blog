@@ -17,13 +17,11 @@ import java.time.Instant;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final AuthService authService;
     private final CommentLikeService commentLikeService;
     private final CommentLikeRepository commentLikeRepository;
 
-    public CommentService(CommentRepository commentRepository, AuthService authService, CommentLikeService commentLikeService, CommentLikeRepository commentLikeRepository) {
+    public CommentService(CommentRepository commentRepository, CommentLikeService commentLikeService, CommentLikeRepository commentLikeRepository) {
         this.commentRepository = commentRepository;
-        this.authService = authService;
         this.commentLikeService = commentLikeService;
         this.commentLikeRepository = commentLikeRepository;
     }
@@ -33,7 +31,7 @@ public class CommentService {
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
 
-        
+
         return commentRepository.findByPostIdOrderByTimeDesc(postId)
             .stream()
             .map(comment -> {

@@ -44,6 +44,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(id));
     }
 
+    @GetMapping("/delete/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
+
     @PostMapping("/follow")
     public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         

@@ -1,7 +1,9 @@
 package com.example.app.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.app.entity.User;
 import java.util.*;
@@ -15,4 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(Long id);
     boolean existsBy();
     int countBy();
+
+    boolean existsById(Long id);
+
+    @Modifying
+    @Transactional
+    void deleteById(Long id);
 }
