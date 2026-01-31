@@ -49,6 +49,11 @@ public class UserController {
         userService.deleteUser(id);
     }
 
+    @GetMapping("/ban/{id}")
+    public void banUser(@PathVariable Long id) {
+        userService.banUser(id);
+    }
+
     @PostMapping("/follow")
     public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         

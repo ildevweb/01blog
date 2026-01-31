@@ -34,24 +34,45 @@ public class UserService {
     
     public List<UserInfos> getAllUsers() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
-        Long userId = user.getId();
+        UserPrincipal userp = (UserPrincipal) auth.getPrincipal();
+        Long userId = userp.getId();
+        User user = userp.getUser();
 
-        return userRepository.findByIdNot(userId)
-            .stream()
-            .map(usr -> {
+        String role = user.getRole();
 
-                return new UserInfos(
-                    usr.getId(),
-                    usr.getName(),
-                    usr.getEmail(),
-                    followService.countFollowers(usr.getId()),
-                    followService.countFolloweds(usr.getId()),
-                    followService.isFollowing(userId, usr.getId()),
-                    usr.getStatus()
-                );
-            })
-            .toList();
+        if (role.equals("admin")) {
+            return userRepository.findByIdNot(userId)
+                .stream()
+                .map(usr -> {
+
+                    return new UserInfos(
+                        usr.getId(),
+                        usr.getName(),
+                        usr.getEmail(),
+                        followService.countFollowers(usr.getId()),
+                        followService.countFolloweds(usr.getId()),
+                        followService.isFollowing(userId, usr.getId()),
+                        usr.getStatus()
+                    );
+                })
+                .toList();
+        } else {
+            return userRepository.findByIdNotAndStatus(userId, "active")
+                .stream()
+                .map(usr -> {
+
+                    return new UserInfos(
+                        usr.getId(),
+                        usr.getName(),
+                        usr.getEmail(),
+                        followService.countFollowers(usr.getId()),
+                        followService.countFolloweds(usr.getId()),
+                        followService.isFollowing(userId, usr.getId()),
+                        usr.getStatus()
+                    );
+                })
+                .toList();
+        }
     }
 
     public UserInfos getProfile(Long userId) {
@@ -130,5 +151,23 @@ public class UserService {
         notificationRepository.deleteByFromUserOrToUser(userId);
         followRepository.deleteByFollowedOrFollower(userId);
         userRepository.deleteById(userId);
+    }
+
+    public void banUser(Long userId) {
+
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getStatus().equals("active")) {
+            user.setStatus("banned");
+        } else if (user.getStatus().equals("banned")) {
+            user.setStatus("active");
+        }
+
+        userRepository.save(user);
     }
 }

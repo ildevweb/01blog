@@ -233,10 +233,14 @@
               <li
                 class="list-group-item d-flex align-items-center gap-2"
                 *ngFor="let user of users$ | async"
+                [ngClass]="{'blurred': user.status === 'banned'}"
               >
                 <img src="./../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm"/>
 
-                <span class="username clickable" (click)="goToProfile(user.id)">
+                <span
+                  class="username clickable"
+                  (click)="user.status !== 'banned' && goToProfile(user.id)"
+                >
                   {{ user.username }}
                 </span>
 
@@ -244,16 +248,17 @@
                 <button
                   (click)="follow(user.id)"
                   class="btn follow-btn ms-auto"
-                  [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
-
+                  [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'"
+                  [disabled]="user.status === 'banned'"
+                >
                   <i
                     class="bi me-1"
-                    [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'">
-                  </i>
-
+                    [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'"
+                  ></i>
                   {{ user.followed ? 'Unfollow' : 'Follow' }}
                 </button>
               </li>
+
             </ul>
 
           </div>

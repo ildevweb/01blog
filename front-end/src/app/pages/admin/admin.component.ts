@@ -67,9 +67,23 @@ export class AdminComponent implements OnInit {
         this.http.get(`${this.userAPI}/delete/${userId}`).subscribe({
             next: () => {
                 console.log("success delete user:");
+                this.getUsers();
             },
             error: err => {
                 console.error('Failed to delete user :', err);
+            }
+        });
+    }
+
+    //send request to ban / unban user
+    toggleBan(userId: number) {
+        this.http.get(`${this.userAPI}/ban/${userId}`).subscribe({
+            next: () => {
+                console.log("success ban / unban user:");
+                this.getUsers();
+            },
+            error: err => {
+                console.error('Failed to ban / unban user :', err);
             }
         });
     }

@@ -103,7 +103,13 @@
                 <td>
                   <button class="btn btn-sm btn-primary" (click)="goToProfile(user.id)">View</button>
                   <button class="btn btn-sm btn-warning" (click)="deleteUser(user.id)">Delete</button>
-                  <button class="btn btn-sm btn-danger">Ban</button>
+                  <button 
+                    class="btn btn-sm" 
+                    [ngClass]="user.status === 'active' ? 'btn-danger' : 'btn-success'" 
+                    (click)="toggleBan(user.id)"
+                  >
+                    {{ user.status === 'active' ? 'Ban' : 'Unban' }}
+                  </button>
                 </td>
               </tr>
             </tbody>
