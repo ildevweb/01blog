@@ -18,22 +18,25 @@ public class Post {
     private String media;
     private Long ownerId;
     private Long time;
+    private String status;
 
 
     public Post() {
     }
 
-    public Post(String content, String media, Long ownerId, Long time) {
+    public Post(String content, String media, Long ownerId, Long time, String status) {
         this.content = content;
         this.media = media;
         this.ownerId = ownerId;
         this.time = time;
+        this.status = status;
     }
 
-    public Post(String content, Long ownerId, Long time) {
+    public Post(String content, Long ownerId, Long time, String status) {
         this.content = content;
         this.ownerId = ownerId;
         this.time = time;
+        this.status = status;
     }
 
     public Long getId() {
@@ -72,4 +75,11 @@ public class Post {
         this.time = time;
     }
 
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

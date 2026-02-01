@@ -51,7 +51,12 @@
         <div id="feed">
 
           <!-- Posts list -->
-          <div *ngFor="let post of posts$ | async" class="card mb-3 shadow-sm">
+          <div [ngClass]="{ 'post-blurred': post.status === 'banned' }" *ngFor="let post of posts$ | async" class="card mb-3 shadow-sm">
+
+            <div *ngIf="post.status === 'banned'" class="banned-overlay">
+              BANNED
+            </div>
+
 
             <!-- Header -->
             <div class="card-header d-flex align-items-center gap-2">
@@ -235,6 +240,9 @@
                 *ngFor="let user of users$ | async"
                 [ngClass]="{'blurred': user.status === 'banned'}"
               >
+                <div *ngIf="user.status === 'banned'" class="banned-overlay">
+                  BANNED
+                </div>
                 <img src="./../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm"/>
 
                 <span

@@ -73,7 +73,7 @@ public class PostController {
 
 
         if (image == null) {
-            Post post = new Post(content, userId, nowSeconds);
+            Post post = new Post(content, userId, nowSeconds, "active");
             postRepository.save(post);
 
             //Save notification to all followers
@@ -91,7 +91,7 @@ public class PostController {
             notificationRepository.saveAll(notifications);
 
             boolean liked = postLikeService.isLiked(post.getId(), currentUser);
-            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true);
+            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
             return ResponseEntity.ok(infos);
         }
 
@@ -110,7 +110,7 @@ public class PostController {
         Files.copy(image.getInputStream(), Paths.get(filePath));
 
         // Save Post to DB
-        Post post = new Post(content, filePath, userId, nowSeconds);
+        Post post = new Post(content, filePath, userId, nowSeconds, "active");
 
         postRepository.save(post);
 
@@ -130,7 +130,7 @@ public class PostController {
 
         //return a response
         boolean liked = postLikeService.isLiked(post.getId(), currentUser);
-        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true);
+        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
 
         return ResponseEntity.ok(infos);
     }
@@ -177,12 +177,18 @@ public class PostController {
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
         User user = userPrincipal.getUser();
 
-        if (!postRepository.existsByOwnerIdAndId(user.getId(), id)) {
+        if (!postRepository.existsByOwnerIdAndId(user.getId(), id) && !user.getRole().equals("admin")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
+        //notificationRepository.deleteByFromUserOrToUser()
         postLikeRepository.deleteByPostId(id);
-        postRepository.deleteByIdAndOwnerId(id, user.getId());
+        postRepository.deleteById(id);
+    }
+
+    @GetMapping("/ban/{id}")
+    public void banPost(@PathVariable Long id) {
+        postService.banPost(id);
     }
 
 

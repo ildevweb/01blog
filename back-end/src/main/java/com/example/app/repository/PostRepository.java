@@ -6,18 +6,23 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.app.entity.Post;
-import java.util.List;
+
+import java.util.*;
 
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByOwnerIdOrderByTimeDesc(Long ownerId);
+    List<Post> findByOwnerIdAndStatusOrderByTimeDesc(Long ownerId, String status);
+
+    List<Post> findByStatusOrderByTimeDesc(String status);
 
     boolean existsByOwnerIdAndId(Long ownerId, Long id);
 
+    Optional<Post> findById(Long id);
+
     @Modifying
     @Transactional
-    void deleteByIdAndOwnerId(Long id, Long ownerId);
+    void deleteById(Long id);
 
     int countBy();
 }

@@ -147,6 +147,14 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userp = (UserPrincipal) auth.getPrincipal();
+        User user = userp.getUser();
+
+        if (!user.getRole().equals("admin")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
         postLikeRepository.deleteByUserId(userId);
         notificationRepository.deleteByFromUserOrToUser(userId);
         followRepository.deleteByFollowedOrFollower(userId);
@@ -154,8 +162,11 @@ public class UserService {
     }
 
     public void banUser(Long userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
+        User currentUser = loggedUser.getUser();
 
-        if (!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(userId) || !currentUser.getRole().equals("admin")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 

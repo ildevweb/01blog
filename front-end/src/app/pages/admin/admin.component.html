@@ -133,18 +133,40 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>55</td>
-                <td>Welcome Post</td>
-                <td>admin</td>
-                <td>2026-01-20</td>
-                <td><span class="badge bg-success">Published</span></td>
+              <tr *ngFor="let post of posts | async">
+                <td>{{ post.id }}</td>
+
+                <td class="text-truncate" style="max-width: 200px;">
+                  {{ post.content }}
+                </td>
+
+                <td>{{ post.username }}</td>
+
+                <td>{{ post.time }}</td>
+
                 <td>
-                  <button class="btn btn-sm btn-primary">View</button>
-                  <button class="btn btn-sm btn-danger">Delete</button>
+                  <span
+                    class="badge"
+                    [ngClass]="post.status === 'active' ? 'bg-success' : 'bg-danger'"
+                  >
+                    {{ post.status === 'active' ? 'Published' : 'Banned' }}
+                  </span>
+                </td>
+
+                <td>
+                  <button class="btn btn-sm btn-warning" (click)="deletePost(post.id)">Delete</button>
+
+                  <button 
+                    class="btn btn-sm" 
+                    [ngClass]="post.status === 'active' ? 'btn-danger' : 'btn-success'" 
+                    (click)="togglePostBan(post.id)"
+                  >
+                    {{ post.status === 'active' ? 'Ban' : 'Unban' }}
+                  </button>
                 </td>
               </tr>
             </tbody>
+
           </table>
         </div>
       </section>

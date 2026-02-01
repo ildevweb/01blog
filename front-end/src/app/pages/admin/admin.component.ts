@@ -17,6 +17,7 @@ export class AdminComponent implements OnInit {
     adminData = new BehaviorSubject<any>(null);
 
     users = new BehaviorSubject<any[]>([]);
+    posts = new BehaviorSubject<any[]>([]);
 
     private readonly postAPI = 'http://localhost:8080/api/post';
     private readonly commentAPI = 'http://localhost:8080/api/comment';
@@ -28,6 +29,7 @@ export class AdminComponent implements OnInit {
     ngOnInit(): void {
         this.getData();
         this.getUsers();
+        this.getPosts();
     }
 
     //get static data
@@ -84,6 +86,47 @@ export class AdminComponent implements OnInit {
             },
             error: err => {
                 console.error('Failed to ban / unban user :', err);
+            }
+        });
+    }
+
+
+    //get posts
+    getPosts() {
+        this.http.get<any[]>(`${this.postAPI}/all`)
+        .subscribe({
+            next: posts => {
+            console.log("this is the whole posts:", posts);
+            this.posts.next(posts);
+            },
+            error: err => {
+            console.log('Failed to load posts:', err);
+            }
+        });
+    }
+
+    //send request to delete post
+    deletePost(postId: number) {
+        this.http.get(`${this.postAPI}/delete/${postId}`).subscribe({
+            next: () => {
+                console.log("success delete post:");
+                this.getPosts();
+            },
+            error: err => {
+                console.error('Failed to delete post :', err);
+            }
+        });
+    }
+
+    //send request to ban / unban post
+    togglePostBan(postId: number) {
+        this.http.get(`${this.postAPI}/ban/${postId}`).subscribe({
+            next: () => {
+                console.log("success ban / unban post:");
+                this.getPosts();
+            },
+            error: err => {
+                console.error('Failed to ban / unban post :', err);
             }
         });
     }

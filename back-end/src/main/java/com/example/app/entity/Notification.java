@@ -3,12 +3,7 @@ package com.example.app.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(
-    name = "notification",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"from_user", "to_user", "readed"})
-    }
-)
+@Table(name = "notification")
 public class Notification {
 
     @Id
