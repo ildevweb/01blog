@@ -39,6 +39,8 @@ export class HomeComponent implements OnInit {
   }
   isSubmittingComment: boolean = false;
 
+  private userToReportId: number = 0;
+
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
@@ -299,5 +301,26 @@ export class HomeComponent implements OnInit {
   //redirect to user profile
   goToProfile(id: number) {
     this.router.navigate(['/profile', id]);
+  }
+
+  
+  // Open Report modal
+  openReportModal(userId: number) {
+    this.userToReportId = userId;
+
+
+    const modalEl = document.getElementById('reportUserModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  //submit report
+  submitReport(reasonSpam: HTMLInputElement,
+    reasonHate: HTMLInputElement,
+    reasonInappropriate: HTMLInputElement,
+    additionalReason: HTMLInputElement) {
+      
   }
 }
