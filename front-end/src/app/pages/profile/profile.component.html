@@ -20,15 +20,19 @@
         <button
           *ngIf="!(mine$ | async)"
           (click)="follow(data.id)"
-          class="btn ms-auto"
-          [ngClass]="data.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
-
-          <i
-            class="bi me-1"
-            [ngClass]="data.followed ? 'bi-person-dash' : 'bi-person-plus'">
-          </i>
-
+          class="btn"
+          [ngClass]="data.followed ? 'btn-outline-danger' : 'btn-outline-primary'"
+        >
+          <i class="bi me-1" [ngClass]="data.followed ? 'bi-person-dash' : 'bi-person-plus'"></i>
           {{ data.followed ? 'Unfollow' : 'Follow' }}
+        </button>
+
+        <button
+          class="btn btn-outline-danger"
+          (click)="openReportModal(data.id, 'user')"
+        >
+          <i class="bi bi-flag"></i>
+          Report User
         </button>
         
       </div>
@@ -323,6 +327,76 @@
       <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
         {{ success }}
       </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Report User Modal -->
+<div class="modal fade" id="reportUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">Report User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>Select a reason for reporting:</p>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="reportReason" id="reasonSpam" #reasonSpam>
+          <label class="form-check-label" for="reasonSpam">Spam</label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="reportReason" id="reasonHate" #reasonHate>
+          <label class="form-check-label" for="reasonHate">Hate Speech</label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="reportReason" id="reasonInappropriate" #reasonInappropriate>
+          <label class="form-check-label" for="reasonInappropriate">Inappropriate Content</label>
+        </div>
+
+        <!-- Other reason radio -->
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="reportReason"
+            id="reasonOther"
+            #reasonOther
+            (change)="additionalReason.disabled = !reasonOther.checked"
+          >
+          <label class="form-check-label" for="reasonOther">
+            Other reason:
+          </label>
+
+          <input
+            type="text"
+            class="form-control mt-1"
+            placeholder="Type your reason here..."
+            #additionalReason
+            [disabled]="true"
+          >
+        </div>
+
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger"
+          (click)="submitReport(reasonSpam, reasonHate, reasonInappropriate, additionalReason)">
+          Submit Report
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

@@ -343,6 +343,12 @@ export class HomeComponent implements OnInit {
         return;
       }
 
+      const confirmed = window.confirm('Are you sure you want to submit this report?');
+
+      if (!confirmed) {
+        return;
+      }
+
       let reportData = {
         userToReport: this.userToReportId,
         type: this.reportType,
@@ -360,5 +366,9 @@ export class HomeComponent implements OnInit {
           console.log("this is the report error:", err)
         }
       });
+
+      const modalElement = document.getElementById('reportUserModal');
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal.hide();
   }
 }

@@ -3,6 +3,7 @@ package com.example.app.controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.app.repository.PostRepository;
+import com.example.app.repository.ReportRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.service.ReportService;
 import com.example.app.dto.ReportInfos;
@@ -20,11 +21,13 @@ public class AdminController {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final ReportService reportService;
+    private final ReportRepository reportRepository;
 
-    public AdminController(UserRepository userRepository, PostRepository postRepository, ReportService reportService) {
+    public AdminController(UserRepository userRepository, PostRepository postRepository, ReportService reportService, ReportRepository reportRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.reportService = reportService;
+        this.reportRepository = reportRepository;
     }
 
     @GetMapping("/getData")
@@ -32,8 +35,9 @@ public class AdminController {
 
         int usersCount = userRepository.countBy();
         int postsCount = postRepository.countBy();
+        int reportsCount = reportRepository.countBy();
 
-        Data data = new Data(usersCount, postsCount, 10);
+        Data data = new Data(usersCount, postsCount, reportsCount);
 
 
         return ResponseEntity.ok(data);

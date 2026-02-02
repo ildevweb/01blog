@@ -58,9 +58,14 @@ export class ProfileComponent implements OnInit {
 
   userId?: number; // Profile owner ID
 
+  //report part
+  private userToReportId: number = 0;
+  private reportType: string = '';
+
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
+  private readonly reportAPI = 'http://localhost:8080/api/report';
 
   constructor(private http: HttpClient, private route: ActivatedRoute, private router: Router) {}
 
@@ -354,5 +359,72 @@ export class ProfileComponent implements OnInit {
     }
 
     this.router.navigate(['/profile', id]);
+  }
+
+
+
+  // Open Report modal
+  openReportModal(userId: number, type: string) {
+    this.userToReportId = userId;
+    this.reportType = type;
+
+
+    const modalEl = document.getElementById('reportUserModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  //submit report
+  submitReport(reasonSpam: HTMLInputElement,
+    reasonHate: HTMLInputElement,
+    reasonInappropriate: HTMLInputElement,
+    additionalReason: HTMLInputElement) {
+      
+      let selectedReason = '';
+
+      if (reasonSpam.checked) {
+        selectedReason = 'Spam';
+      } else if (reasonHate.checked) {
+        selectedReason = 'Hate Speech';
+      } else if (reasonInappropriate.checked) {
+        selectedReason = 'Inappropriate Content';
+      } else if (additionalReason.value.trim()) {
+        selectedReason = additionalReason.value.trim();
+      }
+
+      if (!selectedReason) {
+        alert('Please select a reason');
+        return;
+      }
+
+      const confirmed = window.confirm('Are you sure you want to submit this report?');
+
+      if (!confirmed) {
+        return;
+      }
+
+      let reportData = {
+        userToReport: this.userToReportId,
+        type: this.reportType,
+        reason: selectedReason,
+      }
+
+      this.http.post(
+        `${this.reportAPI}/report`,
+        reportData
+      ).subscribe({
+        next: res => {
+          console.log('Report success', res)
+        },
+        error: err => {
+          console.log("this is the report error:", err)
+        }
+      });
+
+      const modalElement = document.getElementById('reportUserModal');
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal.hide();
   }
 }
