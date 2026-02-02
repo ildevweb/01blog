@@ -59,7 +59,7 @@ export class ProfileComponent implements OnInit {
   userId?: number; // Profile owner ID
 
   //report part
-  private userToReportId: number = 0;
+  private reportedId: number = 0;
   private reportType: string = '';
 
   private readonly postAPI = 'http://localhost:8080/api/post';
@@ -364,8 +364,8 @@ export class ProfileComponent implements OnInit {
 
 
   // Open Report modal
-  openReportModal(userId: number, type: string) {
-    this.userToReportId = userId;
+  openReportModal(reportedId: number, type: string) {
+    this.reportedId = reportedId;
     this.reportType = type;
 
 
@@ -406,7 +406,7 @@ export class ProfileComponent implements OnInit {
       }
 
       let reportData = {
-        userToReport: this.userToReportId,
+        reportedId: this.reportedId,
         type: this.reportType,
         reason: selectedReason,
       }

@@ -35,7 +35,7 @@ public class AdminController {
 
         int usersCount = userRepository.countBy();
         int postsCount = postRepository.countBy();
-        int reportsCount = reportRepository.countBy();
+        int reportsCount = reportRepository.countByStatus("pending");
 
         Data data = new Data(usersCount, postsCount, reportsCount);
 

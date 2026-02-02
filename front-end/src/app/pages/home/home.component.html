@@ -71,7 +71,7 @@
               </small>
 
               <!-- 3 dots menu -->
-              <div *ngIf="post.mine" class="dropdown ms-2">
+              <div class="dropdown ms-2">
                 <button
                   class="btn btn-sm btn-light border-0"
                   type="button"
@@ -82,19 +82,28 @@
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                  <li>
+                  <li *ngIf="post.mine">
                     <button class="dropdown-item d-flex align-items-center gap-2">
                       <i class="bi bi-pencil"></i>
                       Edit
                     </button>
                   </li>
-                  <li>
+                  <li *ngIf="post.mine">
                     <button
                       (click)="deletePost(post.id)"
                       class="dropdown-item text-danger d-flex align-items-center gap-2"
                     >
                       <i class="bi bi-trash"></i>
                       Delete
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      class="dropdown-item text-danger d-flex align-items-center gap-2"
+                      (click)="openReportModal(post.id, 'post')"
+                    >
+                      <i class="bi bi-flag"></i>
+                      Report Post
                     </button>
                   </li>
                 </ul>

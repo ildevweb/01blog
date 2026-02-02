@@ -2,16 +2,16 @@ package com.example.app.dto;
 
 public class ReportRequest {
 
-    private Long userToReport;
+    private Long reportedId;
     private String type;
     private String reason;
 
-    public Long getUserToReport() {
-        return this.userToReport;
+    public Long getReportedId() {
+        return this.reportedId;
     }
 
-    public void setUserToReport(Long userToReport) {
-        this.userToReport = userToReport;
+    public void getReportedId(Long reportedId) {
+        this.reportedId = reportedId;
     }
 
     public void setType(String type) {
