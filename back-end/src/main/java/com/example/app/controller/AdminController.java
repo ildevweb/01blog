@@ -4,9 +4,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.app.repository.PostRepository;
 import com.example.app.repository.UserRepository;
-
+import com.example.app.service.ReportService;
+import com.example.app.dto.ReportInfos;
 
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 
 @RestController
@@ -16,10 +19,12 @@ public class AdminController {
     
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final ReportService reportService;
 
-    public AdminController(UserRepository userRepository, PostRepository postRepository) {
+    public AdminController(UserRepository userRepository, PostRepository postRepository, ReportService reportService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.reportService = reportService;
     }
 
     @GetMapping("/getData")
@@ -32,6 +37,12 @@ public class AdminController {
 
 
         return ResponseEntity.ok(data);
+    }
+
+    @GetMapping("/reports")
+    public ResponseEntity<List<ReportInfos>> getReports() {
+        List<ReportInfos> reports = reportService.getAllReports();
+        return ResponseEntity.ok(reports);
     }
 }
 

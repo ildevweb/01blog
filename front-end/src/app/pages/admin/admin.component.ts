@@ -18,9 +18,9 @@ export class AdminComponent implements OnInit {
 
     users = new BehaviorSubject<any[]>([]);
     posts = new BehaviorSubject<any[]>([]);
+    reports = new BehaviorSubject<any[]>([]);
 
     private readonly postAPI = 'http://localhost:8080/api/post';
-    private readonly commentAPI = 'http://localhost:8080/api/comment';
     private readonly userAPI = 'http://localhost:8080/api/user';
     private readonly adminAPI = 'http://localhost:8080/api/admin';
 
@@ -30,6 +30,7 @@ export class AdminComponent implements OnInit {
         this.getData();
         this.getUsers();
         this.getPosts();
+        this.getReports();
     }
 
     //get static data
@@ -127,6 +128,19 @@ export class AdminComponent implements OnInit {
             },
             error: err => {
                 console.error('Failed to ban / unban post :', err);
+            }
+        });
+    }
+
+    getReports() {
+        this.http.get<any[]>(`${this.adminAPI}/reports`)
+        .subscribe({
+            next: reports => {
+                console.log("this is the whole reports:", reports);
+                this.reports.next(reports);
+            },
+            error: err => {
+                console.log('Failed to load reports:', err);
             }
         });
     }

@@ -181,35 +181,59 @@
                 <th>ID</th>
                 <th>Type</th>
                 <th>Reported By</th>
+                <th>Reported</th>
                 <th>Reason</th>
-                <th>Date</th>
+                <th>Time</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>901</td>
-                <td>Post</td>
-                <td>user123</td>
-                <td>Spam</td>
-                <td>2026-01-22</td>
-                <td><span class="badge bg-warning">Pending</span></td>
+              <tr *ngFor="let report of reports | async">
+                <td>{{ report.id }}</td>
+                <td>{{ report.type }}</td>
+                <td>{{ report.reportedBy }}</td>
+                <td>{{ report.reported }}</td>
+                <td>{{ report.reason }}</td>
+                <td>{{ report.time }}</td>
+
                 <td>
-                  <button class="btn btn-sm btn-success">Resolve</button>
-                  <button class="btn btn-sm btn-secondary">Dismiss</button>
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'bg-warning': report.status === 'pending',
+                      'bg-success': report.status === 'resolved',
+                      'bg-secondary': report.status === 'dismissed'
+                    }"
+                  >
+                    {{ report.status | titlecase }}
+                  </span>
+                </td>
+
+                <td>
+                  <button
+                    class="btn btn-sm btn-success me-1"
+                    
+                    [disabled]="report.status !== 'pending'"
+                  >
+                    Resolve
+                  </button>
+
+                  <button
+                    class="btn btn-sm btn-secondary"
+                    
+                    [disabled]="report.status !== 'pending'"
+                  >
+                    Dismiss
+                  </button>
                 </td>
               </tr>
+
             </tbody>
           </table>
         </div>
       </section>
     </div>
-
-    <!-- Footer -->
-    <footer class="border-top py-3 text-center bg-white">
-      <small>&copy; 2026 Admin Dashboard</small>
-    </footer>
 
   </div>
 </div>
