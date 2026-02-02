@@ -39,11 +39,14 @@ export class HomeComponent implements OnInit {
   }
   isSubmittingComment: boolean = false;
 
+  //report part
   private userToReportId: number = 0;
+  private reportType: string = '';
 
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
+  private readonly reportAPI = 'http://localhost:8080/api/report';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -305,8 +308,9 @@ export class HomeComponent implements OnInit {
 
   
   // Open Report modal
-  openReportModal(userId: number) {
+  openReportModal(userId: number, type: string) {
     this.userToReportId = userId;
+    this.reportType = type;
 
 
     const modalEl = document.getElementById('reportUserModal');
@@ -322,5 +326,39 @@ export class HomeComponent implements OnInit {
     reasonInappropriate: HTMLInputElement,
     additionalReason: HTMLInputElement) {
       
+      let selectedReason = '';
+
+      if (reasonSpam.checked) {
+        selectedReason = 'Spam';
+      } else if (reasonHate.checked) {
+        selectedReason = 'Hate Speech';
+      } else if (reasonInappropriate.checked) {
+        selectedReason = 'Inappropriate Content';
+      } else if (additionalReason.value.trim()) {
+        selectedReason = additionalReason.value.trim();
+      }
+
+      if (!selectedReason) {
+        alert('Please select a reason');
+        return;
+      }
+
+      let reportData = {
+        userToReport: this.userToReportId,
+        type: this.reportType,
+        reason: selectedReason,
+      }
+
+      this.http.post(
+        `${this.reportAPI}/report`,
+        reportData
+      ).subscribe({
+        next: res => {
+          console.log('Report success', res)
+        },
+        error: err => {
+          console.log("this is the report error:", err)
+        }
+      });
   }
 }

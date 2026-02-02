@@ -16,16 +16,18 @@ public class Report {
 
     private String type;
     private String reported_by;
+    private String reported_user;
     private String reason;
-    private String time;
+    private Long time;
     private String status;
 
     public Report() {
     }
 
-    public Report(String type, String reported_by, String reason, String time, String status) {
+    public Report(String type, String reported_by, String reported_user, String reason, Long time, String status) {
         this.type = type;
         this.reported_by = reported_by;
+        this.reported_user = reported_user;
         this.reason = reason;
         this.time = time;
         this.status = status;
@@ -41,6 +43,14 @@ public class Report {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public void setReportedUser(String reported_user) {
+        this.reported_user = reported_user;
+    }
+
+    public String getReportedUser() {
+        return this.reported_user;
     }
 
     public void setReportedBy(String reported_by) {
@@ -59,11 +69,11 @@ public class Report {
         this.reason = reason;
     }
 
-    public String getTime() {
+    public Long getTime() {
         return this.time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 

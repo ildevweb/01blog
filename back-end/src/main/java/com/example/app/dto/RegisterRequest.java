@@ -24,7 +24,7 @@ public class RegisterRequest {
         this.role = role;
     }
 
-    public String getRole(String role) {
+    public String getRole() {
         return this.role;
     }
 
@@ -50,23 +50,21 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    // 1️⃣ Validate email
+    // Validate email
     public static boolean validateEmail(String email) {
         // Simple regex for most emails
         String emailRegex = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
         return Pattern.matches(emailRegex, email);
     }
 
-    // ------------------------
-    // 2️⃣ Validate username
+    // Validate username
     public static boolean validateUsername(String username) {
         // Letters, numbers, underscore, 3-20 chars
         String usernameRegex = "^[a-zA-Z0-9_]{3,20}$";
         return Pattern.matches(usernameRegex, username);
     }
 
-    // ------------------------
-    // 3️⃣ Validate password
+    // Validate password
     public static boolean validatePassword(String password) {
         // Minimum 8 chars, at least 1 letter and 1 number
         String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
