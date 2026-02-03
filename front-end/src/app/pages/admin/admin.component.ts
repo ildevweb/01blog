@@ -85,6 +85,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 console.log("success ban / unban user:");
                 this.getUsers();
+                this.getReports();
             },
             error: err => {
                 console.error('Failed to ban / unban user :', err);
@@ -127,6 +128,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 console.log("success ban / unban post:");
                 this.getPosts();
+                this.getReports();
             },
             error: err => {
                 console.error('Failed to ban / unban post :', err);
@@ -178,6 +180,20 @@ export class AdminComponent implements OnInit {
             this.deleteUser(id);
         } else if (type == "post") {
             this.deletePost(id);
+        }
+    }
+
+    //ban user or post from report
+    ban(id: number, type: string) {
+        const confirmed = window.confirm('Are you sure you want to ban this reported?');
+        if (!confirmed) {
+            return;
+        }
+
+        if (type == "user") {
+            this.toggleBan(id);
+        } else if (type == "post") {
+            this.togglePostBan(id);
         }
     }
 }

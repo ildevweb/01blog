@@ -189,5 +189,11 @@ public class UserService {
         }
 
         userRepository.save(user);
+
+        reportRepository.findByReportedAndType(userId, "user")
+        .ifPresent(report -> {
+            report.setStatus("resolved");
+            reportRepository.save(report);
+        });
     }
 }

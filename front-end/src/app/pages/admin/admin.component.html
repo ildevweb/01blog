@@ -213,7 +213,7 @@
                 <td>
                   <button
                     class="btn btn-sm btn-danger me-1"
-                    
+                    (click)="ban(report.reported, report.type)"
                     [disabled]="report.status !== 'pending'"
                   >
                     Ban

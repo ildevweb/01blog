@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
+import com.example.app.repository.ReportRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
@@ -26,12 +27,14 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostLikeService postLikeService;
     private final UserRepository userRepository;
+    private final ReportRepository reportRepository;
 
-    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository, ReportRepository reportRepository) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
         this.postLikeService = postLikeService;
         this.userRepository = userRepository;
+        this.reportRepository = reportRepository;
     }
 
     public List<PostInfos> getAllPosts() {
@@ -212,5 +215,12 @@ public class PostService {
         }
 
         postRepository.save(post);
+
+
+        reportRepository.findByReportedAndType(postId, "post")
+        .ifPresent(report -> {
+            report.setStatus("resolved");
+            reportRepository.save(report);
+        });
     }
 }
