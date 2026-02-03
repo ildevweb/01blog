@@ -180,8 +180,8 @@
               <tr>
                 <th>ID</th>
                 <th>Type</th>
-                <th>Reported By</th>
-                <th>Reported / post id</th>
+                <th>Reporter id</th>
+                <th>Reported id</th>
                 <th>Reason</th>
                 <th>Time</th>
                 <th>Status</th>
@@ -212,13 +212,19 @@
 
                 <td>
                   <button
-                    class="btn btn-sm btn-success me-1"
+                    class="btn btn-sm btn-danger me-1"
                     
                     [disabled]="report.status !== 'pending'"
                   >
-                    Resolve
+                    Ban
                   </button>
-
+                  <button
+                    class="btn btn-sm btn-warning me-1"
+                    (click)="delete(report.reported, report.type)"
+                    [disabled]="report.status !== 'pending'"
+                  >
+                    Delete
+                  </button>
                   <button
                     class="btn btn-sm btn-secondary"
                     (click)="dismissReport(report.id)"

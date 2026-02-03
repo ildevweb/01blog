@@ -71,6 +71,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 console.log("success delete user:");
                 this.getUsers();
+                this.getReports();
             },
             error: err => {
                 console.error('Failed to delete user :', err);
@@ -112,6 +113,7 @@ export class AdminComponent implements OnInit {
             next: () => {
                 console.log("success delete post:");
                 this.getPosts();
+                this.getReports();
             },
             error: err => {
                 console.error('Failed to delete post :', err);
@@ -163,5 +165,19 @@ export class AdminComponent implements OnInit {
                 console.error('Failed to dismiss report :', err);
             }
         });
+    }
+
+    //delete user or post from report
+    delete(id: number, type: string) {
+        const confirmed = window.confirm('Are you sure you want to delete this reported?');
+        if (!confirmed) {
+            return;
+        }
+
+        if (type == "user") {
+            this.deleteUser(id);
+        } else if (type == "post") {
+            this.deletePost(id);
+        }
     }
 }

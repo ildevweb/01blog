@@ -13,6 +13,7 @@ import com.example.app.entity.User;
 import com.example.app.repository.FollowRepository;
 import com.example.app.repository.NotificationRepository;
 import com.example.app.repository.PostLikeRepository;
+import com.example.app.repository.ReportRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 
@@ -23,13 +24,15 @@ public class UserService {
     private final FollowRepository followRepository;
     private final PostLikeRepository postLikeRepository;
     private final NotificationRepository notificationRepository;
+    private final ReportRepository reportRepository;
 
-    public UserService(UserRepository userRepository, FollowService followService, FollowRepository followRepository, PostLikeRepository postLikeRepository, NotificationRepository notificationRepository) {
+    public UserService(UserRepository userRepository, FollowService followService, FollowRepository followRepository, PostLikeRepository postLikeRepository, NotificationRepository notificationRepository, ReportRepository reportRepository) {
         this.userRepository = userRepository;
         this.followService = followService;
         this.followRepository = followRepository;
         this.postLikeRepository = postLikeRepository;
         this.notificationRepository = notificationRepository;
+        this.reportRepository = reportRepository;
     }
     
     public List<UserInfos> getAllUsers() {
@@ -159,6 +162,12 @@ public class UserService {
         notificationRepository.deleteByFromUserOrToUser(userId);
         followRepository.deleteByFollowedOrFollower(userId);
         userRepository.deleteById(userId);
+
+        reportRepository.findByReportedAndType(userId, "user")
+        .ifPresent(report -> {
+            report.setStatus("resolved");
+            reportRepository.save(report);
+        });
     }
 
     public void banUser(Long userId) {

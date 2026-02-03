@@ -36,7 +36,7 @@ public class ReportService {
                     report.getId(),
                     report.getType(),
                     report.getReportedBy(),
-                    report.getReportedUser(),
+                    report.getReported(),
                     report.getReason(),
                     timeAgo(report.getTime()),
                     report.getStatus()

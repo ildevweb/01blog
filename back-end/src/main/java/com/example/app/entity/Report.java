@@ -1,5 +1,6 @@
 package com.example.app.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
@@ -15,8 +16,10 @@ public class Report {
     private Long id;
 
     private String type;
-    private String reported_by;
-    private String reported_user;
+    @Column(name = "reported_by")
+    private Long reported_by;
+    @Column(name = "reported")
+    private Long reported;
     private String reason;
     private Long time;
     private String status;
@@ -24,10 +27,10 @@ public class Report {
     public Report() {
     }
 
-    public Report(String type, String reported_by, String reported_user, String reason, Long time, String status) {
+    public Report(String type, Long reported_by, Long reported, String reason, Long time, String status) {
         this.type = type;
         this.reported_by = reported_by;
-        this.reported_user = reported_user;
+        this.reported = reported;
         this.reason = reason;
         this.time = time;
         this.status = status;
@@ -45,19 +48,19 @@ public class Report {
         this.type = type;
     }
 
-    public void setReportedUser(String reported_user) {
-        this.reported_user = reported_user;
+    public void setReported(Long reported) {
+        this.reported = reported;
     }
 
-    public String getReportedUser() {
-        return this.reported_user;
+    public Long getReported() {
+        return this.reported;
     }
 
-    public void setReportedBy(String reported_by) {
+    public void setReportedBy(Long reported_by) {
         this.reported_by = reported_by;
     }
 
-    public String getReportedBy() {
+    public Long getReportedBy() {
         return this.reported_by;
     }
 

@@ -22,6 +22,7 @@ import com.example.app.repository.FollowRepository;
 import com.example.app.repository.NotificationRepository;
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
+import com.example.app.repository.ReportRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.dto.LikeRequest;
@@ -41,16 +42,18 @@ public class PostController {
     private final PostLikeRepository postLikeRepository;
     private final FollowRepository followRepository;
     private final NotificationRepository notificationRepository;
+    private final ReportRepository reportRepository;
 
     private static final String UPLOAD_DIR = "uploads/";
 
-    public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService, PostLikeRepository postLikeRepository, FollowRepository followRepository, NotificationRepository notificationRepository) {
+    public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService, PostLikeRepository postLikeRepository, FollowRepository followRepository, NotificationRepository notificationRepository, ReportRepository reportRepository) {
         this.postRepository = postRepository;
         this.postService = postService;
         this.postLikeService = postLikeService;
         this.postLikeRepository = postLikeRepository;
         this.followRepository = followRepository;
         this.notificationRepository = notificationRepository;
+        this.reportRepository = reportRepository;
     }
 
     @PostMapping("/create")
@@ -184,6 +187,13 @@ public class PostController {
         //notificationRepository.deleteByFromUserOrToUser()
         postLikeRepository.deleteByPostId(id);
         postRepository.deleteById(id);
+
+        reportRepository.findByReportedAndType(id, "post")
+        .ifPresent(report -> {
+            report.setStatus("resolved");
+            reportRepository.save(report);
+        });
+
     }
 
     @GetMapping("/ban/{id}")

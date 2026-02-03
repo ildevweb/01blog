@@ -3,13 +3,13 @@ package com.example.app.dto;
 public class ReportInfos {
     private Long id;
     private String type;
-    private String reported_by;
-    private String reported;
+    private Long reported_by;
+    private Long reported;
     private String reason;
     private String time;
     private String status;
 
-    public ReportInfos(Long id, String type, String reported_by, String reported, String reason, String time, String status) {
+    public ReportInfos(Long id, String type, Long reported_by, Long reported, String reason, String time, String status) {
         this.id = id;
         this.type = type;
         this.reported_by = reported_by;
@@ -25,10 +25,10 @@ public class ReportInfos {
     public String getType() {
         return this.type;
     }
-    public String getReportedBy() {
+    public Long getReportedBy() {
         return this.reported_by;
     }
-    public String getReported() {
+    public Long getReported() {
         return this.reported;
     }
     public String getReason() {
