@@ -221,7 +221,7 @@
 
                   <button
                     class="btn btn-sm btn-secondary"
-                    
+                    (click)="dismissReport(report.id)"
                     [disabled]="report.status !== 'pending'"
                   >
                     Dismiss

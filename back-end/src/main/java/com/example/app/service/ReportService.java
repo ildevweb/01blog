@@ -3,10 +3,17 @@ package com.example.app.service;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.dto.ReportInfos;
+import com.example.app.entity.Report;
+import com.example.app.entity.User;
 import com.example.app.repository.ReportRepository;
+import com.example.app.security.UserPrincipal;
 
 
 @Service
@@ -73,5 +80,23 @@ public class ReportService {
 
         long years = months / 12;
         return years + " years ago";
+    }
+
+
+    public void dismissReport(Long reportId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
+        User user = loggedUser.getUser();
+
+        if (!reportRepository.existsById(reportId) || !user.getRole().equals("admin")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        Report report = reportRepository.findById(reportId)
+        .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        report.setStatus("dismissed");
+
+        reportRepository.save(report);
     }
 }

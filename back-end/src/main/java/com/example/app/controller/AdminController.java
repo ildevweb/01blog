@@ -48,6 +48,11 @@ public class AdminController {
         List<ReportInfos> reports = reportService.getAllReports();
         return ResponseEntity.ok(reports);
     }
+
+    @GetMapping("/dismiss/{id}")
+    public void dismissReport(@PathVariable Long id) {
+        reportService.dismissReport(id);
+    }
 }
 
 

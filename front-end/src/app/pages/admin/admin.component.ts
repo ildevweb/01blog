@@ -132,6 +132,7 @@ export class AdminComponent implements OnInit {
         });
     }
 
+    //get reports
     getReports() {
         this.http.get<any[]>(`${this.adminAPI}/reports`)
         .subscribe({
@@ -141,6 +142,25 @@ export class AdminComponent implements OnInit {
             },
             error: err => {
                 console.log('Failed to load reports:', err);
+            }
+        });
+    }
+
+    //dismiss report
+    dismissReport(reportId: number) {
+        const confirmed = window.confirm('Are you sure you want to dismiss this report?');
+        if (!confirmed) {
+            return;
+        }
+
+        this.http.get(`${this.adminAPI}/dismiss/${reportId}`).subscribe({
+            next: () => {
+                console.log("success dismiss report");
+                this.getReports();
+                this.getData();
+            },
+            error: err => {
+                console.error('Failed to dismiss report :', err);
             }
         });
     }
