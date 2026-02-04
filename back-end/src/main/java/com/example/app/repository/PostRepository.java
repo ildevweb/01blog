@@ -8,20 +8,21 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.app.entity.Post;
 
 import java.util.*;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByOwnerIdAndStatusOrderByTimeDesc(Long ownerId, String status);
 
-    List<Post> findByOwnerIdInAndStatusOrderByTimeDesc(List<Long> ownerIds, String status);
+    Page<Post> findByOwnerIdInAndStatus(List<Long> ownerIds, String status, Pageable pageable);
 
     boolean existsByOwnerIdAndId(Long ownerId, Long id);
 
     Optional<Post> findById(Long id);
 
-    List<Post> findByOwnerIdIn(List<Long> ownerIds, Sort sort);
+    Page<Post> findByOwnerIdIn(List<Long> ownerIds, Pageable pageable);
 
     @Modifying
     @Transactional

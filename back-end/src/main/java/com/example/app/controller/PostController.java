@@ -140,9 +140,12 @@ public class PostController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<List<PostInfos>> getPosts() {
-        List<PostInfos> allPosts = postService.getAllPosts();
-        return ResponseEntity.ok(allPosts);
+    public ResponseEntity<List<PostInfos>> getPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<PostInfos> posts = postService.getPosts(page, size);
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/mine")

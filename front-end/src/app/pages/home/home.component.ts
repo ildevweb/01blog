@@ -43,6 +43,9 @@ export class HomeComponent implements OnInit {
   private reportedId: number = 0;
   private reportType: string = '';
 
+  //pagination
+  private currentPage = 0;
+
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
@@ -84,14 +87,21 @@ export class HomeComponent implements OnInit {
   }
 
   // GET posts from backend
-  fetchPosts(): void {
+  fetchPosts(page: number = 0, size: number = 10): void {
     this.isLoading = true;
 
-    this.http.get<any[]>(`${this.postAPI}/all`)
+    this.http.get<any[]>(`${this.postAPI}/all?page=${page}&size=${size}`)
       .subscribe({
         next: posts => {
-          console.log("this is the whole posts:", posts);
-          this.posts$.next(posts);
+          console.log("Fetched posts:", posts);
+
+          if (page === 0) {
+            this.posts$.next(posts);
+          } else {
+            const current = this.posts$.getValue();
+            this.posts$.next([...current, ...posts]);
+          }
+
           this.isLoading = false;
         },
         error: err => {
@@ -100,6 +110,7 @@ export class HomeComponent implements OnInit {
         }
       });
   }
+
 
 
   //GET comments
@@ -370,5 +381,11 @@ export class HomeComponent implements OnInit {
       const modalElement = document.getElementById('reportUserModal');
       const modal = bootstrap.Modal.getInstance(modalElement);
       modal.hide();
+  }
+
+  //load More button
+  loadMore(): void {
+    this.currentPage++;
+    this.fetchPosts(this.currentPage, 10);
   }
 }

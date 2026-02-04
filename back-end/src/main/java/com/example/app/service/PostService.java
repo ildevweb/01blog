@@ -13,11 +13,13 @@ import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
-import com.example.app.entity.Follow;
 import com.example.app.entity.Post;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,32 +44,30 @@ public class PostService {
         this.followRepository = followRepository;
     }
 
-    public List<PostInfos> getAllPosts() {
+    public List<PostInfos> getPosts(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
         User user = userPrincipal.getUser();
 
-        List<Follow> followings = followRepository.findByFollowerId(user.getId());
-
-        List<Long> ownerIds = followings.stream()
-        .map(f -> f.getFollowed().getId())
-        .collect(Collectors.toList());
-
+        // Get followings + own ID
+        List<Long> ownerIds = followRepository.findByFollowerId(user.getId()).stream()
+            .map(f -> f.getFollowed().getId())
+            .collect(Collectors.toList());
         ownerIds.add(user.getId());
 
-        List<Post> posts;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
+
+        Page<Post> postPage;
         if (user.getRole().equals("admin")) {
-            posts = postRepository.findByOwnerIdIn(ownerIds, Sort.by(Sort.Direction.DESC, "time"));
+            postPage = postRepository.findByOwnerIdIn(ownerIds, pageable);
         } else {
-            posts = postRepository.findByOwnerIdInAndStatusOrderByTimeDesc(ownerIds, "active");
+            postPage = postRepository.findByOwnerIdInAndStatus(ownerIds, "active", pageable);
         }
 
-        return posts.stream()
+        return postPage.getContent().stream()
             .map(post -> {
                 String time = timeAgo(post.getTime());
-
                 boolean liked = postLikeService.isLiked(post.getId(), user);
-
                 User owner = userRepository.findById(post.getOwnerId())
                     .orElseThrow(() -> new RuntimeException("Owner not found"));
 
@@ -84,9 +84,8 @@ public class PostService {
                 );
             })
             .toList();
-
-
     }
+
 
 
     public List<PostInfos> getMinePosts() {
