@@ -53,6 +53,8 @@ public class PostService {
         .map(f -> f.getFollowed().getId())
         .collect(Collectors.toList());
 
+        ownerIds.add(user.getId());
+
         List<Post> posts;
         if (user.getRole().equals("admin")) {
             posts = postRepository.findByOwnerIdIn(ownerIds, Sort.by(Sort.Direction.DESC, "time"));
