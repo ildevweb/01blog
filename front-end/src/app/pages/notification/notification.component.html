@@ -18,6 +18,9 @@
         </div>
 
         <div class="list-group">
+            <div *ngIf="!(notifications | async)?.length">
+                No notifications yet 🔔
+            </div>
             <div
             *ngFor="let notif of notifications | async"
             class="list-group-item list-group-item-action d-flex align-items-start gap-3"

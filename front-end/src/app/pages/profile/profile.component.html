@@ -28,6 +28,7 @@
         </button>
 
         <button
+          *ngIf="!(mine$ | async)"
           class="btn btn-outline-danger"
           (click)="openReportModal(data.id, 'user')"
         >

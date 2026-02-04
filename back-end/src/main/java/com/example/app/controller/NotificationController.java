@@ -43,7 +43,7 @@ public class NotificationController {
         User currentUser = userPrincipal.getUser();
 
         List<Notification> notifications = notificationRepository
-                .findByToUserAndReaded(currentUser, false);
+                .findByToUserAndReadedOrderByTimeDesc(currentUser, false);
 
         return notifications.stream()
                 .map(notif -> {
@@ -67,10 +67,13 @@ public class NotificationController {
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         User currentUser = user.getUser();
 
-        Notification notification = notificationRepository.findByToUser(currentUser);
+        List<Notification> notifications = notificationRepository.findByToUser(currentUser);
 
-        notification.setReaded(true);
+        for (Notification notification : notifications) {
+            notification.setReaded(true);
 
-        notificationRepository.save(notification);
+            notificationRepository.save(notification);
+        }
+        
     }
 }

@@ -7,15 +7,6 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { NotificationService } from '../../core/services/notification.service';
 
 
-interface Notification {
-  id: number;
-  username: string;
-  content: string;
-  time: string;
-  avatar: string;
-  read: boolean;
-}
-
 @Component({
   selector: 'app-notifications',
   imports: [CommonModule, RouterModule, NavbarComponent],

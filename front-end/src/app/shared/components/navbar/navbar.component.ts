@@ -4,6 +4,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +18,8 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     private notificationService: NotificationService,
-    public authService: AuthService
+    public authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -39,5 +41,12 @@ export class NavbarComponent implements OnInit {
 
   checkAdmin() {
     this.isAdmin.next(this.getUserRole() === 'admin');
+  }
+
+
+  //this is for logout
+  logout() {
+    localStorage.removeItem(('token'));
+    this.router.navigate(['/auth']);
   }
 }
