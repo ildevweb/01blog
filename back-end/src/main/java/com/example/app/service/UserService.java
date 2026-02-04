@@ -43,39 +43,25 @@ public class UserService {
 
         String role = user.getRole();
 
+        List<User> users;
         if (role.equals("admin")) {
-            return userRepository.findByIdNot(userId)
-                .stream()
-                .map(usr -> {
-
-                    return new UserInfos(
-                        usr.getId(),
-                        usr.getName(),
-                        usr.getEmail(),
-                        followService.countFollowers(usr.getId()),
-                        followService.countFolloweds(usr.getId()),
-                        followService.isFollowing(userId, usr.getId()),
-                        usr.getStatus()
-                    );
-                })
-                .toList();
+            users = userRepository.findByIdNot(userId);
         } else {
-            return userRepository.findByIdNotAndStatus(userId, "active")
-                .stream()
-                .map(usr -> {
-
-                    return new UserInfos(
-                        usr.getId(),
-                        usr.getName(),
-                        usr.getEmail(),
-                        followService.countFollowers(usr.getId()),
-                        followService.countFolloweds(usr.getId()),
-                        followService.isFollowing(userId, usr.getId()),
-                        usr.getStatus()
-                    );
-                })
-                .toList();
+            users = userRepository.findByIdNotAndStatus(userId, "active");
         }
+
+        return users.stream()
+            .map(usr -> new UserInfos(
+                usr.getId(),
+                usr.getName(),
+                usr.getEmail(),
+                followService.countFollowers(usr.getId()),
+                followService.countFolloweds(usr.getId()),
+                followService.isFollowing(userId, usr.getId()),
+                usr.getStatus()
+            ))
+            .toList();
+
     }
 
     public UserInfos getProfile(Long userId) {

@@ -53,55 +53,36 @@ public class PostService {
         .map(f -> f.getFollowed().getId())
         .collect(Collectors.toList());
 
+        List<Post> posts;
         if (user.getRole().equals("admin")) {
-            return postRepository.findByOwnerIdIn(ownerIds, Sort.by(Sort.Direction.DESC, "time"))
-                .stream()
-                .map(post -> {
-                    String time = timeAgo(post.getTime());
-
-                    boolean liked = postLikeService.isLiked(post.getId(), user);
-
-                    User owner = userRepository.findById(post.getOwnerId())
-                        .orElseThrow(() -> new RuntimeException("Owner not found"));
-
-                    return new PostInfos(
-                        post.getId(),
-                        owner.getName(),
-                        time,
-                        post.getContent(),
-                        post.getMedia(),
-                        liked,
-                        postLikeRepository.countByPostId(post.getId()),
-                        postRepository.existsByOwnerIdAndId(user.getId(), post.getId()),
-                        post.getStatus()
-                    );
-                })
-                .toList();
+            posts = postRepository.findByOwnerIdIn(ownerIds, Sort.by(Sort.Direction.DESC, "time"));
         } else {
-            return postRepository.findByOwnerIdInAndStatusOrderByTimeDesc(ownerIds, "active")
-                .stream()
-                .map(post -> {
-                    String time = timeAgo(post.getTime());
-
-                    boolean liked = postLikeService.isLiked(post.getId(), user);
-
-                    User owner = userRepository.findById(post.getOwnerId())
-                        .orElseThrow(() -> new RuntimeException("Owner not found"));
-
-                    return new PostInfos(
-                        post.getId(),
-                        owner.getName(),
-                        time,
-                        post.getContent(),
-                        post.getMedia(),
-                        liked,
-                        postLikeRepository.countByPostId(post.getId()),
-                        postRepository.existsByOwnerIdAndId(user.getId(), post.getId()),
-                        post.getStatus()
-                    );
-                })
-                .toList();
+            posts = postRepository.findByOwnerIdInAndStatusOrderByTimeDesc(ownerIds, "active");
         }
+
+        return posts.stream()
+            .map(post -> {
+                String time = timeAgo(post.getTime());
+
+                boolean liked = postLikeService.isLiked(post.getId(), user);
+
+                User owner = userRepository.findById(post.getOwnerId())
+                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+                return new PostInfos(
+                    post.getId(),
+                    owner.getName(),
+                    time,
+                    post.getContent(),
+                    post.getMedia(),
+                    liked,
+                    postLikeRepository.countByPostId(post.getId()),
+                    postRepository.existsByOwnerIdAndId(user.getId(), post.getId()),
+                    post.getStatus()
+                );
+            })
+            .toList();
+
 
     }
 
