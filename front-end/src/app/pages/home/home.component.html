@@ -49,6 +49,14 @@
       <section class="col-12 col-md-6">
         <!-- Posts feed -->
         <div id="feed">
+          <div 
+            *ngIf="!(posts$ | async)?.length"
+            class="d-flex flex-column justify-content-center align-items-center text-center text-muted my-5"
+            style="filter: blur(1px);"
+          >
+            <i class="bi bi-info-circle fs-1 mb-2"></i>  <!-- icon -->
+            <span class="fs-5">No posts yet | Follow more to get posts</span>
+          </div>
 
           <!-- Posts list -->
           <div [ngClass]="{ 'post-blurred': post.status === 'banned' }" *ngFor="let post of posts$ | async" class="card mb-3 shadow-sm">
@@ -140,9 +148,9 @@
           </div>
 
         </div>
-        <div class="d-grid">
+        <!--<div class="d-grid">
           <button id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
-        </div>
+        </div>-->
       </section>
 
 

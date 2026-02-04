@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.app.repository.FollowRepository;
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.repository.ReportRepository;
@@ -12,12 +13,14 @@ import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
+import com.example.app.entity.Follow;
 import com.example.app.entity.Post;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.time.Instant;
 
 @Service
@@ -28,13 +31,15 @@ public class PostService {
     private final PostLikeService postLikeService;
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
+    private final FollowRepository followRepository;
 
-    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository, ReportRepository reportRepository) {
+    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository, ReportRepository reportRepository, FollowRepository followRepository) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
         this.postLikeService = postLikeService;
         this.userRepository = userRepository;
         this.reportRepository = reportRepository;
+        this.followRepository = followRepository;
     }
 
     public List<PostInfos> getAllPosts() {
@@ -42,8 +47,14 @@ public class PostService {
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
         User user = userPrincipal.getUser();
 
+        List<Follow> followings = followRepository.findByFollowerId(user.getId());
+
+        List<Long> ownerIds = followings.stream()
+        .map(f -> f.getFollowed().getId())
+        .collect(Collectors.toList());
+
         if (user.getRole().equals("admin")) {
-            return postRepository.findAll(Sort.by(Sort.Direction.DESC, "time"))
+            return postRepository.findByOwnerIdIn(ownerIds, Sort.by(Sort.Direction.DESC, "time"))
                 .stream()
                 .map(post -> {
                     String time = timeAgo(post.getTime());
@@ -67,7 +78,7 @@ public class PostService {
                 })
                 .toList();
         } else {
-            return postRepository.findByStatusOrderByTimeDesc("active")
+            return postRepository.findByOwnerIdInAndStatusOrderByTimeDesc(ownerIds, "active")
                 .stream()
                 .map(post -> {
                     String time = timeAgo(post.getTime());

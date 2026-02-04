@@ -8,17 +8,20 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.app.entity.Post;
 
 import java.util.*;
+import org.springframework.data.domain.Sort;
 
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByOwnerIdAndStatusOrderByTimeDesc(Long ownerId, String status);
 
-    List<Post> findByStatusOrderByTimeDesc(String status);
+    List<Post> findByOwnerIdInAndStatusOrderByTimeDesc(List<Long> ownerIds, String status);
 
     boolean existsByOwnerIdAndId(Long ownerId, Long id);
 
     Optional<Post> findById(Long id);
+
+    List<Post> findByOwnerIdIn(List<Long> ownerIds, Sort sort);
 
     @Modifying
     @Transactional
