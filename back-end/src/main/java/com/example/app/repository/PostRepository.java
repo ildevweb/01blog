@@ -22,7 +22,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findById(Long id);
 
-    Page<Post> findByOwnerIdIn(List<Long> ownerIds, Pageable pageable);
+    Page<Post> findAll(Pageable pageable);
 
     @Modifying
     @Transactional

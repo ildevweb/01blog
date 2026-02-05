@@ -59,7 +59,7 @@ public class PostService {
 
         Page<Post> postPage;
         if (user.getRole().equals("admin")) {
-            postPage = postRepository.findByOwnerIdIn(ownerIds, pageable);
+            postPage = postRepository.findAll(pageable);
         } else {
             postPage = postRepository.findByOwnerIdInAndStatus(ownerIds, "active", pageable);
         }

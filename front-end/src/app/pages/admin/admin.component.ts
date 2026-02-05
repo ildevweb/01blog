@@ -20,6 +20,10 @@ export class AdminComponent implements OnInit {
     posts = new BehaviorSubject<any[]>([]);
     reports = new BehaviorSubject<any[]>([]);
 
+    //pagination
+    private currentPostsPage = 0;
+    private currentUsersPage = 0;
+
     private readonly postAPI = 'http://localhost:8080/api/post';
     private readonly userAPI = 'http://localhost:8080/api/user';
     private readonly adminAPI = 'http://localhost:8080/api/admin';
@@ -47,15 +51,21 @@ export class AdminComponent implements OnInit {
     }
 
     //get users
-    getUsers(): void {
-        this.http.get<any[]>(`${this.userAPI}/all`)
+    getUsers(page: number = 0, size: number = 10): void {
+        this.http.get<any[]>(`${this.userAPI}/all?page=${page}&size=${size}`)
         .subscribe({
             next: users => {
-            console.log("this is the whole users:", users);
-            this.users.next(users);
+                console.log("this is the whole users:", users);
+
+                if (page === 0) {
+                    this.users.next(users);
+                } else {
+                    const current = this.users.getValue();
+                    this.users.next([...current, ...users]);
+                }
             },
             error: err => {
-            console.log('Failed to load users:', err);
+                console.log('Failed to load users:', err);
             }
         });
     }
@@ -95,15 +105,21 @@ export class AdminComponent implements OnInit {
 
 
     //get posts
-    getPosts() {
-        this.http.get<any[]>(`${this.postAPI}/all`)
+    getPosts(page: number = 0, size: number = 10) {
+        this.http.get<any[]>(`${this.postAPI}/all?page=${page}&size=${size}`)
         .subscribe({
             next: posts => {
-            console.log("this is the whole posts:", posts);
-            this.posts.next(posts);
+                console.log("this is the whole posts:", posts);
+
+                if (page === 0) {
+                    this.posts.next(posts);
+                } else {
+                    const current = this.posts.getValue();
+                    this.posts.next([...current, ...posts]);
+                }
             },
             error: err => {
-            console.log('Failed to load posts:', err);
+                console.log('Failed to load posts:', err);
             }
         });
     }
@@ -195,5 +211,17 @@ export class AdminComponent implements OnInit {
         } else if (type == "post") {
             this.togglePostBan(id);
         }
+    }
+
+    //load More button for posts
+    loadMore(): void {
+        this.currentPostsPage++;
+        this.getPosts(this.currentPostsPage, 10);
+    }
+
+    //load More button for users
+    loadMoreUsers(): void {
+        this.currentUsersPage++;
+        this.getUsers(this.currentUsersPage, 10);
     }
 }

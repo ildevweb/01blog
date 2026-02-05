@@ -114,6 +114,10 @@
               </tr>
             </tbody>
           </table>
+
+          <div *ngIf="(users | async)?.length" class="d-grid">
+            <button (click)="loadMoreUsers()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
+          </div>
         </div>
       </section>
 
@@ -166,8 +170,11 @@
                 </td>
               </tr>
             </tbody>
-
           </table>
+
+          <div *ngIf="(posts | async)?.length" class="d-grid">
+            <button (click)="loadMore()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
+          </div>
         </div>
       </section>
 
