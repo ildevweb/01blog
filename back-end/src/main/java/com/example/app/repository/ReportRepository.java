@@ -1,5 +1,7 @@
 package com.example.app.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +14,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     int countByStatus(String status);
 
     Optional<Report> findByReportedAndType(Long reported, String type);
+
+    Page<Report> findAll(Pageable pageable);
 
 }

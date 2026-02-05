@@ -23,6 +23,7 @@ export class AdminComponent implements OnInit {
     //pagination
     private currentPostsPage = 0;
     private currentUsersPage = 0;
+    private currentReportPage = 0;
 
     private readonly postAPI = 'http://localhost:8080/api/post';
     private readonly userAPI = 'http://localhost:8080/api/user';
@@ -153,12 +154,18 @@ export class AdminComponent implements OnInit {
     }
 
     //get reports
-    getReports() {
-        this.http.get<any[]>(`${this.adminAPI}/reports`)
+    getReports(page: number = 0, size: number = 10) {
+        this.http.get<any[]>(`${this.adminAPI}/reports?page=${page}&size=${size}`)
         .subscribe({
             next: reports => {
                 console.log("this is the whole reports:", reports);
-                this.reports.next(reports);
+
+                if (page === 0) {
+                    this.reports.next(reports);
+                } else {
+                    const current = this.reports.getValue();
+                    this.reports.next([...current, ...reports]);
+                }
             },
             error: err => {
                 console.log('Failed to load reports:', err);
@@ -223,5 +230,11 @@ export class AdminComponent implements OnInit {
     loadMoreUsers(): void {
         this.currentUsersPage++;
         this.getUsers(this.currentUsersPage, 10);
+    }
+
+    //load More button for reports
+    loadMoreReports(): void {
+        this.currentReportPage++;
+        this.getReports(this.currentReportPage, 10);
     }
 }

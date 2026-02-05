@@ -44,8 +44,11 @@ public class AdminController {
     }
 
     @GetMapping("/reports")
-    public ResponseEntity<List<ReportInfos>> getReports() {
-        List<ReportInfos> reports = reportService.getAllReports();
+    public ResponseEntity<List<ReportInfos>> getReports(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<ReportInfos> reports = reportService.getAllReports(page, size);
         return ResponseEntity.ok(reports);
     }
 

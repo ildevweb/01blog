@@ -3,6 +3,9 @@ package com.example.app.service;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,9 +29,11 @@ public class ReportService {
     }
     
 
-    public List<ReportInfos> getAllReports() {
+    public List<ReportInfos> getAllReports(int page, int size) {
 
-        return reportRepository.findAll()
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
+
+        return reportRepository.findAll(pageable)
             .stream()
             .map(report -> {
 

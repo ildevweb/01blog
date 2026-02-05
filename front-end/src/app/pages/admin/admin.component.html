@@ -241,9 +241,12 @@
                   </button>
                 </td>
               </tr>
-
             </tbody>
           </table>
+
+          <div *ngIf="(reports | async)?.length" class="d-grid">
+            <button (click)="loadMoreReports()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
+          </div>
         </div>
       </section>
     </div>
