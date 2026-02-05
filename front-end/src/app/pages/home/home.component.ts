@@ -44,7 +44,8 @@ export class HomeComponent implements OnInit {
   private reportType: string = '';
 
   //pagination
-  private currentPage = 0;
+  private currentPostsPage = 0;
+  private currentUsersPage = 0;
 
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
@@ -60,12 +61,18 @@ export class HomeComponent implements OnInit {
   }
 
   //GET users from backend
-  fetchUsers(): void {
-    this.http.get<any[]>(`${this.userAPI}/all`)
+  fetchUsers(page: number = 0, size: number = 10): void {
+    this.http.get<any[]>(`${this.userAPI}/all?page=${page}&size=${size}`)
       .subscribe({
         next: users => {
           console.log("this is the whole users:", users);
-          this.users$.next(users);
+
+          if (page === 0) {
+            this.users$.next(users);
+          } else {
+            const current = this.users$.getValue();
+            this.users$.next([...current, ...users]);
+          }
         },
         error: err => {
           console.log('Failed to load users:', err);
@@ -383,9 +390,15 @@ export class HomeComponent implements OnInit {
       modal.hide();
   }
 
-  //load More button
+  //load More button for posts
   loadMore(): void {
-    this.currentPage++;
-    this.fetchPosts(this.currentPage, 10);
+    this.currentPostsPage++;
+    this.fetchPosts(this.currentPostsPage, 10);
+  }
+
+  //load More button for users
+  loadMoreUsers(): void {
+    this.currentUsersPage++;
+    this.fetchUsers(this.currentUsersPage, 10);
   }
 }

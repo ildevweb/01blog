@@ -1,5 +1,9 @@
 package com.example.app.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,7 +39,7 @@ public class UserService {
         this.reportRepository = reportRepository;
     }
     
-    public List<UserInfos> getAllUsers() {
+    public List<UserInfos> getAllUsers(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userp = (UserPrincipal) auth.getPrincipal();
         Long userId = userp.getId();
@@ -43,11 +47,13 @@ public class UserService {
 
         String role = user.getRole();
 
-        List<User> users;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<User> users;
         if (role.equals("admin")) {
-            users = userRepository.findByIdNot(userId);
+            users = userRepository.findByIdNot(userId, pageable);
         } else {
-            users = userRepository.findByIdNotAndStatus(userId, "active");
+            users = userRepository.findByIdNotAndStatus(userId, "active", pageable);
         }
 
         return users.stream()

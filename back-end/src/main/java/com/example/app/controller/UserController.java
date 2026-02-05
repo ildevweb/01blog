@@ -26,8 +26,11 @@ public class UserController {
     }
     
     @GetMapping("/all")
-    public ResponseEntity<List<UserInfos>> getUsers() {
-        List<UserInfos> allUsers = userService.getAllUsers();
+    public ResponseEntity<List<UserInfos>> getUsers(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<UserInfos> allUsers = userService.getAllUsers(page, size);
         return ResponseEntity.ok(allUsers);
     }
 
