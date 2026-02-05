@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 import com.example.app.dto.UserInfos;
+import com.example.app.entity.Report;
 import com.example.app.entity.User;
 import com.example.app.repository.FollowRepository;
 import com.example.app.repository.NotificationRepository;
@@ -154,11 +155,11 @@ public class UserService {
         followRepository.deleteByFollowedOrFollower(userId);
         userRepository.deleteById(userId);
 
-        reportRepository.findByReportedAndType(userId, "user")
-        .ifPresent(report -> {
+        List<Report> reports = reportRepository.findByReportedAndType(userId, "user");
+        for (Report report : reports) {
             report.setStatus("resolved");
             reportRepository.save(report);
-        });
+        }
     }
 
     public void banUser(Long userId) {
@@ -181,10 +182,10 @@ public class UserService {
 
         userRepository.save(user);
 
-        reportRepository.findByReportedAndType(userId, "user")
-        .ifPresent(report -> {
+        List<Report> reports = reportRepository.findByReportedAndType(userId, "user");
+        for (Report report : reports) {
             report.setStatus("resolved");
             reportRepository.save(report);
-        });
+        }
     }
 }

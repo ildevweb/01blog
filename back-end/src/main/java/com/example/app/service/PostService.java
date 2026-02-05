@@ -14,6 +14,7 @@ import com.example.app.security.UserPrincipal;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
 import com.example.app.entity.Post;
+import com.example.app.entity.Report;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -213,10 +214,11 @@ public class PostService {
         postRepository.save(post);
 
 
-        reportRepository.findByReportedAndType(postId, "post")
-        .ifPresent(report -> {
+        List<Report> reports = reportRepository.findByReportedAndType(postId, "post");
+
+        for (Report report : reports) {
             report.setStatus("resolved");
             reportRepository.save(report);
-        });
+        }
     }
 }

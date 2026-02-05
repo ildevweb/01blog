@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.entity.Follow;
 import com.example.app.entity.Post;
+import com.example.app.entity.Report;
 import com.example.app.entity.User;
 import com.example.app.entity.Notification;
 import com.example.app.repository.FollowRepository;
@@ -199,11 +200,11 @@ public class PostController {
         postLikeRepository.deleteByPostId(id);
         postRepository.deleteById(id);
 
-        reportRepository.findByReportedAndType(id, "post")
-        .ifPresent(report -> {
+        List<Report> reports = reportRepository.findByReportedAndType(id, "post");
+        for (Report report : reports) {
             report.setStatus("resolved");
             reportRepository.save(report);
-        });
+        }
 
     }
 
