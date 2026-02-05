@@ -62,6 +62,9 @@ export class ProfileComponent implements OnInit {
   private reportedId: number = 0;
   private reportType: string = '';
 
+  //pagination
+  private currentPage = 0;
+
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
@@ -139,17 +142,23 @@ export class ProfileComponent implements OnInit {
   }
 
   // Fetch posts for userId or logged-in user
-  fetchPosts(userId?: number): void {
+  fetchPosts(userId?: number, page: number = 0, size: number = 10): void {
     this.isLoading = true;
 
     const url = userId
       ? `${this.postAPI}/user/${userId}`
       : `${this.postAPI}/mine`;
 
-    this.http.get<any[]>(url).subscribe({
+    this.http.get<any[]>(`${url}?page=${page}&size=${size}`).subscribe({
       next: posts => {
         console.log("Fetched posts:", posts);
-        this.posts$.next(posts);
+        if (page === 0) {
+          this.posts$.next(posts);
+        } else {
+          const current = this.posts$.getValue();
+          this.posts$.next([...current, ...posts]);
+        }
+
         this.isLoading = false;
       },
       error: err => {
@@ -426,5 +435,17 @@ export class ProfileComponent implements OnInit {
       const modalElement = document.getElementById('reportUserModal');
       const modal = bootstrap.Modal.getInstance(modalElement);
       modal.hide();
+  }
+
+  //load More button
+  loadMore(): void {
+    this.currentPage++;
+
+    if (this.userId) {
+      this.fetchPosts(this.userId, this.currentPage, 10);
+    } else {
+      this.fetchPosts(this.currentPage, 10);
+    }
+    
   }
 }

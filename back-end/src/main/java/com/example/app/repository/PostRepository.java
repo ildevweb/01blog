@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByOwnerIdAndStatusOrderByTimeDesc(Long ownerId, String status);
+    Page<Post> findByOwnerIdAndStatus(Long ownerId, String status, Pageable pageable);
 
     Page<Post> findByOwnerIdInAndStatus(List<Long> ownerIds, String status, Pageable pageable);
 

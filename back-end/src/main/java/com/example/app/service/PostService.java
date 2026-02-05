@@ -88,13 +88,15 @@ public class PostService {
 
 
 
-    public List<PostInfos> getMinePosts() {
+    public List<PostInfos> getMinePosts(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         Long userId = loggedUser.getId();
         User user = loggedUser.getUser();
 
-        return postRepository.findByOwnerIdAndStatusOrderByTimeDesc(userId, "active")
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
+
+        return postRepository.findByOwnerIdAndStatus(userId, "active", pageable)
             .stream()
             .map(post -> {
                 String time = timeAgo(post.getTime());
@@ -120,13 +122,14 @@ public class PostService {
     }
 
 
-    public List<PostInfos> getPostsByUser(Long userId) {
+    public List<PostInfos> getPostsByUser(Long userId, int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
 
-        return postRepository.findByOwnerIdAndStatusOrderByTimeDesc(userId, "active")
+        return postRepository.findByOwnerIdAndStatus(userId, "active", pageable)
             .stream()
             .map(post -> {
                 String time = timeAgo(post.getTime());

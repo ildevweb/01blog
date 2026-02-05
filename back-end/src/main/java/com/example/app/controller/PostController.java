@@ -141,25 +141,33 @@ public class PostController {
 
     @GetMapping("/all")
     public ResponseEntity<List<PostInfos>> getPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
     ) {
         List<PostInfos> posts = postService.getPosts(page, size);
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/mine")
-    public ResponseEntity<List<PostInfos>> getMinePosts() {
-        List<PostInfos> minePosts = postService.getMinePosts();
+    public ResponseEntity<List<PostInfos>> getMinePosts(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<PostInfos> minePosts = postService.getMinePosts(page, size);
         return ResponseEntity.ok(minePosts);
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PostInfos>> getUserPosts(@PathVariable Long id) {
-        List<PostInfos> userPosts = postService.getPostsByUser(id);
+    public ResponseEntity<List<PostInfos>> getUserPosts(
+        @PathVariable Long id,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<PostInfos> userPosts = postService.getPostsByUser(id, page, size);
         return ResponseEntity.ok(userPosts);
     }
 
+    
     @PostMapping("/like")
     public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         
