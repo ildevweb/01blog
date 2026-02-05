@@ -63,7 +63,8 @@ export class ProfileComponent implements OnInit {
   private reportType: string = '';
 
   //pagination
-  private currentPage = 0;
+  private currentUsersPage = 0;
+  private currentCommentsPage = 0;
 
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
@@ -179,17 +180,25 @@ export class ProfileComponent implements OnInit {
     modal.show();
   }
 
-  fetchComments() {
-    this.http.get<any[]>(`${this.commentAPI}/all`, {
+  fetchComments(page: number = 0, size: number = 10) {
+    this.http.get<any[]>(`${this.commentAPI}/all?page=${page}&size=${size}`, {
       params: {
         postId: this.selectedPost.id
       }
     }).subscribe({
       next: comments => {
-        console.log('Comments:', comments);
-        this.comments$.next(comments);
+        console.log('this is the whole comments:', comments);
+
+        if (page === 0) {
+          this.comments$.next(comments);
+        } else {
+          const current = this.comments$.getValue();
+          this.comments$.next([...current, ...comments]);
+        }
       },
-      error: err => console.error('Failed to load comments:', err)
+      error: err => {
+        console.error('Failed to load comments:', err);
+      }
     });
   }
 
@@ -437,15 +446,20 @@ export class ProfileComponent implements OnInit {
       modal.hide();
   }
 
-  //load More button
+  //load More button for users
   loadMore(): void {
-    this.currentPage++;
+    this.currentUsersPage++;
 
     if (this.userId) {
-      this.fetchPosts(this.userId, this.currentPage, 10);
+      this.fetchPosts(this.userId, this.currentUsersPage, 10);
     } else {
-      this.fetchPosts(this.currentPage, 10);
+      this.fetchPosts(this.currentUsersPage, 10);
     }
-    
+  }
+
+  //load More button for comments
+  loadMoreComments(): void {
+    this.currentCommentsPage++;
+    this.fetchComments(this.currentCommentsPage, 10);
   }
 }

@@ -1,5 +1,8 @@
 package com.example.app.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -9,7 +12,6 @@ import com.example.app.repository.CommentRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.CommentInfos;
-import com.example.app.entity.Post;
 import com.example.app.entity.User;
 
 import java.util.List;
@@ -30,13 +32,14 @@ public class CommentService {
         this.userRepository = userRepository;
     }
 
-    public List<CommentInfos> getByPostId(Long postId) {
+    public List<CommentInfos> getByPostId(Long postId, int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "time"));
 
-        return commentRepository.findByPostIdOrderByTimeDesc(postId)
+        return commentRepository.findByPostIdOrderByTimeDesc(postId, pageable)
             .stream()
             .map(comment -> {
                 String time = timeAgo(comment.getTime());

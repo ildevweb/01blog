@@ -46,6 +46,7 @@ export class HomeComponent implements OnInit {
   //pagination
   private currentPostsPage = 0;
   private currentUsersPage = 0;
+  private currentCommentsPage = 0;
 
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
@@ -131,15 +132,21 @@ export class HomeComponent implements OnInit {
     modal.show();
   }
 
-  fetchComments() {
-    this.http.get<any[]>(`${this.commentAPI}/all`, {
+  fetchComments(page: number = 0, size: number = 10) {
+    this.http.get<any[]>(`${this.commentAPI}/all?page=${page}&size=${size}`, {
       params: {
         postId: this.selectedPost.id
       }
     }).subscribe({
       next: comments => {
         console.log('this is the whole comments:', comments);
-        this.comments$.next(comments);
+
+        if (page === 0) {
+          this.comments$.next(comments);
+        } else {
+          const current = this.comments$.getValue();
+          this.comments$.next([...current, ...comments]);
+        }
       },
       error: err => {
         console.error('Failed to load comments:', err);
@@ -400,5 +407,11 @@ export class HomeComponent implements OnInit {
   loadMoreUsers(): void {
     this.currentUsersPage++;
     this.fetchUsers(this.currentUsersPage, 10);
+  }
+
+  //load More button for comments
+  loadMoreComments(): void {
+    this.currentCommentsPage++;
+    this.fetchComments(this.currentCommentsPage, 10);
   }
 }

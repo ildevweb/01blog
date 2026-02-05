@@ -55,8 +55,12 @@ public class CommentController {
     
 
     @GetMapping("/all")
-    public ResponseEntity<List<CommentInfos>> getComments(@RequestParam Long postId) {
-        List<CommentInfos> comments = commentService.getByPostId(postId);
+    public ResponseEntity<List<CommentInfos>> getComments(
+        @RequestParam Long postId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<CommentInfos> comments = commentService.getByPostId(postId, page, size);
         return ResponseEntity.ok(comments);
     }
 

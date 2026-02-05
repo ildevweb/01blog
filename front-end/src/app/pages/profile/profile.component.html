@@ -241,6 +241,9 @@
           No comments yet
         </div>
 
+        <div *ngIf="(comments$ | async)?.length" class="d-grid">
+          <button (click)="loadMoreComments()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
+        </div>
 
       </div>
 

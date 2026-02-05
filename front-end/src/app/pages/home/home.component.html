@@ -146,7 +146,6 @@
               </button>
             </div>
           </div>
-
         </div>
         <div *ngIf="(posts$ | async)?.length" class="d-grid">
           <button (click)="loadMore()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
@@ -227,6 +226,10 @@
               <!-- Empty state -->
               <div *ngIf="(comments$ | async)?.length === 0" class="text-muted text-center">
                 No comments yet
+              </div>
+
+              <div *ngIf="(comments$ | async)?.length" class="d-grid">
+                <button (click)="loadMoreComments()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
               </div>
 
 
