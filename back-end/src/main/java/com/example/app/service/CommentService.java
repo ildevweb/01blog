@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.app.repository.CommentLikeRepository;
 import com.example.app.repository.CommentRepository;
+import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
 import com.example.app.dto.CommentInfos;
+import com.example.app.entity.Post;
 import com.example.app.entity.User;
 
 import java.util.List;
@@ -19,11 +21,13 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentLikeService commentLikeService;
     private final CommentLikeRepository commentLikeRepository;
+    private final UserRepository userRepository;
 
-    public CommentService(CommentRepository commentRepository, CommentLikeService commentLikeService, CommentLikeRepository commentLikeRepository) {
+    public CommentService(CommentRepository commentRepository, CommentLikeService commentLikeService, CommentLikeRepository commentLikeRepository, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.commentLikeService = commentLikeService;
         this.commentLikeRepository = commentLikeRepository;
+        this.userRepository = userRepository;
     }
 
     public List<CommentInfos> getByPostId(Long postId) {
@@ -39,9 +43,12 @@ public class CommentService {
 
                 boolean liked = commentLikeService.isLiked(comment.getId(), user);
 
+                User owner = userRepository.findById(comment.getOwnerId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
                 return new CommentInfos(
                     comment.getId(),
-                    user.getName(),
+                    owner.getName(),
                     time,
                     comment.getContent(),
                     liked,

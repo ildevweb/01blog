@@ -152,6 +152,7 @@
         <button
           id="loadMoreBtn"
           (click)="loadMore()"
+          *ngIf="(posts$ | async)?.length"
           class="btn btn-outline-primary mb-3"
         >
           Load more
