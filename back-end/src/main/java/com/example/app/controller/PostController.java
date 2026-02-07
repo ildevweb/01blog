@@ -279,9 +279,6 @@ public class PostController {
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         Long userId = user.getId();
 
-        //get time now with second
-        Long nowSeconds = Instant.now().getEpochSecond();
-
         //get post from db
         Post post = postRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Post not found"));
@@ -289,7 +286,6 @@ public class PostController {
         if (image == null) {
             post.setContent(content);
             post.setOwnerId(userId);
-            post.setTime(nowSeconds);
             postRepository.save(post);
             return ResponseEntity.ok(
                 Map.of(
@@ -327,7 +323,6 @@ public class PostController {
         post.setContent(content);
         post.setMedia(filePath);
         post.setOwnerId(userId);
-        post.setTime(nowSeconds);
 
         postRepository.save(post);
 

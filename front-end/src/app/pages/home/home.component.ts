@@ -34,7 +34,6 @@ export class HomeComponent implements OnInit {
 
   contentUpdate: string = '';
   selectedImageUpdate: File | null = null;
-  //imagePreviewUpdate: string | ArrayBuffer | null = null;
   imagePreviewUpdate = new BehaviorSubject<string | ArrayBuffer | null>(null);
 
   currentPostId?: number;
@@ -257,11 +256,11 @@ export class HomeComponent implements OnInit {
         this.contentUpdate = ''; 
         this.removeMedia('update');
         if (!res.success) {
-          this.errorMessageCreate$.next(res.message); 
-          setTimeout(() => this.errorMessageCreate$.next(null), 1000);
+          this.errorMessageUpdate$.next(res.message); 
+          setTimeout(() => this.errorMessageUpdate$.next(null), 1000);
           return;
         }
-         
+
         this.fetchPosts(); 
         const modal = bootstrap.Modal.getInstance(document.getElementById('editPostModal')); 
         modal.hide(); 

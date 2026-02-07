@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { HttpClient } from '@angular/common/http';
@@ -47,9 +47,10 @@ export class ProfileComponent implements OnInit {
   }
   isSubmittingComment: boolean = false;
 
-  //post data
-  content: string = '';
-  selectedImage?: File;
+  //post update data
+  contentUpdate: string = '';
+  selectedImageUpdate: File | null = null;
+  imagePreviewUpdate = new BehaviorSubject<string | ArrayBuffer | null>(null);
   currentPostId?: number;
 
   //post update errors
@@ -66,12 +67,14 @@ export class ProfileComponent implements OnInit {
   private currentUsersPage = 0;
   private currentCommentsPage = 0;
 
+  @ViewChild('fileInputUpdate') fileInputUpdate!: ElementRef<HTMLInputElement>;
+
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
   private readonly userAPI = 'http://localhost:8080/api/user';
   private readonly reportAPI = 'http://localhost:8080/api/report';
 
-  constructor(private http: HttpClient, private route: ActivatedRoute, private router: Router) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     // Get optional ID from route
@@ -253,59 +256,80 @@ export class ProfileComponent implements OnInit {
   }
 
   //open edit modal
-  openEditModal(postId: number) {
-    this.currentPostId = postId;
-
-    const modalElement = document.getElementById('editPostModal');
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+  openEditModal(post: any) {
+    this.currentPostId = post.id;
+    this.contentUpdate = post.content || '';
+    this.selectedImageUpdate = null;
+    this.imagePreviewUpdate.next(post.media ? `http://localhost:8080/${post.media}` : null);
+    new bootstrap.Modal(document.getElementById('editPostModal')).show();
   }
 
   // Capture image
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedImage = input.files[0];
-    }
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.selectedImageUpdate = file; 
+      this.imagePreviewUpdate.next(reader.result); 
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
   }
 
-  onUpdatePost() {
+  onUpdatePost(): void {
     if (!this.currentPostId) return;
-
-    if (!this.content.trim() && !this.selectedImage) {
-      this.errorMessage$.next('Post cannot be empty');
-      setTimeout(() => this.errorMessage$.next(null), 1000);
-      return;
-    }
+    if (!this.contentUpdate.trim() && !this.selectedImageUpdate) return;
 
     const formData = new FormData();
-    formData.append('content', this.content);
-
-    if (this.selectedImage) {
-      formData.append('image', this.selectedImage);
+    if (this.contentUpdate.trim().length <= 100) formData.append('content', this.contentUpdate);
+    else { 
+      this.errorMessage$.next("Content too large"); 
+      setTimeout(() => this.errorMessage$.next(null), 1000); 
+      return; 
     }
 
-    this.http.post(`${this.postAPI}/update/${this.currentPostId}`, formData)
-      .subscribe({
-        next: () => {
-          this.content = '';
+    const allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'mp4'];
+    if (this.selectedImageUpdate) {
+      const fileExtension = this.selectedImageUpdate.name.split('.').pop()?.toLowerCase();
+      if ((this.selectedImageUpdate.type.startsWith('image/') || this.selectedImageUpdate.type.startsWith('video/')) && fileExtension && allowedExtensions.includes(fileExtension))
+        formData.append('image', this.selectedImageUpdate);
+      else { 
+        this.errorMessage$.next('Invalid media type'); 
+        setTimeout(() => this.errorMessage$.next(null), 1000); 
+        this.removeMedia(); 
+        return; 
+      }
+    }
 
-          this.successMessage$.next('Post updated successfully');
-          setTimeout(() => this.successMessage$.next(null), 1000);
-
-          // Refresh posts immediately
-          this.fetchPosts();
-        },
-        error: () => {
-          this.errorMessage$.next('Updating post failed');
+    this.http.post(`${this.postAPI}/update/${this.currentPostId}`, formData).subscribe({
+      next: (res: any) => { 
+        this.contentUpdate = ''; 
+        this.removeMedia();
+        if (!res.success) {
+          this.errorMessage$.next(res.message); 
           setTimeout(() => this.errorMessage$.next(null), 1000);
+          return;
         }
-      });
 
-    // After update, hide modal
-    const modalElement = document.getElementById('editPostModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    modal.hide();
+        this.fetchPosts(); 
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editPostModal')); 
+        modal.hide(); 
+      },
+      error: () => { 
+        this.errorMessage$.next('Updating post failed'); 
+        setTimeout(() => this.errorMessage$.next(null), 1000); 
+      }
+    });
+  }
+
+  //this is to remove media from input
+  removeMedia() {
+    this.selectedImageUpdate = null; 
+    this.imagePreviewUpdate.next(null); 
+    this.fileInputUpdate.nativeElement.value = ''; 
   }
 
   //delete post
