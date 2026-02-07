@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { HttpClient } from '@angular/common/http';
@@ -23,7 +23,8 @@ export class HomeComponent implements OnInit {
   successMessage$ = new BehaviorSubject<string | null>(null);
 
   content: string = '';
-  selectedImage?: File;
+  selectedImage: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
   currentPostId?: number;
 
   selectedPost: any = null;
@@ -53,7 +54,7 @@ export class HomeComponent implements OnInit {
   private readonly userAPI = 'http://localhost:8080/api/user';
   private readonly reportAPI = 'http://localhost:8080/api/report';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef) {}
 
   // Called every time Home is entered
   ngOnInit(): void {
@@ -132,6 +133,7 @@ export class HomeComponent implements OnInit {
     modal.show();
   }
 
+  //fetch comments
   fetchComments(page: number = 0, size: number = 10) {
     this.http.get<any[]>(`${this.commentAPI}/all?page=${page}&size=${size}`, {
       params: {
@@ -154,6 +156,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  //like comment
   likeComments(comment: any) {
 
     this.http.post<any>(`${this.commentAPI}/like`, { commentId: comment.id })
@@ -202,13 +205,26 @@ export class HomeComponent implements OnInit {
   }
 
 
-  // Capture image
+  // Capture media
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedImage = input.files[0];
-      console.log("Selected file:", this.selectedImage.name, this.selectedImage.type)
+
+    if (!input.files || input.files.length === 0) {
+      return;
     }
+
+    this.imagePreview = null;
+    this.selectedImage = null;
+
+    const file = input.files[0];
+    this.selectedImage = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result;
+      this.cdr.detectChanges(); // force UI refresh
+    };
+    reader.readAsDataURL(file);
   }
 
   // Create post
@@ -226,11 +242,13 @@ export class HomeComponent implements OnInit {
       formData.append('image', this.selectedImage);
     }
 
+    this.content = '';
+    this.imagePreview = null;
+    this.selectedImage = null;
+
     this.http.post(`${this.postAPI}/create`, formData)
       .subscribe({
         next: () => {
-          this.content = '';
-
           this.successMessage$.next('Post created successfully');
           setTimeout(() => this.successMessage$.next(null), 1000);
 
