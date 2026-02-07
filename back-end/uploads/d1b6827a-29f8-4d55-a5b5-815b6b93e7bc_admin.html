@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    body {
+      min-height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    .layout {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body>
+<div class="layout">
+
+  <!-- ===== Main ===== -->
+  <div class="main w-100">
+
+    <!-- ===== Navbar ===== -->
+    <nav class="navbar navbar-light bg-white border-bottom px-3">
+      <button
+        class="btn btn-outline-secondary d-lg-none"
+        onclick="document.getElementById('sidebar').classList.toggle('show')"
+      >
+        <i class="bi bi-list"></i>
+      </button>
+
+      <form class="d-none d-md-flex ms-3 w-50">
+        <input class="form-control" type="search" placeholder="Search..." />
+      </form>
+
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <i class="bi bi-bell fs-5"></i>
+        <img src="https://via.placeholder.com/32" class="rounded-circle" />
+      </div>
+    </nav>
+
+    <!-- ===== Content ===== -->
+    <div class="container-fluid p-4">
+
+      <!-- ================= Dashboard Home ================= -->
+      <section id="dashboard">
+        <h4 class="mb-4">Dashboard Overview</h4>
+
+        <!-- Summary Cards -->
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card text-white bg-primary shadow-sm">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6>Total Users</h6>
+                  <h3 class="mb-0">1,245</h3>
+                </div>
+                <i class="bi bi-people fs-1 opacity-75"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card text-white bg-success shadow-sm">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6>Total Posts</h6>
+                  <h3 class="mb-0">3,782</h3>
+                </div>
+                <i class="bi bi-file-post fs-1 opacity-75"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card text-white bg-warning shadow-sm">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6>Pending Reports</h6>
+                  <h3 class="mb-0">18</h3>
+                </div>
+                <i class="bi bi-flag fs-1 opacity-75"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Users ================= -->
+      <section id="users" class="mt-5">
+        <h4 class="mb-3">Users</h4>
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>john_doe</td>
+                <td>john@mail.com</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary">View</button>
+                  <button class="btn btn-sm btn-warning">Edit</button>
+                  <button class="btn btn-sm btn-danger">Ban</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= Posts ================= -->
+      <section id="posts" class="mt-5">
+        <h4 class="mb-3">Posts</h4>
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>55</td>
+                <td>Welcome Post</td>
+                <td>admin</td>
+                <td>2026-01-20</td>
+                <td><span class="badge bg-success">Published</span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary">View</button>
+                  <button class="btn btn-sm btn-danger">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= Reports ================= -->
+      <section id="reports" class="mt-5">
+        <h4 class="mb-3">Reports</h4>
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Reported By</th>
+                <th>Reason</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>901</td>
+                <td>Post</td>
+                <td>user123</td>
+                <td>Spam</td>
+                <td>2026-01-22</td>
+                <td><span class="badge bg-warning">Pending</span></td>
+                <td>
+                  <button class="btn btn-sm btn-success">Resolve</button>
+                  <button class="btn btn-sm btn-secondary">Dismiss</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top py-3 text-center bg-white">
+      <small>&copy; 2026 Admin Dashboard</small>
+    </footer>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

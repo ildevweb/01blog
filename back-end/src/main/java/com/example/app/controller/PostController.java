@@ -45,6 +45,12 @@ public class PostController {
     private final NotificationRepository notificationRepository;
     private final ReportRepository reportRepository;
 
+    private static final Set<String> ALLOWED_MIME = Set.of(
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "video/mp4"
+    );
     private static final String UPLOAD_DIR = "uploads/";
 
     public PostController(PostRepository postRepository, PostService postService, PostLikeService postLikeService, PostLikeRepository postLikeRepository, FollowRepository followRepository, NotificationRepository notificationRepository, ReportRepository reportRepository) {
@@ -63,7 +69,21 @@ public class PostController {
             @RequestParam(value = "image", required = false) MultipartFile image
     ) throws IOException {
         if (content.isEmpty() && image == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("inputs empty");
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post cannot be empty"
+                )
+            );
+        }
+
+        if (content.trim().length() > 100) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post content is too large"
+                )
+            );
         }
 
         //get owner id
@@ -96,13 +116,26 @@ public class PostController {
 
             boolean liked = postLikeService.isLiked(post.getId(), currentUser);
             PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
-            return ResponseEntity.ok(infos);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "infos", infos
+            ));
         }
 
         // Create upload folder
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
+        }
+
+        String contentType = image.getContentType(); // MIME type
+        if (!ALLOWED_MIME.contains(contentType)) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Invalid file type"
+                )
+            );
         }
 
         // Generate unique file name
@@ -136,7 +169,10 @@ public class PostController {
         boolean liked = postLikeService.isLiked(post.getId(), currentUser);
         PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
 
-        return ResponseEntity.ok(infos);
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "infos", infos
+        ));
     }
 
 

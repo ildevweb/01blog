@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { HttpClient } from '@angular/common/http';
@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit {
   selectedImage: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
   currentPostId?: number;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   selectedPost: any = null;
   comments$ = new BehaviorSubject<any[]>([]);
@@ -227,6 +228,13 @@ export class HomeComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  //remove media
+  removeMedia() {
+    this.selectedImage = null;
+    this.imagePreview = null;
+    this.fileInput.nativeElement.value = '';
+  }
+
   // Create post
   onCreate(): void {
     if (!this.content.trim() && !this.selectedImage) {
@@ -236,19 +244,52 @@ export class HomeComponent implements OnInit {
     }
 
     const formData = new FormData();
-    formData.append('content', this.content);
+
+    if (this.content.trim().length < 100) {
+      formData.append('content', this.content);
+    } else {
+      this.errorMessage$.next("Content is too large, max 100 character");
+      setTimeout(() => {
+        this.errorMessage$.next(null);
+        this.content = '';
+      }, 1000);
+      return;
+    }
+    
+
+    const allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'mp4'];
 
     if (this.selectedImage) {
-      formData.append('image', this.selectedImage);
-    }
+      const fileName = this.selectedImage.name;
+      const fileExtension = fileName.split('.').pop()?.toLowerCase();
 
-    this.content = '';
-    this.imagePreview = null;
-    this.selectedImage = null;
+      if (
+        (this.selectedImage.type.startsWith('image/') || this.selectedImage.type.startsWith('video/')) &&
+        fileExtension && 
+        allowedExtensions.includes(fileExtension)
+      ) {
+        formData.append('image', this.selectedImage);
+      } else {
+        this.errorMessage$.next('Only valid image/video files are allowed (png, jpg, jpeg, gif, mp4).');
+        setTimeout(() => this.errorMessage$.next(null), 1000);
+
+        this.removeMedia();
+        return;
+      }
+    }
 
     this.http.post(`${this.postAPI}/create`, formData)
       .subscribe({
-        next: () => {
+        next: (res: any) => {
+          this.content = '';
+          this.removeMedia();
+
+          if (!res.success) {
+            this.errorMessage$.next(res.message);
+            setTimeout(() => this.errorMessage$.next(null), 1000);
+            return;
+          }
+
           this.successMessage$.next('Post created successfully');
           setTimeout(() => this.successMessage$.next(null), 1000);
 
@@ -256,14 +297,16 @@ export class HomeComponent implements OnInit {
           this.fetchPosts();
         },
         error: () => {
-          this.errorMessage$.next('Creating post failed');
+          this.errorMessage$.next("post creation failed");
           setTimeout(() => this.errorMessage$.next(null), 1000);
+          this.content = '';
+          this.removeMedia();
         }
       });
   }
 
-  likePosts(post: any) {
 
+  likePosts(post: any) {
     this.http.post<any>(`${this.postAPI}/like`, { postId: post.id })
       .subscribe({
         next: res => {
