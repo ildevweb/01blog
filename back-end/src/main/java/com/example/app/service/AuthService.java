@@ -1,15 +1,16 @@
 package com.example.app.service;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.dto.LoginResponse;
 import com.example.app.entity.User;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.JwtUtil;
+
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -22,10 +23,15 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User register(String username, String email, String password) {
+    public ResponseEntity<?> register(String username, String email, String password) {
 
         if (userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Email already exist"
+                )
+            );
         }
 
         boolean isEmpty = !userRepository.existsBy();
@@ -43,16 +49,47 @@ public class AuthService {
         String hashedPassword = passwordEncoder.encode(password);
         user.setPassword(hashedPassword);
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message", "Registred succesfully"
+            )
+        );
     }
 
-    public ResponseEntity<LoginResponse> login(String email, String password) {
+    public ResponseEntity<?> login(String email, String password) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        if (!passwordEncoder.matches(password, user.getPassword()) || user.getStatus().equals("banned")) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Invalid email"
+                )
+            );
+        }
+
+        User user = optionalUser.get();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Invalid password"
+                )
+            );
+        }
+
+        if (user.getStatus().equals("banned")) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Banned user"
+                )
+            );
         }
 
         String token = JwtUtil.generateToken(
@@ -61,13 +98,14 @@ public class AuthService {
             user.getRole()
         );
 
-        return ResponseEntity.ok(new LoginResponse(token));
+        //return ResponseEntity.ok(new LoginResponse(token));
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "value", new LoginResponse(token)
+            )
+        );
     }
 
-
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-    }
 }
 

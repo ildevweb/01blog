@@ -64,21 +64,26 @@ export class AuthComponent {
       return;
     }
 
-    console.log('LOGIN JSON:', this.loginData);
-
     this.http.post<LoginResponse>(
       'http://localhost:8080/api/auth/login',
       this.loginData
     ).subscribe({
-      next: res => {
-        console.log('Login success', res)
-        localStorage.setItem('token', res.token)
-        this.successMessage$.next("Logged Successfully")
-        this.errorMessage$.next(null)
+      next: (res: any) => {
+
+        if (!res.success) {
+          this.errorMessage$.next(res.message);
+          this.successMessage$.next(null);
+          return;
+        }
+
+        console.log('Login success', res);
+        localStorage.setItem('token', res.value.token);
+        this.successMessage$.next("Logged Successfully");
+        this.errorMessage$.next(null);
         this.router.navigate(['/home']);
       },
-      error: err => {
-        this.errorMessage$.next(err.error?.message || 'Login failed')
+      error: () => {
+        this.errorMessage$.next('Login failed')
         this.successMessage$.next(null)
       }
     });
@@ -120,14 +125,18 @@ export class AuthComponent {
       'http://localhost:8080/api/auth/register',
       payload
     ).subscribe({
-      next: res => {
-        console.log('Register success', res)
+      next: (res: any) => {
+        if (!res.success) {
+          this.errorMessage$.next(res.message);
+          this.successMessage$.next(null)
+          return;
+        }
+
         this.errorMessage$.next(null)
         this.successMessage$.next("Registered Successfully")
       },
-      error: err => {
-        console.log("this is the error:", err)
-        this.errorMessage$.next(err.error?.message || 'Registration failed')
+      error: () => {
+        this.errorMessage$.next('Registration failed')
         this.successMessage$.next(null)
       }
     });
