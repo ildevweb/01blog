@@ -20,57 +20,22 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <form id="createPostForm">
-              <div class="mb-3">
-                <textarea
-                  class="form-control"
-                  placeholder="What's on your mind, username?"
-                  rows="3"
-                  name="postText"
-                  [(ngModel)]="content"
-                  required
-                ></textarea>
+              <textarea [(ngModel)]="contentCreate" name="postTextCreate" class="form-control" rows="3" placeholder="What's on your mind?" required></textarea>
+
+              <input #fileInputCreate type="file" class="form-control mt-2" accept="image/*,video/*" (change)="onImageSelected($event,'create')">
+
+              <div *ngIf="imagePreviewCreate" class="mt-2">
+                <img *ngIf="selectedImageCreate?.type?.startsWith('image/')" [src]="imagePreviewCreate" class="img-fluid rounded" style="max-height:300px;">
+                <video *ngIf="selectedImageCreate?.type?.startsWith('video/')" [src]="imagePreviewCreate" controls class="w-100 rounded" style="max-height:300px;"></video>
               </div>
 
-              <div class="mb-3">
-                <input
-                  #fileInput
-                  type="file"
-                  class="form-control"
-                  name="postImage"
-                  accept="image/*,video/*"
-                  (change)="onImageSelected($event)"
-                />
-              </div>
-
-              <!-- Image preview -->
-              <div class="mb-3" *ngIf="imagePreview">
-                <img
-                  *ngIf="selectedImage?.type?.startsWith('image/')"
-                  [src]="imagePreview"
-                  alt="Preview"
-                  class="img-fluid rounded"
-                  style="max-height: 300px;"
-                />
-              </div>
-
-              <video
-                *ngIf="selectedImage?.type?.startsWith('video/')"
-                [src]="imagePreview"
-                controls
-                class="w-100 rounded"
-                style="max-height: 300px;"
-              ></video>
-
-              <button type="submit" class="btn btn-primary" (click)="onCreate()">
-                Post
-              </button>
+              <button type="button" class="btn btn-primary mt-2" (click)="onCreate()">Post</button>
             </form>
-
           </div>
-          <div *ngIf="errorMessage$ | async as error" class="alert alert-danger text-center mt-2">
+          <div *ngIf="errorMessageCreate$ | async as error" class="alert alert-danger text-center mt-2">
             {{ error }}
           </div>
-          <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
+          <div *ngIf="successMessageCreate$ | async as success" class="alert alert-success text-center mt-2">
             {{ success }}
           </div>
         </div>
@@ -122,7 +87,7 @@
 
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                   <li *ngIf="post.mine">
-                    <button class="dropdown-item d-flex align-items-center gap-2">
+                    <button (click)="openEditModal(post)" class="dropdown-item d-flex align-items-center gap-2">
                       <i class="bi bi-pencil"></i>
                       Edit
                     </button>
@@ -356,52 +321,38 @@
   </main>
 
   <!-- Edit Post Modal -->
-  <div
-    class="modal fade"
-    id="editPostModal"
-    tabindex="-1"
-    aria-labelledby="editPostModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="editPostModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editPostModalLabel">Edit Post</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
         <div class="modal-body">
-          <form #editPostForm="ngForm" (ngSubmit)="onUpdatePost()">
-            <div class="mb-3">
-              <textarea
-                class="form-control"
-                placeholder="What's on your mind ?"
-                rows="3"
-                name="postText"
-                [(ngModel)]="content"
-                required
-              ></textarea>
-            </div>
-            <div class="mb-3">
-              <input
-                type="file"
-                class="form-control"
-                name="postImage"
-                accept="image/*"
-                (change)="onImageSelected($event)"
+          <form>
+            <textarea [(ngModel)]="contentUpdate" name="postTextUpdate" class="form-control" rows="3" placeholder="Update your post" required></textarea>
+
+            <input #fileInputUpdate type="file" class="form-control mt-2" accept="image/*,video/*" (change)="onImageSelected($event,'update')">
+
+            <div *ngIf="imagePreviewUpdate | async as preview" class="mt-2">
+              <img
+                *ngIf="(selectedImageUpdate?.type?.startsWith('image/') || (typeof preview === 'string' && (preview.endsWith('.png') || preview.endsWith('.jpg') || preview.endsWith('.jpeg') || preview.endsWith('.gif'))))"
+                [src]="preview"
+                class="img-fluid rounded"
+                style="max-height:300px;"
               />
+              <video
+                *ngIf="(selectedImageUpdate?.type?.startsWith('video/') || (typeof preview === 'string' && preview.endsWith('.mp4')))"
+                [src]="preview"
+                controls
+                class="w-100 rounded"
+                style="max-height:300px;"
+              ></video>
             </div>
-            <button type="submit" class="btn btn-primary">Update</button>
+
+            <button type="button" class="btn btn-primary mt-2" (click)="onUpdatePost()">Update Post</button>
           </form>
         </div>
-        <div *ngIf="errorMessage$ | async as error" class="alert alert-danger text-center mt-2">
+        <div *ngIf="errorMessageUpdate$ | async as error" class="alert alert-danger text-center mt-2">
           {{ error }}
         </div>
-        <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
+        <div *ngIf="successMessageUpdate$ | async as success" class="alert alert-success text-center mt-2">
           {{ success }}
         </div>
       </div>

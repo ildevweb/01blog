@@ -251,15 +251,27 @@ public class PostController {
 
 
     @PostMapping("/update/{id}")
-    public void updatePost(
+    public ResponseEntity<?> updatePost(
         @PathVariable Long id,
         @RequestParam("content") String content,
             @RequestParam(value = "image", required = false) MultipartFile image
     ) throws IOException {
         if (content.isEmpty() && image == null) {
-            System.out.println("inputs are empty");
-            new RuntimeException("inputs empty");
-            return;
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post cannot be empty"
+                )
+            );
+        }
+
+        if (content.trim().length() > 100) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post content is too large"
+                )
+            );
         }
 
         //get owner id
@@ -279,13 +291,28 @@ public class PostController {
             post.setOwnerId(userId);
             post.setTime(nowSeconds);
             postRepository.save(post);
-            return;
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", true,
+                    "message", "Post created successfuly"
+                )
+            );
         }
 
         // Create upload folder
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
+        }
+
+        String contentType = image.getContentType(); // MIME type
+        if (!ALLOWED_MIME.contains(contentType)) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Invalid file type"
+                )
+            );
         }
 
         // Generate unique file name
@@ -303,6 +330,13 @@ public class PostController {
         post.setTime(nowSeconds);
 
         postRepository.save(post);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message", "Post updated successfuly"
+            )
+        );
     }
 }
 

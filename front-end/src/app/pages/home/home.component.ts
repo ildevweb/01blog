@@ -19,14 +19,28 @@ export class HomeComponent implements OnInit {
   posts$ = new BehaviorSubject<any[]>([]);
   isLoading = false;
 
-  errorMessage$ = new BehaviorSubject<string | null>(null);
-  successMessage$ = new BehaviorSubject<string | null>(null);
+  // For Create Post
+  errorMessageCreate$ = new BehaviorSubject<string | null>(null);
+  successMessageCreate$ = new BehaviorSubject<string | null>(null);
 
-  content: string = '';
-  selectedImage: File | null = null;
-  imagePreview: string | ArrayBuffer | null = null;
+  // For Update Post
+  errorMessageUpdate$ = new BehaviorSubject<string | null>(null);
+  successMessageUpdate$ = new BehaviorSubject<string | null>(null);
+
+  contentCreate: string = '';
+  selectedImageCreate: File | null = null;
+  imagePreviewCreate: string | ArrayBuffer | null = null;
+  
+
+  contentUpdate: string = '';
+  selectedImageUpdate: File | null = null;
+  //imagePreviewUpdate: string | ArrayBuffer | null = null;
+  imagePreviewUpdate = new BehaviorSubject<string | ArrayBuffer | null>(null);
+
   currentPostId?: number;
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  @ViewChild('fileInputCreate') fileInputCreate!: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInputUpdate') fileInputUpdate!: ElementRef<HTMLInputElement>;
 
   selectedPost: any = null;
   comments$ = new BehaviorSubject<any[]>([]);
@@ -34,18 +48,12 @@ export class HomeComponent implements OnInit {
 
   users$ = new BehaviorSubject<any[]>([]);
 
-  //comment content
-  commentData = {
-    content: '',
-    postId: 0
-  }
+  commentData = { content: '', postId: 0 };
   isSubmittingComment: boolean = false;
 
-  //report part
   private reportedId: number = 0;
   private reportType: string = '';
 
-  //pagination
   private currentPostsPage = 0;
   private currentUsersPage = 0;
   private currentCommentsPage = 0;
@@ -57,422 +65,254 @@ export class HomeComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef) {}
 
-  // Called every time Home is entered
   ngOnInit(): void {
     this.fetchPosts();
     this.fetchUsers();
   }
 
-  //GET users from backend
   fetchUsers(page: number = 0, size: number = 10): void {
-    this.http.get<any[]>(`${this.userAPI}/all?page=${page}&size=${size}`)
-      .subscribe({
-        next: users => {
-          console.log("this is the whole users:", users);
-
-          if (page === 0) {
-            this.users$.next(users);
-          } else {
-            const current = this.users$.getValue();
-            this.users$.next([...current, ...users]);
-          }
-        },
-        error: err => {
-          console.log('Failed to load users:', err);
-        }
-      });
-  }
-
-  //Follow system
-  follow(userId: number) {
-
-    this.http.post<any>(`${this.userAPI}/follow`, { userId: userId })
-      .subscribe({
-        next: res => {
-          console.log("this is the follow res :", res);
-          this.fetchUsers();
-        },
-        error: err => console.error("Follow failed:", err)
-      });
-  }
-
-  // GET posts from backend
-  fetchPosts(page: number = 0, size: number = 10): void {
-    this.isLoading = true;
-
-    this.http.get<any[]>(`${this.postAPI}/all?page=${page}&size=${size}`)
-      .subscribe({
-        next: posts => {
-          console.log("Fetched posts:", posts);
-
-          if (page === 0) {
-            this.posts$.next(posts);
-          } else {
-            const current = this.posts$.getValue();
-            this.posts$.next([...current, ...posts]);
-          }
-
-          this.isLoading = false;
-        },
-        error: err => {
-          console.log('Failed to load posts:', err);
-          this.isLoading = false;
-        }
-      });
-  }
-
-
-
-  //GET comments
-  openComments(post: any) {
-    this.selectedPost = post;
-    this.fetchComments();
-
-    const modal = new bootstrap.Modal(
-      document.getElementById('commentsModal')
-    );
-    modal.show();
-  }
-
-  //fetch comments
-  fetchComments(page: number = 0, size: number = 10) {
-    this.http.get<any[]>(`${this.commentAPI}/all?page=${page}&size=${size}`, {
-      params: {
-        postId: this.selectedPost.id
-      }
-    }).subscribe({
-      next: comments => {
-        console.log('this is the whole comments:', comments);
-
-        if (page === 0) {
-          this.comments$.next(comments);
-        } else {
-          const current = this.comments$.getValue();
-          this.comments$.next([...current, ...comments]);
-        }
+    this.http.get<any[]>(`${this.userAPI}/all?page=${page}&size=${size}`).subscribe({
+      next: users => {
+        if (page === 0) this.users$.next(users);
+        else this.users$.next([...this.users$.getValue(), ...users]);
       },
-      error: err => {
-        console.error('Failed to load comments:', err);
-      }
+      error: err => console.log('Failed to load users:', err)
     });
   }
 
-  //like comment
-  likeComments(comment: any) {
+  follow(userId: number) {
+    this.http.post<any>(`${this.userAPI}/follow`, { userId }).subscribe({
+      next: () => this.fetchUsers(),
+      error: err => console.error("Follow failed:", err)
+    });
+  }
 
-    this.http.post<any>(`${this.commentAPI}/like`, { commentId: comment.id })
+  fetchPosts(page: number = 0, size: number = 10): void {
+    this.isLoading = true;
+    this.http.get<any[]>(`${this.postAPI}/all?page=${page}&size=${size}`).subscribe({
+      next: posts => {
+        if (page === 0) this.posts$.next(posts);
+        else this.posts$.next([...this.posts$.getValue(), ...posts]);
+        this.isLoading = false;
+      },
+      error: err => { console.log('Failed to load posts:', err); this.isLoading = false; }
+    });
+  }
+
+  openComments(post: any) {
+    this.selectedPost = post;
+    this.fetchComments();
+    new bootstrap.Modal(document.getElementById('commentsModal')).show();
+  }
+
+  fetchComments(page: number = 0, size: number = 10) {
+    this.http.get<any[]>(`${this.commentAPI}/all?page=${page}&size=${size}`, { params: { postId: this.selectedPost.id } })
       .subscribe({
-        next: res => {
-          console.log("comment liked successfully:", res);
-          // Replace the post in the posts array
-          const comments = this.comments$.value.map(c =>
-            c.id === comment.id
-              ? { ...c, liked: res.liked, count: res.liked ? c.count + 1 : c.count - 1 }
-              : c
-          );
-          this.comments$.next(comments);
+        next: comments => {
+          if (page === 0) this.comments$.next(comments);
+          else this.comments$.next([...this.comments$.getValue(), ...comments]);
         },
-        error: err => {
-          console.log("comment liking failed :", err);
-        }
+        error: err => console.error('Failed to load comments:', err)
       });
   }
 
-  //create comment
+  likeComments(comment: any) {
+    this.http.post<any>(`${this.commentAPI}/like`, { commentId: comment.id }).subscribe({
+      next: res => {
+        const comments = this.comments$.value.map(c =>
+          c.id === comment.id ? { ...c, liked: res.liked, count: res.liked ? c.count + 1 : c.count - 1 } : c
+        );
+        this.comments$.next(comments);
+      },
+      error: err => console.log("comment liking failed :", err)
+    });
+  }
+
   submitComment() {
-    if (!this.commentData.content.trim() || !this.selectedPost) {
-      return;
-    }
+    if (!this.commentData.content.trim() || !this.selectedPost) return;
 
     this.isSubmittingComment = true;
     this.commentData.postId = this.selectedPost.id;
 
-    
-    this.http.post(`${this.commentAPI}/create`, this.commentData)
-      .subscribe({
-        next: res => {
-          this.fetchComments();
-          this.commentData.content = '';
-          this.commentData.postId = 0;
-          console.log("this is comment", res);
-          this.isSubmittingComment = false;
-        },
-        error: err => {
-          console.log("comment creation error:", err);
-          this.commentErrorMessage$.next('Creating comment failed');
-          setTimeout(() => this.commentErrorMessage$.next(null), 1000);
-        }
-      });
+    this.http.post(`${this.commentAPI}/create`, this.commentData).subscribe({
+      next: () => { this.fetchComments(); this.commentData.content = ''; this.isSubmittingComment = false; },
+      error: () => { this.commentErrorMessage$.next('Creating comment failed'); setTimeout(() => this.commentErrorMessage$.next(null), 1000); this.isSubmittingComment = false; }
+    });
   }
 
-
-  // Capture media
-  onImageSelected(event: Event): void {
+  onImageSelected(event: Event, type: 'create' | 'update'): void {
     const input = event.target as HTMLInputElement;
-
-    if (!input.files || input.files.length === 0) {
-      return;
-    }
-
-    this.imagePreview = null;
-    this.selectedImage = null;
+    if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    this.selectedImage = file;
-
     const reader = new FileReader();
     reader.onload = () => {
-      this.imagePreview = reader.result;
-      this.cdr.detectChanges(); // force UI refresh
+      if (type === 'create') { 
+        this.selectedImageCreate = file; 
+        this.imagePreviewCreate = reader.result; 
+      } else { 
+        this.selectedImageUpdate = file; 
+        this.imagePreviewUpdate.next(reader.result); 
+      }
+      this.cdr.detectChanges();
     };
     reader.readAsDataURL(file);
   }
 
-  //remove media
-  removeMedia() {
-    this.selectedImage = null;
-    this.imagePreview = null;
-    this.fileInput.nativeElement.value = '';
+  removeMedia(type: 'create' | 'update') {
+    if (type === 'create') { 
+      this.selectedImageCreate = null; 
+      this.imagePreviewCreate = null; 
+      this.fileInputCreate.nativeElement.value = ''; 
+    }
+    else { 
+      this.selectedImageUpdate = null; 
+      this.imagePreviewUpdate.next(null); 
+      this.fileInputUpdate.nativeElement.value = ''; 
+    }
   }
 
-  // Create post
   onCreate(): void {
-    if (!this.content.trim() && !this.selectedImage) {
-      this.errorMessage$.next('Post cannot be empty');
-      setTimeout(() => this.errorMessage$.next(null), 1000);
-      return;
-    }
+    if (!this.contentCreate.trim() && !this.selectedImageCreate) return;
 
     const formData = new FormData();
-
-    if (this.content.trim().length < 100) {
-      formData.append('content', this.content);
-    } else {
-      this.errorMessage$.next("Content is too large, max 100 character");
-      setTimeout(() => {
-        this.errorMessage$.next(null);
-        this.content = '';
-      }, 1000);
-      return;
+    if (this.contentCreate.trim().length <= 100) {
+      formData.append('content', this.contentCreate);
+    } 
+    else { 
+      this.errorMessageCreate$.next("Content too large"); 
+      setTimeout(() => this.errorMessageCreate$.next(null), 1000); 
+      return; 
     }
-    
 
     const allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'mp4'];
-
-    if (this.selectedImage) {
-      const fileName = this.selectedImage.name;
-      const fileExtension = fileName.split('.').pop()?.toLowerCase();
-
-      if (
-        (this.selectedImage.type.startsWith('image/') || this.selectedImage.type.startsWith('video/')) &&
-        fileExtension && 
-        allowedExtensions.includes(fileExtension)
-      ) {
-        formData.append('image', this.selectedImage);
-      } else {
-        this.errorMessage$.next('Only valid image/video files are allowed (png, jpg, jpeg, gif, mp4).');
-        setTimeout(() => this.errorMessage$.next(null), 1000);
-
-        this.removeMedia();
-        return;
+    if (this.selectedImageCreate) {
+      const fileExtension = this.selectedImageCreate.name.split('.').pop()?.toLowerCase();
+      if ((this.selectedImageCreate.type.startsWith('image/') || this.selectedImageCreate.type.startsWith('video/')) && fileExtension && allowedExtensions.includes(fileExtension))
+        formData.append('image', this.selectedImageCreate);
+      else { 
+        this.errorMessageCreate$.next('Invalid media type'); 
+        setTimeout(() => this.errorMessageCreate$.next(null), 1000); 
+        this.removeMedia('create'); 
+        return; 
       }
     }
 
-    this.http.post(`${this.postAPI}/create`, formData)
-      .subscribe({
-        next: (res: any) => {
-          this.content = '';
-          this.removeMedia();
+    this.http.post(`${this.postAPI}/create`, formData).subscribe({
+      next: (res: any) => { 
+        this.contentCreate = ''; 
+        this.removeMedia('create');
 
-          if (!res.success) {
-            this.errorMessage$.next(res.message);
-            setTimeout(() => this.errorMessage$.next(null), 1000);
-            return;
-          }
-
-          this.successMessage$.next('Post created successfully');
-          setTimeout(() => this.successMessage$.next(null), 1000);
-
-          // Refresh posts immediately
-          this.fetchPosts();
-        },
-        error: () => {
-          this.errorMessage$.next("post creation failed");
-          setTimeout(() => this.errorMessage$.next(null), 1000);
-          this.content = '';
-          this.removeMedia();
+        if (!res.success) {
+          this.errorMessageCreate$.next(res.message); 
+          setTimeout(() => this.errorMessageCreate$.next(null), 1000);
+          return;
         }
-      });
-  }
-
-
-  likePosts(post: any) {
-    this.http.post<any>(`${this.postAPI}/like`, { postId: post.id })
-      .subscribe({
-        next: res => {
-          console.log("post liked successfully:", res);
-          // Replace the post in the posts array
-          const posts = this.posts$.value.map(p =>
-            p.id === post.id
-              ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1}
-              : p
-          );
-          this.posts$.next(posts);
-        },
-        error: err => {
-          console.log("post liking failed :", err);
-        }
-      });
-  }
-
-  //delete post
-  deletePost(postId: number) {
-    this.http.get(`${this.postAPI}/delete/${postId}`).subscribe({
-      next: () => {
-        console.log("Post deleted successfully");
-        this.fetchPosts();
+        this.fetchPosts(); 
       },
-      error: err => {
-        console.error('Failed to delete post:', err);
+      error: () => { 
+        this.errorMessageCreate$.next('Post creation failed'); 
+        setTimeout(() => this.errorMessageCreate$.next(null), 1000); 
+        this.contentCreate = ''; 
+        this.removeMedia('create'); 
       }
     });
   }
 
-  //open edit modal
-  openEditModal(postId: number) {
-    this.currentPostId = postId;
-
-    const modalElement = document.getElementById('editPostModal');
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+  openEditModal(post: any) {
+    this.currentPostId = post.id;
+    this.contentUpdate = post.content || '';
+    this.selectedImageUpdate = null;
+    this.imagePreviewUpdate.next(post.media ? `http://localhost:8080/${post.media}` : null);
+    new bootstrap.Modal(document.getElementById('editPostModal')).show();
   }
 
-
-  onUpdatePost() {
+  onUpdatePost(): void {
     if (!this.currentPostId) return;
-
-    if (!this.content.trim() && !this.selectedImage) {
-      this.errorMessage$.next('Post cannot be empty');
-      setTimeout(() => this.errorMessage$.next(null), 1000);
-      return;
-    }
+    if (!this.contentUpdate.trim() && !this.selectedImageUpdate) return;
 
     const formData = new FormData();
-    formData.append('content', this.content);
-
-    if (this.selectedImage) {
-      formData.append('image', this.selectedImage);
+    if (this.contentUpdate.trim().length <= 100) formData.append('content', this.contentUpdate);
+    else { 
+      this.errorMessageUpdate$.next("Content too large"); 
+      setTimeout(() => this.errorMessageUpdate$.next(null), 1000); 
+      return; 
     }
 
-    this.http.post(`${this.postAPI}/update/${this.currentPostId}`, formData)
-      .subscribe({
-        next: () => {
-          this.content = '';
+    const allowedExtensions = ['png', 'jpg', 'jpeg', 'gif', 'mp4'];
+    if (this.selectedImageUpdate) {
+      const fileExtension = this.selectedImageUpdate.name.split('.').pop()?.toLowerCase();
+      if ((this.selectedImageUpdate.type.startsWith('image/') || this.selectedImageUpdate.type.startsWith('video/')) && fileExtension && allowedExtensions.includes(fileExtension))
+        formData.append('image', this.selectedImageUpdate);
+      else { 
+        this.errorMessageUpdate$.next('Invalid media type'); 
+        setTimeout(() => this.errorMessageUpdate$.next(null), 1000); 
+        this.removeMedia('update'); 
+        return; 
+      }
+    }
 
-          this.successMessage$.next('Post updated successfully');
-          setTimeout(() => this.successMessage$.next(null), 1000);
-
-          // Refresh posts immediately
-          this.fetchPosts();
-        },
-        error: () => {
-          this.errorMessage$.next('Updating post failed');
-          setTimeout(() => this.errorMessage$.next(null), 1000);
+    this.http.post(`${this.postAPI}/update/${this.currentPostId}`, formData).subscribe({
+      next: (res: any) => { 
+        this.contentUpdate = ''; 
+        this.removeMedia('update');
+        if (!res.success) {
+          this.errorMessageCreate$.next(res.message); 
+          setTimeout(() => this.errorMessageCreate$.next(null), 1000);
+          return;
         }
-      });
-
-    // After update, hide modal
-    const modalElement = document.getElementById('editPostModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    modal.hide();
+         
+        this.fetchPosts(); 
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editPostModal')); 
+        modal.hide(); 
+      },
+      error: () => { 
+        this.errorMessageUpdate$.next('Updating post failed'); 
+        setTimeout(() => this.errorMessageUpdate$.next(null), 1000); 
+      }
+    });
   }
 
-  //redirect to user profile
-  goToProfile(id: number) {
-    this.router.navigate(['/profile', id]);
+  likePosts(post: any) {
+    this.http.post<any>(`${this.postAPI}/like`, { postId: post.id }).subscribe({
+      next: res => {
+        const posts = this.posts$.value.map(p => {
+          p.id === post.id ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1} : p
+        });
+        this.posts$.next(posts);
+      },
+      error: err => console.log("post liking failed :", err)
+    });
   }
 
-  
-  // Open Report modal
+  deletePost(postId: number) {
+    this.http.get(`${this.postAPI}/delete/${postId}`)
+    .subscribe({ 
+      next: () => this.fetchPosts(), 
+      error: err => console.error('Failed to delete post:', err) 
+    });
+  }
+
+  goToProfile(id: number) { this.router.navigate(['/profile', id]); }
+
   openReportModal(reportedId: number, type: string) {
     this.reportedId = reportedId;
     this.reportType = type;
-
-
-    const modalEl = document.getElementById('reportUserModal');
-    if (modalEl) {
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
-    }
+    new bootstrap.Modal(document.getElementById('reportUserModal')).show();
   }
 
-  //submit report
-  submitReport(reasonSpam: HTMLInputElement,
-    reasonHate: HTMLInputElement,
-    reasonInappropriate: HTMLInputElement,
-    additionalReason: HTMLInputElement) {
-      
-      let selectedReason = '';
+  submitReport(reasonSpam: HTMLInputElement, reasonHate: HTMLInputElement, reasonInappropriate: HTMLInputElement, additionalReason: HTMLInputElement) {
+    let selectedReason = reasonSpam.checked ? 'Spam' : reasonHate.checked ? 'Hate Speech' : reasonInappropriate.checked ? 'Inappropriate Content' : additionalReason.value.trim();
+    if (!selectedReason) { alert('Please select a reason'); return; }
+    if (!confirm('Are you sure you want to submit this report?')) return;
 
-      if (reasonSpam.checked) {
-        selectedReason = 'Spam';
-      } else if (reasonHate.checked) {
-        selectedReason = 'Hate Speech';
-      } else if (reasonInappropriate.checked) {
-        selectedReason = 'Inappropriate Content';
-      } else if (additionalReason.value.trim()) {
-        selectedReason = additionalReason.value.trim();
-      }
-
-      if (!selectedReason) {
-        alert('Please select a reason');
-        return;
-      }
-
-      const confirmed = window.confirm('Are you sure you want to submit this report?');
-
-      if (!confirmed) {
-        return;
-      }
-
-      let reportData = {
-        reportedId: this.reportedId,
-        type: this.reportType,
-        reason: selectedReason,
-      }
-
-      this.http.post(
-        `${this.reportAPI}/report`,
-        reportData
-      ).subscribe({
-        next: res => {
-          console.log('Report success', res)
-        },
-        error: err => {
-          console.log("this is the report error:", err)
-        }
-      });
-
-      const modalElement = document.getElementById('reportUserModal');
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      modal.hide();
+    this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason }).subscribe({ next: res => console.log('Report success', res), error: err => console.log("report error:", err) });
+    const modal = bootstrap.Modal.getInstance(document.getElementById('reportUserModal'));
+    modal.hide();
   }
 
-  //load More button for posts
-  loadMore(): void {
-    this.currentPostsPage++;
-    this.fetchPosts(this.currentPostsPage, 10);
-  }
+  loadMore() { this.currentPostsPage++; this.fetchPosts(this.currentPostsPage, 10); }
+  loadMoreUsers() { this.currentUsersPage++; this.fetchUsers(this.currentUsersPage, 10); }
+  loadMoreComments() { this.currentCommentsPage++; this.fetchComments(this.currentCommentsPage, 10); }
 
-  //load More button for users
-  loadMoreUsers(): void {
-    this.currentUsersPage++;
-    this.fetchUsers(this.currentUsersPage, 10);
-  }
-
-  //load More button for comments
-  loadMoreComments(): void {
-    this.currentCommentsPage++;
-    this.fetchComments(this.currentCommentsPage, 10);
-  }
 }
