@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +36,17 @@ public class CommentController {
     @PostMapping("/create")
     public ResponseEntity<?> createComment(@RequestBody CommentRequest request) throws IOException {
         if (request.getContent().isEmpty() || request.getPostId() == 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("inputs empty");
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "input cannot be empty"
+            ));
+        }
+
+        if (request.getContent().trim().length() > 100) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Max 100 character in comment"
+            ));
         }
 
         //get owner id
@@ -50,7 +59,11 @@ public class CommentController {
 
         Comment comment = new Comment(request.getContent(), request.getPostId(), userId, nowSeconds);
         commentRepository.save(comment);
-        return ResponseEntity.ok(comment);
+        
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Comment created successfuly"
+        ));
     }
     
 
@@ -71,11 +84,6 @@ public class CommentController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         User currentUser = user.getUser();
-
-        System.out.println("this is the user");
-        System.out.println(currentUser.getName());
-        System.out.println("this is the comment id");
-        System.out.println(request.getCommentId());
         
         boolean liked = commentLikeService.toggleLike(
             request.getCommentId(),

@@ -33,11 +33,13 @@ public class CommentLikeService {
             return false;
         } else {
             // LIKE
-            Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+            Optional<Comment> comment = commentRepository.findById(commentId);
+            if (comment.isEmpty()) {
+                return false;
+            }
 
             CommentLike like = new CommentLike();
-            like.setComment(comment);
+            like.setComment(comment.get());
             like.setUser(currentUser);
 
             commentLikeRepository.save(like);
@@ -52,9 +54,6 @@ public class CommentLikeService {
         if (existingLike.isPresent()) {
             return true;
         } else {
-            commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-            
             return false;
         }
     }

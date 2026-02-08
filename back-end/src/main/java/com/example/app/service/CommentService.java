@@ -47,7 +47,7 @@ public class CommentService {
                 boolean liked = commentLikeService.isLiked(comment.getId(), user);
 
                 User owner = userRepository.findById(comment.getOwnerId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElse(new User("deleted user"));
 
                 return new CommentInfos(
                     comment.getId(),
