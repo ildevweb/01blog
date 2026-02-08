@@ -53,8 +53,8 @@ public class AdminController {
     }
 
     @GetMapping("/dismiss/{id}")
-    public void dismissReport(@PathVariable Long id) {
-        reportService.dismissReport(id);
+    public ResponseEntity<?> dismissReport(@PathVariable Long id) {
+        return reportService.dismissReport(id);
     }
 }
 

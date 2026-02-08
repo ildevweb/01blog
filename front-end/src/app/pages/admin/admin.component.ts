@@ -204,18 +204,20 @@ export class AdminComponent implements OnInit {
     //dismiss report
     dismissReport(reportId: number) {
         const confirmed = window.confirm('Are you sure you want to dismiss this report?');
-        if (!confirmed) {
-            return;
-        }
+        if (!confirmed) return;
 
         this.http.get(`${this.adminAPI}/dismiss/${reportId}`).subscribe({
-            next: () => {
+            next: (res: any) => {
+                if (!res.success) {
+                    alert(res.message);
+                    return;
+                }
                 console.log("success dismiss report");
                 this.getReports();
                 this.getData();
             },
-            error: err => {
-                console.error('Failed to dismiss report :', err);
+            error: () => {
+                console.error('Failed to dismiss report');
             }
         });
     }

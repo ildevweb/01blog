@@ -6,17 +6,18 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.dto.ReportInfos;
 import com.example.app.entity.Report;
 import com.example.app.entity.User;
 import com.example.app.repository.ReportRepository;
 import com.example.app.security.UserPrincipal;
+
+import java.util.Map;
 
 
 @Service
@@ -88,20 +89,35 @@ public class ReportService {
     }
 
 
-    public void dismissReport(Long reportId) {
+    public ResponseEntity<?> dismissReport(Long reportId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
 
-        if (!reportRepository.existsById(reportId) || !user.getRole().equals("admin")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (!reportRepository.existsById(reportId)) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Report not found"
+            ));
+        }
+
+        if (!user.getRole().equals("admin")) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Access only to admin"
+            ));
         }
 
         Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new RuntimeException("Report not found"));
+        .orElse(new Report());
 
         report.setStatus("dismissed");
 
         reportRepository.save(report);
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Reported successfuly"
+        ));
     }
 }
