@@ -17,7 +17,6 @@ declare var bootstrap: any;
 export class HomeComponent implements OnInit {
 
   posts$ = new BehaviorSubject<any[]>([]);
-  isLoading = false;
 
   // For Create Post
   errorMessageCreate$ = new BehaviorSubject<string | null>(null);
@@ -87,14 +86,13 @@ export class HomeComponent implements OnInit {
   }
 
   fetchPosts(page: number = 0, size: number = 10): void {
-    this.isLoading = true;
     this.http.get<any[]>(`${this.postAPI}/all?page=${page}&size=${size}`).subscribe({
       next: posts => {
+        console.log("this is the posts :", posts);
         if (page === 0) this.posts$.next(posts);
         else this.posts$.next([...this.posts$.getValue(), ...posts]);
-        this.isLoading = false;
       },
-      error: err => { console.log('Failed to load posts:', err); this.isLoading = false; }
+      error: () => console.log('Failed to load posts') 
     });
   }
 
@@ -275,9 +273,16 @@ export class HomeComponent implements OnInit {
   likePosts(post: any) {
     this.http.post<any>(`${this.postAPI}/like`, { postId: post.id }).subscribe({
       next: res => {
-        const posts = this.posts$.value.map(p => {
-          p.id === post.id ? { ...p, liked: res.liked, count: res.liked ? p.count + 1 : p.count - 1} : p
-        });
+        const posts = this.posts$.value.map(p =>
+          p.id === post.id
+            ? {
+                ...p,
+                liked: res.liked,
+                count: res.liked ? p.count + 1 : p.count - 1
+              }
+            : p
+        );
+
         this.posts$.next(posts);
       },
       error: err => console.log("post liking failed :", err)
@@ -285,10 +290,22 @@ export class HomeComponent implements OnInit {
   }
 
   deletePost(postId: number) {
+    const confirmed = window.confirm('Are you sure you want to delete this post?');
+    if (!confirmed) {
+      return;
+    }
+
     this.http.get(`${this.postAPI}/delete/${postId}`)
     .subscribe({ 
-      next: () => this.fetchPosts(), 
-      error: err => console.error('Failed to delete post:', err) 
+      next: (res: any) => {
+        if (!res.success) {
+          alert(res.message);
+          return;
+        }
+
+        this.fetchPosts()
+      }, 
+      error: () => console.error('Failed to delete post') 
     });
   }
 

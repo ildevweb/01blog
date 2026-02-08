@@ -3,7 +3,6 @@ package com.example.app.service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.repository.FollowRepository;
 import com.example.app.repository.PostLikeRepository;
@@ -18,11 +17,12 @@ import com.example.app.entity.Report;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.Instant;
 
@@ -70,7 +70,7 @@ public class PostService {
                 String time = timeAgo(post.getTime());
                 boolean liked = postLikeService.isLiked(post.getId(), user);
                 User owner = userRepository.findById(post.getOwnerId())
-                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+                .orElse(new User("Deleted user"));
 
                 return new PostInfos(
                     post.getId(),
@@ -105,7 +105,8 @@ public class PostService {
                 boolean liked = postLikeService.isLiked(post.getId(), user);
 
                 User owner = userRepository.findById(post.getOwnerId())
-                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+                .orElse(new User("Deleted user"));
+
 
                 return new PostInfos(
                     post.getId(),
@@ -138,7 +139,8 @@ public class PostService {
                 boolean liked = postLikeService.isLiked(post.getId(), user);
 
                 User owner = userRepository.findById(post.getOwnerId())
-                    .orElseThrow(() -> new RuntimeException("Owner not found"));
+                .orElse(new User("Deleted user"));
+
 
                 return new PostInfos(
                     post.getId(),
@@ -193,13 +195,16 @@ public class PostService {
     }
 
 
-    public void banPost(Long postId) {
+    public ResponseEntity<?> banPost(Long postId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
 
         if (!postRepository.existsById(postId) || !user.getRole().equals("admin")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post undefined or you don't have permit to ban it"
+            ));
         }
 
         Post post = postRepository.findById(postId)
@@ -220,5 +225,10 @@ public class PostService {
             report.setStatus("resolved");
             reportRepository.save(report);
         }
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "successful ban post"
+        ));
     }
 }

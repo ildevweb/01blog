@@ -7,12 +7,10 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.time.Instant;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.app.entity.Follow;
 import com.example.app.entity.Post;
@@ -218,18 +216,22 @@ public class PostController {
         );
 
         return ResponseEntity.ok(Map.of(
+            "success", true,
             "liked", liked
         ));
     }
 
     @GetMapping("/delete/{id}")
-    public void deletePost(@PathVariable Long id) {
+    public ResponseEntity<?> deletePost(@PathVariable Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
         User user = userPrincipal.getUser();
 
         if (!postRepository.existsByOwnerIdAndId(user.getId(), id) && !user.getRole().equals("admin")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post undefined or you don't have permit to delete it"
+            ));
         }
 
         //notificationRepository.deleteByFromUserOrToUser()
@@ -242,11 +244,14 @@ public class PostController {
             reportRepository.save(report);
         }
 
+        return ResponseEntity.ok(Map.of(
+            "success", true
+        ));
     }
 
     @GetMapping("/ban/{id}")
-    public void banPost(@PathVariable Long id) {
-        postService.banPost(id);
+    public ResponseEntity<?> banPost(@PathVariable Long id) {
+        return postService.banPost(id);
     }
 
 

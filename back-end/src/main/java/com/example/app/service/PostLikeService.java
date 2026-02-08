@@ -33,11 +33,13 @@ public class PostLikeService {
             return false;
         } else {
             // LIKE
-            Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+            Optional<Post> postOpt = postRepository.findById(postId);
+            if (postOpt.isEmpty()) {
+                return false;
+            }
 
             PostLike like = new PostLike();
-            like.setPost(post);
+            like.setPost(postOpt.get());
             like.setUser(currentUser);
 
             postLikeRepository.save(like);
@@ -52,9 +54,6 @@ public class PostLikeService {
         if (existingLike.isPresent()) {
             return true;
         } else {
-            postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-
             return false;
         }
     }

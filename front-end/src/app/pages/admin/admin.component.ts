@@ -142,13 +142,18 @@ export class AdminComponent implements OnInit {
     //send request to ban / unban post
     togglePostBan(postId: number) {
         this.http.get(`${this.postAPI}/ban/${postId}`).subscribe({
-            next: () => {
+            next: (res: any) => {
+                if (!res.success) {
+                    alert(res.message);
+                    return;
+                }
+
                 console.log("success ban / unban post:");
                 this.getPosts();
                 this.getReports();
             },
-            error: err => {
-                console.error('Failed to ban / unban post :', err);
+            error: () => {
+                console.error('Failed to ban / unban post');
             }
         });
     }

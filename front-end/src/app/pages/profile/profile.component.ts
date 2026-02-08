@@ -334,14 +334,22 @@ export class ProfileComponent implements OnInit {
 
   //delete post
   deletePost(postId: number) {
-    this.http.get(`${this.postAPI}/delete/${postId}`).subscribe({
-      next: () => {
-        console.log("Post deleted successfully");
-        this.fetchPosts();
-      },
-      error: err => {
-        console.error('Failed to delete post:', err);
-      }
+    const confirmed = window.confirm('Are you sure you want to delete this post?');
+    if (!confirmed) {
+      return;
+    }
+
+    this.http.get(`${this.postAPI}/delete/${postId}`)
+    .subscribe({ 
+      next: (res: any) => {
+        if (!res.success) {
+          alert(res.message);
+          return;
+        }
+
+        this.fetchPosts()
+      }, 
+      error: () => console.error('Failed to delete post') 
     });
   }
 
