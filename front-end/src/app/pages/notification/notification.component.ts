@@ -32,8 +32,8 @@ export class NotificationComponent implements OnInit {
             console.log("this is unreaded notifications :", res);
             this.notifications.next(res);
         },
-        error: err => {
-            console.log("failed getting notifications :", err);
+        error: () => {
+            console.log("failed getting notifications");
         }
     });
   }
@@ -43,14 +43,14 @@ export class NotificationComponent implements OnInit {
       .get(`${this.notifications_API}/unread/mark_all_as_read`)
       .subscribe({
           next: () => {
-            console.log("mark all as reaad successfully");
+            console.log("mark all as read successfully");
             const updated = this.notifications.value.map(notif => ({ ...notif, readed: true }));
             this.notifications.next(updated);
             this.notificationService.unreadCountSubject.next(0);
             this.notificationService.refreshUnreadCount();
           },
-          error: err => {
-            console.log("mark all as read failed :", err);
+          error: () => {
+            console.log("mark all as read failed");
           }
       });
   }

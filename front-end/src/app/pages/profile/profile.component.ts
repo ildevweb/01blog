@@ -225,22 +225,36 @@ export class ProfileComponent implements OnInit {
   }
 
   submitComment() {
-    if (!this.commentData.content.trim() || !this.selectedPost) return;
+    if (!this.commentData.content.trim() || !this.selectedPost) {
+      this.commentErrorMessage$.next("input cannot be empty"); 
+      setTimeout(() => this.commentErrorMessage$.next(null), 1000); 
+      return;
+    }
+
+    if (this.commentData.content.trim().length > 100) {
+      this.commentErrorMessage$.next("Max 100 characters in comment"); 
+      setTimeout(() => this.commentErrorMessage$.next(null), 1000); 
+      return;
+    }
 
     this.isSubmittingComment = true;
     this.commentData.postId = this.selectedPost.id;
 
     this.http.post(`${this.commentAPI}/create`, this.commentData).subscribe({
-      next: res => {
-        this.fetchComments();
-        this.commentData.content = '';
-        this.commentData.postId = 0;
-        this.isSubmittingComment = false;
+      next: (res: any) => { 
+        if (!res.success) {
+          this.commentErrorMessage$.next(res.message); 
+          setTimeout(() => this.commentErrorMessage$.next(null), 1000); 
+          return;
+        }
+        this.fetchComments(); 
+        this.commentData.content = ''; 
+        this.isSubmittingComment = false; 
       },
-      error: err => {
-        console.error("Creating comment failed:", err);
-        this.commentErrorMessage$.next('Creating comment failed');
-        setTimeout(() => this.commentErrorMessage$.next(null), 1000);
+      error: () => { 
+        this.commentErrorMessage$.next('Creating comment failed'); 
+        setTimeout(() => this.commentErrorMessage$.next(null), 1000); 
+        this.isSubmittingComment = false; 
       }
     });
   }

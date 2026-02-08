@@ -47,14 +47,14 @@ public class ReportController {
 
         if (type.equals("user")) {
             User userToReport = userRepository.findById(request.getReportedId())
-                                .orElseThrow(() -> new RuntimeException("User not found"));
+                                .orElse(new User("deleted user"));
             Report report = new Report(type, user.getId(), userToReport.getId(), reason, nowSeconds, "pending");
             reportRepository.save(report);
             return report;
         }
         
 
-        Post postToReport = postRepository.findById(request.getReportedId()).orElseThrow(() -> new RuntimeException("Post not found"));
+        Post postToReport = postRepository.findById(request.getReportedId()).orElse(new Post());
         Report report = new Report(type, user.getId(), postToReport.getId(), reason, nowSeconds, "pending");
         reportRepository.save(report);
         return report;

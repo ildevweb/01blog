@@ -351,7 +351,12 @@ export class HomeComponent implements OnInit {
     if (!selectedReason) { alert('Please select a reason'); return; }
     if (!confirm('Are you sure you want to submit this report?')) return;
 
-    this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason }).subscribe({ next: res => console.log('Report success', res), error: err => console.log("report error:", err) });
+    this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason })
+    .subscribe({ 
+      next: res => console.log('Report success', res), 
+      error: () => console.log("failed reporting") 
+    });
+    
     const modal = bootstrap.Modal.getInstance(document.getElementById('reportUserModal'));
     modal.hide();
   }
