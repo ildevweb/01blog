@@ -134,14 +134,18 @@ export class ProfileComponent implements OnInit {
     this.http.post<any>(`${this.userAPI}/follow`, { userId: userId })
       .subscribe({
         next: res => {
-          console.log("this is the follow res :", res);
+          if (!res.success) {
+            alert(res.message);
+            return;
+          }
+          console.log("succcessfully following");
           if (load == true) {
             this.loadUserProfile(userId);
           }
           this.getFollowers();
           this.getFolloweds();
         },
-        error: err => console.error("Follow failed:", err)
+        error: () => console.error("Follow failed")
       });
   }
 

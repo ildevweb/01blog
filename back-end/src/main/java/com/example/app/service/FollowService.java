@@ -1,5 +1,6 @@
 package com.example.app.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +11,8 @@ import com.example.app.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class FollowService {
@@ -19,26 +22,30 @@ public class FollowService {
 
     //Follow a user
     @Transactional
-    public Follow follow(Long followerId, Long followedId) {
+    public ResponseEntity<?> follow(Long followerId, Long followedId) {
 
         if (followerId.equals(followedId)) {
-            throw new IllegalArgumentException("You cannot follow yourself");
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "You can't follow yourself"
+            ));
         }
 
-        boolean alreadyFollowing =
-            followRepository.existsByFollowerIdAndFollowedId(followerId, followedId);
+        boolean alreadyFollowing = followRepository.existsByFollowerIdAndFollowedId(followerId, followedId);
 
         if (alreadyFollowing) {
             unfollow(followerId, followedId);
-            Follow follow = new Follow();
-            return follow;
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Unfollowed successfully"
+            ));
         }
 
 
         User follower = userRepository.findById(followerId)
-            .orElseThrow(() -> new RuntimeException("Follower not found"));
+            .orElse(new User("user deleted"));
         User followed = userRepository.findById(followedId)
-            .orElseThrow(() -> new RuntimeException("Followed not found"));
+            .orElse(new User("user deleted"));
 
 
         Follow follow = new Follow();
@@ -47,7 +54,10 @@ public class FollowService {
 
         followRepository.save(follow);
 
-        return follow;
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Followed successfully"
+        ));
     }
 
     //Unfollow a user

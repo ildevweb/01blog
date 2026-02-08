@@ -48,13 +48,13 @@ public class UserController {
     }
 
     @GetMapping("/delete/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        return userService.deleteUser(id);
     }
 
     @GetMapping("/ban/{id}")
-    public void banUser(@PathVariable Long id) {
-        userService.banUser(id);
+    public ResponseEntity<?> banUser(@PathVariable Long id) {
+        return userService.banUser(id);
     }
 
     @PostMapping("/follow")
@@ -65,7 +65,7 @@ public class UserController {
         User currentUser = user.getUser();
         
 
-        return ResponseEntity.ok(followService.follow(currentUser.getId(), request.getUserId()));
+        return followService.follow(currentUser.getId(), request.getUserId());
     }
 
     @GetMapping("/followers/{id}")

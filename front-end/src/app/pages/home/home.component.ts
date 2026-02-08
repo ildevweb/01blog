@@ -80,8 +80,15 @@ export class HomeComponent implements OnInit {
 
   follow(userId: number) {
     this.http.post<any>(`${this.userAPI}/follow`, { userId }).subscribe({
-      next: () => this.fetchUsers(),
-      error: err => console.error("Follow failed:", err)
+      next: (res: any) => {
+        if (!res.success) {
+          alert(res.message);
+          return;
+        }
+        
+        this.fetchUsers()
+      },
+      error: () => console.error("Follow failed")
     });
   }
 

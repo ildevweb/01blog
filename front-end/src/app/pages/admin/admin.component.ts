@@ -78,14 +78,23 @@ export class AdminComponent implements OnInit {
 
     //send request to delete user
     deleteUser(userId: number) {
+        const confirmed = window.confirm('Are you sure you want to delete this user?');
+        if (!confirmed) return;
+
         this.http.get(`${this.userAPI}/delete/${userId}`).subscribe({
-            next: () => {
+            next: (res: any) => {
+                if (!res.success) {
+                    alert(res.message);
+                    return;
+                }
+
                 console.log("success delete user:");
+                this.getData();
                 this.getUsers();
                 this.getReports();
             },
-            error: err => {
-                console.error('Failed to delete user :', err);
+            error: () => {
+                console.error('Failed to delete user');
             }
         });
     }
@@ -93,13 +102,18 @@ export class AdminComponent implements OnInit {
     //send request to ban / unban user
     toggleBan(userId: number) {
         this.http.get(`${this.userAPI}/ban/${userId}`).subscribe({
-            next: () => {
+            next: (res: any) => {
+                if (!res.success) {
+                    alert(res.message);
+                    return;
+                }
+
                 console.log("success ban / unban user:");
                 this.getUsers();
                 this.getReports();
             },
-            error: err => {
-                console.error('Failed to ban / unban user :', err);
+            error: () => {
+                console.error('Failed to ban / unban user');
             }
         });
     }
@@ -127,15 +141,24 @@ export class AdminComponent implements OnInit {
 
     //send request to delete post
     deletePost(postId: number) {
-        this.http.get(`${this.postAPI}/delete/${postId}`).subscribe({
-            next: () => {
-                console.log("success delete post:");
-                this.getPosts();
-                this.getReports();
-            },
-            error: err => {
-                console.error('Failed to delete post :', err);
+        const confirmed = window.confirm('Are you sure you want to delete this post?');
+        if (!confirmed) {
+            return;
+        }
+
+        this.http.get(`${this.postAPI}/delete/${postId}`)
+        .subscribe({ 
+        next: (res: any) => {
+            if (!res.success) {
+            alert(res.message);
+            return;
             }
+
+            this.getData();
+            this.getPosts();
+            this.getReports();
+        }, 
+        error: () => console.error('Failed to delete post') 
         });
     }
 

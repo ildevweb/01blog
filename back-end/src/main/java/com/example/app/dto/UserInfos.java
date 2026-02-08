@@ -19,6 +19,10 @@ public class UserInfos {
         this.status = status;
     }
 
+    public UserInfos(String username) {
+        this.username = username;
+    }
+
     public Long getId() {
         return this.id;
     }

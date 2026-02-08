@@ -3,13 +3,13 @@ package com.example.app.service;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 import com.example.app.dto.UserInfos;
 import com.example.app.entity.Report;
@@ -85,7 +85,7 @@ public class UserService {
                 followService.isFollowing(currentUser.getId(), user.getId()),
                 user.getStatus()
             ))
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElse(new UserInfos("deleted user"));
     }
 
 
@@ -136,18 +136,25 @@ public class UserService {
     }
 
 
-    public void deleteUser(Long userId) {
+    public ResponseEntity<?> deleteUser(Long userId) {
 
         if (!userRepository.existsById(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "User doesn't exist"
+            ));
         }
+
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userp = (UserPrincipal) auth.getPrincipal();
         User user = userp.getUser();
 
         if (!user.getRole().equals("admin")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Only admin can delete users"
+            ));
         }
 
         postLikeRepository.deleteByUserId(userId);
@@ -160,19 +167,34 @@ public class UserService {
             report.setStatus("resolved");
             reportRepository.save(report);
         }
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "User deleted successfully"
+        ));
     }
 
-    public void banUser(Long userId) {
+    public ResponseEntity<?> banUser(Long userId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User currentUser = loggedUser.getUser();
 
-        if (!userRepository.existsById(userId) || !currentUser.getRole().equals("admin")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "User not found"
+            ));
+        }
+
+        if (!currentUser.getRole().equals("admin")) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Only admin can delete users"
+            ));
         }
 
         User user = userRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElse(new User("deleted user"));
 
         if (user.getStatus().equals("active")) {
             user.setStatus("banned");
@@ -187,5 +209,10 @@ public class UserService {
             report.setStatus("resolved");
             reportRepository.save(report);
         }
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "User banned/unbanned successfuly"
+        ));
     }
 }
