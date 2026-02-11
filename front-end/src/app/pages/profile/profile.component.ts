@@ -445,55 +445,26 @@ export class ProfileComponent implements OnInit {
   }
 
   //submit report
-  submitReport(reasonSpam: HTMLInputElement,
-    reasonHate: HTMLInputElement,
-    reasonInappropriate: HTMLInputElement,
-    additionalReason: HTMLInputElement) {
-      
-      let selectedReason = '';
+  submitReport(reasonSpam: HTMLInputElement, reasonHate: HTMLInputElement, reasonInappropriate: HTMLInputElement, additionalReason: HTMLInputElement) {
+    let selectedReason = reasonSpam.checked ? 'Spam' : reasonHate.checked ? 'Hate Speech' : reasonInappropriate.checked ? 'Inappropriate Content' : additionalReason.value.trim();
+    if (!selectedReason) { alert('Please select a reason'); return; }
+    if (selectedReason.trim().length >= 30) { alert("Reason length more than 30 chars"); return; }
+    if (!confirm('Are you sure you want to submit this report?')) return;
 
-      if (reasonSpam.checked) {
-        selectedReason = 'Spam';
-      } else if (reasonHate.checked) {
-        selectedReason = 'Hate Speech';
-      } else if (reasonInappropriate.checked) {
-        selectedReason = 'Inappropriate Content';
-      } else if (additionalReason.value.trim()) {
-        selectedReason = additionalReason.value.trim();
-      }
-
-      if (!selectedReason) {
-        alert('Please select a reason');
-        return;
-      }
-
-      const confirmed = window.confirm('Are you sure you want to submit this report?');
-
-      if (!confirmed) {
-        return;
-      }
-
-      let reportData = {
-        reportedId: this.reportedId,
-        type: this.reportType,
-        reason: selectedReason,
-      }
-
-      this.http.post(
-        `${this.reportAPI}/report`,
-        reportData
-      ).subscribe({
-        next: res => {
-          console.log('Report success', res)
-        },
-        error: err => {
-          console.log("this is the report error:", err)
+    this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason })
+    .subscribe({ 
+      next: (res: any) => {
+        if (!res.success) {
+          alert(res.message);
+          return;
         }
-      });
-
-      const modalElement = document.getElementById('reportUserModal');
-      const modal = bootstrap.Modal.getInstance(modalElement);
-      modal.hide();
+        console.log('Report success');
+      }, 
+      error: () => console.log("failed reporting") 
+    });
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('reportUserModal'));
+    modal.hide();
   }
 
   //load More button for users

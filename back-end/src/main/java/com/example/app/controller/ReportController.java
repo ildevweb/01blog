@@ -2,11 +2,10 @@ package com.example.app.controller;
 
 import java.time.Instant;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.app.dto.ReportRequest;
 import com.example.app.entity.Report;
@@ -17,7 +16,7 @@ import com.example.app.repository.UserRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.security.UserPrincipal;
 
-
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/report")
@@ -36,7 +35,7 @@ public class ReportController {
     
 
     @PostMapping("/report")
-    public Report report(@RequestBody ReportRequest request) {
+    public ResponseEntity<?> report(@RequestBody ReportRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
         User user = loggedUser.getUser();
@@ -45,18 +44,31 @@ public class ReportController {
         String reason = request.getReason();
         Long nowSeconds = Instant.now().getEpochSecond();
 
+        if (reason.trim().length() >= 30) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Reason length more than 30 characters"
+            ));
+        }
+
         if (type.equals("user")) {
             User userToReport = userRepository.findById(request.getReportedId())
                                 .orElse(new User("deleted user"));
             Report report = new Report(type, user.getId(), userToReport.getId(), reason, nowSeconds, "pending");
             reportRepository.save(report);
-            return report;
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "successfully reported"
+            ));
         }
         
 
         Post postToReport = postRepository.findById(request.getReportedId()).orElse(new Post());
         Report report = new Report(type, user.getId(), postToReport.getId(), reason, nowSeconds, "pending");
         reportRepository.save(report);
-        return report;
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "successfully reported"
+        ));
     }
 }

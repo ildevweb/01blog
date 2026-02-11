@@ -349,11 +349,18 @@ export class HomeComponent implements OnInit {
   submitReport(reasonSpam: HTMLInputElement, reasonHate: HTMLInputElement, reasonInappropriate: HTMLInputElement, additionalReason: HTMLInputElement) {
     let selectedReason = reasonSpam.checked ? 'Spam' : reasonHate.checked ? 'Hate Speech' : reasonInappropriate.checked ? 'Inappropriate Content' : additionalReason.value.trim();
     if (!selectedReason) { alert('Please select a reason'); return; }
+    if (selectedReason.trim().length >= 30) { alert("Reason length more than 30 chars"); return; }
     if (!confirm('Are you sure you want to submit this report?')) return;
 
     this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason })
     .subscribe({ 
-      next: res => console.log('Report success', res), 
+      next: (res: any) => {
+        if (!res.success) {
+          alert(res.message);
+          return;
+        }
+        console.log('Report success');
+      }, 
       error: () => console.log("failed reporting") 
     });
     
