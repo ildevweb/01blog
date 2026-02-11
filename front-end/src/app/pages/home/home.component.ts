@@ -74,7 +74,7 @@ export class HomeComponent implements OnInit {
         if (page === 0) this.users$.next(users);
         else this.users$.next([...this.users$.getValue(), ...users]);
       },
-      error: err => console.log('Failed to load users:', err)
+      error: () => console.log('Failed to load users')
     });
   }
 
@@ -116,7 +116,7 @@ export class HomeComponent implements OnInit {
           if (page === 0) this.comments$.next(comments);
           else this.comments$.next([...this.comments$.getValue(), ...comments]);
         },
-        error: err => console.error('Failed to load comments:', err)
+        error: () => console.error('Failed to load comments')
       });
   }
 
@@ -128,7 +128,7 @@ export class HomeComponent implements OnInit {
         );
         this.comments$.next(comments);
       },
-      error: err => console.log("comment liking failed :", err)
+      error: () => console.log("comment liking failed")
     });
   }
 
@@ -314,7 +314,7 @@ export class HomeComponent implements OnInit {
 
         this.posts$.next(posts);
       },
-      error: err => console.log("post liking failed :", err)
+      error: () => console.log("post liking failed")
     });
   }
 
