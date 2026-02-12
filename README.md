@@ -45,8 +45,7 @@ This project is built with **Spring Boot** for the backend and **Angular** for t
 ### Admin Panel
 
 * View and manage all users
-* Delete or ban users
-* Remove or hide posts
+* Delete or ban users/posts
 * Handle user reports
 * All admin routes secured by role-based access
 
@@ -110,16 +109,16 @@ back-end/src/main/resources/application.properties
 Example:
 
 ```
-spring.datasource.url=jdbc:mysql://localhost:3306/01blog
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:mysql://localhost:3306/01blog_db
+spring.datasource.username=root
+spring.datasource.password=admin
 ```
 
 ### Run Backend
 
 ```bash
 cd back-end
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 The backend will run on:
