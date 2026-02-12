@@ -187,71 +187,13 @@ This project is built with **Spring Boot** for the backend and **Angular** for t
 
 ---
 
-## Backend Setup
+## Run with Docker
 
-### Prerequisites
-
-* Java 17+
-* Maven
-* MySQL
-
-### Configuration
-
-Update database credentials in:
-
-```
-back-end/src/main/resources/application.properties
-```
-
-Example:
-
-```
-spring.datasource.url=jdbc:mysql://localhost:3306/01blog_db
-spring.datasource.username=root
-spring.datasource.password=admin
-```
-
-### Run Backend
+Make sure you have **Docker** and **Docker Compose** installed.  
 
 ```bash
-cd back-end
-mvn spring-boot:run
-```
-
-The backend will run on:
-
-```
-http://localhost:8080
-```
-
----
-
-## Frontend Setup
-
-### Prerequisites
-
-* Node.js (v18+ recommended)
-* Angular CLI
-
-### Install Dependencies
-
-```bash
-cd front-end
-npm install
-```
-
-### Run Frontend
-
-```bash
-ng serve
-```
-
-The frontend will be available at:
-
-```
-http://localhost:4200
-```
-
+docker-compose up
+````
 ---
 
 ## Authentication Flow
