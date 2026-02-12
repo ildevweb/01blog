@@ -1,125 +1,192 @@
-## 01Blog
+# 01Blog
 
-### Overview
+## Overview
 
-In this project, you will build a **social blogging platform** called **01Blog**, where students can share their learning experiences, discoveries, and progress throughout their journey. Users can interact with each other’s content, follow one another, and engage in meaningful discussions.
+**01Blog** is a fullstack social blogging platform designed to help students document and share their learning journey. Users can create posts with media, follow other students, interact through likes and comments, receive notifications, and report inappropriate behavior. Administrators have dedicated tools to moderate content and manage users.
 
-This project will guide you through creating a fullstack application using **Java Spring Boot** for the backend and **Angular** for the frontend — from setting up REST APIs to building an interactive and responsive interface.
+This project is built with **Spring Boot** for the backend and **Angular** for the frontend, following RESTful architecture and secure authentication practices.
 
-### Role Play
+---
 
-You are a **fullstack developer** working for a platform dedicated to helping students document their learning journey. Your mission is to create a user-friendly and secure blogging system where students can post content, subscribe to others, and report inappropriate behavior. Administrators must have tools to moderate the content and manage users.
+## Features
 
-### Learning Objectives
+### Authentication & Security
 
-- Master **Java Spring Boot** (REST API, authentication, services, security)
-- Build **Angular** applications (components, routing, services, UI/UX)
-- Understand **fullstack architecture** and RESTful API integration
-- Handle **user-generated content** (media upload, content management)
-- Design and use **relational databases** for social interactions (likes, comments, subscriptions)
-- Implement **secure authentication** and **role-based access**
-- Create tools for **moderation and administration**
-- Collaborate using **Git**, GitHub, and agile practices (issues, branches, commits)
+* User registration and login
+* Secure password hashing
+* JWT-based authentication
+* Role-based access control (USER / ADMIN)
+* Protected routes on both backend and frontend
 
-### Instructions
+### Users & Profiles
 
-#### Backend
+* Public user profile ("block") displaying all posts
+* Follow / unfollow users
+* View other users’ blocks
 
-- **Authentication**
+### Posts
 
-  - User registration, login, and secure password handling
-  - Role-based access control (user vs admin)
+* Create, edit, and delete posts
+* Support for text, images, and videos
+* Timestamped posts with media preview
+* Like and comment on posts
 
-- **User Block Page**
+### Notifications
 
-  - Each user has a public profile (their "block") listing all their posts
-  - Users can subscribe to other profiles
-  - Subscribed users receive notifications when new posts are published
+* Receive notifications when followed users publish posts
+* Notification list with read/unread state
 
-- **Posts**
+### Reports & Moderation
 
-  - Users can create/edit/delete posts with media (image or video) and text
-  - Each post includes a timestamp, description, and media preview
-  - Other users can like and comment on posts
+* Report users for inappropriate or offensive content
+* Reports include reason and timestamp
+* Reports visible only to administrators
 
-- **Reports**
+### Admin Panel
 
-  - Users can report profiles for inappropriate or offensive content
-  - Reports must include a reason and timestamp
-  - Reports are stored and visible only to admins
+* View and manage all users
+* Delete or ban users
+* Remove or hide posts
+* Handle user reports
+* All admin routes secured by role-based access
 
-- **Admin Panel**
-  - Admin can view and manage all users
-  - Admin can manage posts and remove inappropriate content
-  - Admin can handle user reports (ban/delete user or post)
-  - All admin routes must be protected by access control
+---
 
-#### Frontend
+## Technologies Used
 
-- **User Experience**
+### Backend
 
-  - Homepage with a feed of posts from subscribed users
-  - Personal block page with full post management (CRUD)
-  - View other users’ blocks and subscribe/unsubscribe
+* Java 17
+* Spring Boot
+* Spring Security
+* JWT (JSON Web Tokens)
+* Spring Data JPA / Hibernate
+* MySQL (relational database)
+* Maven
 
-- **Post Interaction**
+### Frontend
 
-  - Like and comment on posts (comments update in real time or via refresh)
-  - Upload media (images/videos) with previews
-  - Display timestamps, likes, and comments on each post
+* Angular
+* TypeScript
+* Bootstrap (responsive UI)
+* Angular Router
+* HTTP Interceptors & Guards
 
-- **Notifications**
+### Tools & Practices
 
-  - Notification icon showing updates from subscribed profiles
-  - Mark notifications as read/unread
+* Git & GitHub
+* RESTful API design
+* Layered architecture (Controller / Service / Repository)
 
-- **Reporting**
+---
 
-  - Report a user with a text reason (UI component/modal)
-  - Confirmation before submitting the report
+## Project Structure
 
-- **Admin Dashboard**
+```
+01blog/
+├── back-end/      # Spring Boot application
+├── front-end/     # Angular application
+├── README.md      # Project documentation
+```
 
-  - View all users, posts, and submitted reports
-  - Delete or ban users, remove or hide posts
-  - Clean UI for moderation tasks
+---
 
-- Use a responsive UI framework: **Angular Material** or **Bootstrap**
+## Backend Setup
 
-### Constraints
+### Prerequisites
 
-- Use **Spring Security** or **JWT** for authentication and role management
-- Store media securely (in file system or using cloud storage like AWS S3)
-- Use a relational SQL database (e.g., PostgreSQL or MySQL)
-- All routes must be protected according to user roles
-- Code generation tools (like JHipster) are **not allowed**
-- The project must include a detailed **README** with:
-  - How to run the backend and frontend
-  - Technologies used
+* Java 17+
+* Maven
+* MySQL
 
-### Evaluation
+### Configuration
 
-This project is evaluated through **peer-to-peer code review** and **functional demo**. Evaluation criteria include:
+Update database credentials in:
 
-- 💡 **Functionality**: All features implemented and working as expected
-- 🔐 **Security**: Proper role-based access and secure user data handling
-- 🎨 **UI/UX**: Responsive, intuitive, and clean interface
+```
+back-end/src/main/resources/application.properties
+```
 
-### Bonus Features (Optional but Recommended)
+Example:
 
-- Real-time updates using WebSockets (for comments or notifications)
-- infinite scroll on feeds
-- Dark mode toggle
-- Basic analytics for admins (number of posts, most reported users)
-- Markdown support for posts
+```
+spring.datasource.url=jdbc:mysql://localhost:3306/01blog
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+```
 
-### Resources
+### Run Backend
 
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Angular Official Documentation](https://angular.io/docs)
-- [Angular Material Documentation](https://material.angular.io/components/categories)
-- [Spring Boot File Upload](https://www.bezkoder.com/spring-boot-upload-file-database/)
-- [JWT Introduction – Auth0](https://auth0.com/learn/json-web-tokens/)
-- [Spring Security Basics – Java Guides](https://www.javaguides.net/2022/01/spring-security-tutorial.html)
-- [PostgreSQL Basics](https://www.postgresqltutorial.com/)
-- [JPA (Java Persistence API) Guide](https://www.baeldung.com/the-persistence-layer-with-spring-data-jpa)
+```bash
+cd back-end
+./mvnw spring-boot:run
+```
+
+The backend will run on:
+
+```
+http://localhost:8080
+```
+
+---
+
+## Frontend Setup
+
+### Prerequisites
+
+* Node.js (v18+ recommended)
+* Angular CLI
+
+### Install Dependencies
+
+```bash
+cd front-end
+npm install
+```
+
+### Run Frontend
+
+```bash
+ng serve
+```
+
+The frontend will be available at:
+
+```
+http://localhost:4200
+```
+
+---
+
+## Authentication Flow
+
+* Users authenticate using JWT
+* Token is stored on the client
+* Angular HTTP interceptor attaches the token to requests
+* Backend validates token on protected routes
+* Invalid or expired tokens return HTTP 401 (Unauthorized)
+
+This behavior follows security best practices and HTTP standards.
+
+---
+
+## Media Storage
+
+* Uploaded images and videos are stored on the server file system
+* Media paths are saved in the database
+
+---
+
+## Evaluation Criteria Coverage
+
+* ✅ Functional features implemented (posts, likes, comments, follows, reports, admin tools)
+* 🔐 Secure authentication and role-based access control
+* 🎨 Responsive and clean UI using Bootstrap
+* 📄 Detailed README with setup instructions and technologies
+
+---
+
+## Author
+
+Developed by **Ilyass Afriad**
+GitHub: [https://github.com/IlyassAfriad](https://github.com/IlyassAfriad)
