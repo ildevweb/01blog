@@ -83,9 +83,106 @@ This project is built with **Spring Boot** for the backend and **Angular** for t
 
 ```
 01blog/
-├── back-end/      # Spring Boot application
-├── front-end/     # Angular application
-├── README.md      # Project documentation
+├── back-end/ 📁
+│ ├── .mvn/ 📁
+│ │ └── wrapper/ 📁
+│ │ └── maven-wrapper.properties 📄
+│ ├── src/ 📁
+│ │ ├── main/ 📁
+│ │ │ ├── java/ 📁
+│ │ │ │ └── com/example/app/ 📁
+│ │ │ │ ├── controller/ 📁
+│ │ │ │ │ ├── AdminController.java 📄
+│ │ │ │ │ ├── AuthController.java 📄
+│ │ │ │ │ ├── CommentController.java 📄
+│ │ │ │ │ ├── NotificationController.java 📄
+│ │ │ │ │ ├── PostController.java 📄
+│ │ │ │ │ ├── ReportController.java 📄
+│ │ │ │ │ └── UserController.java 📄
+│ │ │ │ ├── dto/ 📁
+│ │ │ │ │ ├── CommentInfos.java 📄
+│ │ │ │ │ ├── CommentRequest.java 📄
+│ │ │ │ │ ├── LikeRequest.java 📄
+│ │ │ │ │ ├── LoginRequest.java 📄
+│ │ │ │ │ ├── LoginResponse.java 📄
+│ │ │ │ │ ├── NotificationInfos.java 📄
+│ │ │ │ │ ├── PostInfos.java 📄
+│ │ │ │ │ ├── RegisterRequest.java 📄
+│ │ │ │ │ ├── ReportInfos.java 📄
+│ │ │ │ │ ├── ReportRequest.java 📄
+│ │ │ │ │ └── UserInfos.java 📄
+│ │ │ │ ├── entity/ 📁
+│ │ │ │ │ ├── Comment.java 📄
+│ │ │ │ │ ├── CommentLike.java 📄
+│ │ │ │ │ ├── Follow.java 📄
+│ │ │ │ │ ├── Notification.java 📄
+│ │ │ │ │ ├── Post.java 📄
+│ │ │ │ │ ├── PostLike.java 📄
+│ │ │ │ │ ├── Report.java 📄
+│ │ │ │ │ └── User.java 📄
+│ │ │ │ ├── repository/ 📁
+│ │ │ │ │ ├── CommentLikeRepository.java 📄
+│ │ │ │ │ ├── CommentRepository.java 📄
+│ │ │ │ │ ├── FollowRepository.java 📄
+│ │ │ │ │ ├── NotificationRepository.java 📄
+│ │ │ │ │ ├── PostLikeRepository.java 📄
+│ │ │ │ │ ├── PostRepository.java 📄
+│ │ │ │ │ ├── ReportRepository.java 📄
+│ │ │ │ │ └── UserRepository.java 📄
+│ │ │ │ ├── security/ 📁
+│ │ │ │ │ ├── JwtAuthenticationFilter.java 📄
+│ │ │ │ │ ├── JwtService.java 📄
+│ │ │ │ │ ├── JwtUtil.java 📄
+│ │ │ │ │ ├── SecurityConfig.java 📄
+│ │ │ │ │ ├── UserPrincipal.java 📄
+│ │ │ │ │ └── WebConfig.java 📄
+│ │ │ │ ├── service/ 📁
+│ │ │ │ │ ├── AuthService.java 📄
+│ │ │ │ │ ├── CommentLikeService.java 📄
+│ │ │ │ │ ├── CommentService.java 📄
+│ │ │ │ │ ├── FollowService.java 📄
+│ │ │ │ │ ├── PostLikeService.java 📄
+│ │ │ │ │ ├── PostService.java 📄
+│ │ │ │ │ ├── ReportService.java 📄
+│ │ │ │ │ └── UserService.java 📄
+│ │ │ │ └── AppApplication.java 📄
+│ │ │ └── resources/ 📁
+│ │ │ └── application.properties 📄
+│ │ └── test/ 📁
+│ │ └── java/com/example/app/ 📁
+│ │ └── AppApplicationTests.java 📄
+│ ├── uploads/ 📁
+│ │ └── [image/video/html files] 🖼️🌐📄
+│ ├── .gitattributes 📁
+│ ├── .gitignore 📁
+│ ├── HELP.md 📝
+│ ├── mvnw 📄
+│ ├── mvnw.cmd 📄
+│ └── pom.xml 📄
+├── front-end/ 📁
+│ ├── .angular/ 📁
+│ ├── public/ 📁
+│ │ └── favicon.ico 📄
+│ ├── src/ 📁
+│ │ ├── app/ 📁
+│ │ │ ├── core/ 📁
+│ │ │ ├── pages/ 📁
+│ │ │ ├── shared/ 📁
+│ │ │ ├── app.config.ts 📘
+│ │ │ ├── app.routes.ts 📘
+│ │ │ ├── app.spec.ts 📘
+│ │ │ └── app.ts 📘
+│ │ ├── assets/ 📁
+│ │ ├── index.html 🌐
+│ │ ├── main.ts 📘
+│ │ └── styles.css 🎨
+│ ├── .editorconfig 📄
+│ ├── .gitignore 📁
+│ ├── angular.json ⚙️
+│ ├── package-lock.json ⚙️
+│ ├── package.json 📦
+│ ├── tsconfig*.json ⚙️
+└── README.md 📝
 ```
 
 ---
