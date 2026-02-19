@@ -1,5 +1,10 @@
 package com.example.app.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public class UserInfos {
     private Long id;
     private String username;
@@ -8,16 +13,6 @@ public class UserInfos {
     private int followeds;
     private boolean followed;
     private String status;
-
-    public UserInfos(Long id, String username, String email, int followers, int followeds, boolean followed, String status) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.followers = followers;
-        this.followeds = followeds;
-        this.followed = followed;
-        this.status = status;
-    }
 
     public UserInfos(String username) {
         this.username = username;

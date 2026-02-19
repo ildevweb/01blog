@@ -1,5 +1,8 @@
 package com.example.app.dto;
 
+import lombok.Getter;
+
+@Getter
 public class PostInfos {
     private Long id;
     private String username;
@@ -32,33 +35,5 @@ public class PostInfos {
         this.count = count;
         this.mine = mine;
         this.status = status;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-    public String getUsername() {
-        return this.username;
-    }
-    public String getTime() {
-        return this.time;
-    }
-    public String getContent() {
-        return this.content;
-    }
-    public String getMedia() {
-        return this.media;
-    }
-    public boolean getLiked() {
-        return this.liked;
-    }
-    public Long getCount() {
-        return this.count;
-    }
-    public boolean getMine() {
-        return this.mine;
-    }
-    public String getStatus() {
-        return this.status;
     }
 }

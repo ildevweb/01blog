@@ -3,17 +3,22 @@ package com.example.app.service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.repository.FollowRepository;
+import com.example.app.repository.NotificationRepository;
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.PostRepository;
 import com.example.app.repository.ReportRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
+import com.example.app.dto.LikeRequest;
 import com.example.app.dto.PostInfos;
 import com.example.app.entity.User;
+import com.example.app.entity.Follow;
 import com.example.app.entity.Post;
 import com.example.app.entity.Report;
+import com.example.app.entity.Notification;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,10 +27,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
+import java.io.File;
+import java.io.IOException;
+import lombok.AllArgsConstructor;
 
+
+@AllArgsConstructor
 @Service
 public class PostService {
 
@@ -35,14 +49,245 @@ public class PostService {
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
     private final FollowRepository followRepository;
+    private final NotificationRepository notificationRepository;
 
-    public PostService(PostRepository postRepository, PostLikeRepository postLikeRepository, PostLikeService postLikeService, UserRepository userRepository, ReportRepository reportRepository, FollowRepository followRepository) {
-        this.postRepository = postRepository;
-        this.postLikeRepository = postLikeRepository;
-        this.postLikeService = postLikeService;
-        this.userRepository = userRepository;
-        this.reportRepository = reportRepository;
-        this.followRepository = followRepository;
+    private static final Set<String> ALLOWED_MIME = Set.of(
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "video/mp4"
+    );
+    private static final String UPLOAD_DIR = "uploads/";
+
+    public ResponseEntity<?> createPost(String content, MultipartFile image) throws IOException {
+        if (content.isEmpty() && image == null) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post cannot be empty"
+                )
+            );
+        }
+
+        if (content.trim().length() > 100) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post content is too large"
+                )
+            );
+        }
+
+        //get owner id
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        Long userId = user.getId();
+        User currentUser = user.getUser();
+
+        //get time now with second
+        Long nowSeconds = Instant.now().getEpochSecond();
+
+
+        if (image == null) {
+            Post post = new Post(content, userId, nowSeconds, "active");
+            postRepository.save(post);
+
+            //Save notification to all followers
+            List<Follow> followers = followRepository.findByFollowedId(user.getId());
+
+            List<Notification> notifications = followers.stream()
+                .map(follower -> new Notification(
+                    user.getUser(),
+                    follower.getFollower(),
+                    false,
+                    nowSeconds
+                ))
+                .toList();
+
+            notificationRepository.saveAll(notifications);
+
+            boolean liked = postLikeService.isLiked(post.getId(), currentUser);
+            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "infos", infos
+            ));
+        }
+
+        // Create upload folder
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        String contentType = image.getContentType(); // MIME type
+        if (!ALLOWED_MIME.contains(contentType)) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Invalid file type"
+                )
+            );
+        }
+
+        // Generate unique file name
+        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        String filePath = UPLOAD_DIR + fileName;
+        
+
+        // Save image to disk
+        Files.copy(image.getInputStream(), Paths.get(filePath));
+
+        // Save Post to DB
+        Post post = new Post(content, filePath, userId, nowSeconds, "active");
+
+        postRepository.save(post);
+
+        //Save notification to all followers
+        List<Follow> followers = followRepository.findByFollowedId(user.getId());
+
+        List<Notification> notifications = followers.stream()
+            .map(follower -> new Notification(
+                user.getUser(),
+                follower.getFollower(),
+                false,
+                nowSeconds
+            ))
+            .toList();
+
+        notificationRepository.saveAll(notifications);
+
+        //return a response
+        boolean liked = postLikeService.isLiked(post.getId(), currentUser);
+        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "infos", infos
+        ));
+    }
+
+
+    public ResponseEntity<?> updatePost(Long id, String content, MultipartFile image) throws IOException {
+        if (content.isEmpty() && image == null) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post cannot be empty"
+                )
+            );
+        }
+
+        if (content.trim().length() > 100) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Post content is too large"
+                )
+            );
+        }
+
+        //get owner id
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        Long userId = user.getId();
+
+        //get post from db
+        Post post = postRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (image == null) {
+            post.setContent(content);
+            post.setOwnerId(userId);
+            postRepository.save(post);
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", true,
+                    "message", "Post created successfuly"
+                )
+            );
+        }
+
+        // Create upload folder
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        String contentType = image.getContentType(); // MIME type
+        if (!ALLOWED_MIME.contains(contentType)) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Invalid file type"
+                )
+            );
+        }
+
+        // Generate unique file name
+        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        String filePath = UPLOAD_DIR + fileName;
+        
+
+        // Save image to disk
+        Files.copy(image.getInputStream(), Paths.get(filePath));
+
+        // Save Post to DB
+        post.setContent(content);
+        post.setMedia(filePath);
+        post.setOwnerId(userId);
+
+        postRepository.save(post);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message", "Post updated successfuly"
+            )
+        );
+    }
+
+    public ResponseEntity<?> deletePost(Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+        User user = userPrincipal.getUser();
+
+        if (!postRepository.existsByOwnerIdAndId(user.getId(), id) && !user.getRole().equals("admin")) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post undefined or you don't have permit to delete it"
+            ));
+        }
+
+        //notificationRepository.deleteByFromUserOrToUser()
+        postLikeRepository.deleteByPostId(id);
+        postRepository.deleteById(id);
+
+        List<Report> reports = reportRepository.findByReportedAndType(id, "post");
+        for (Report report : reports) {
+            report.setStatus("resolved");
+            reportRepository.save(report);
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "success", true
+        ));
+    }
+
+    public ResponseEntity<?> toggleLike(LikeRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        User currentUser = user.getUser();
+        
+        boolean liked = postLikeService.toggleLike(
+            request.getPostId(),
+            currentUser
+        );
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "liked", liked
+        ));
     }
 
     public List<PostInfos> getPosts(int page, int size) {
