@@ -3,10 +3,10 @@ package com.example.app.security;
 import com.example.app.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
@@ -17,8 +17,9 @@ public class JwtService {
     private static final String SECRET_KEY = "01234567890123456789012345678901"; // 32 chars for HS256
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(java.util.Base64.getEncoder().encodeToString(SECRET_KEY.getBytes()));
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(
+            SECRET_KEY.getBytes(StandardCharsets.UTF_8)
+        );
     }
 
 
