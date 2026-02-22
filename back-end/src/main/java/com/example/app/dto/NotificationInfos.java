@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 public class NotificationInfos {
     private Long id;
     private String username;
+    private Long userId;
     private String time;
     private String content;
     private boolean readed;

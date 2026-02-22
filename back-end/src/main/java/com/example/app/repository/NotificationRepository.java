@@ -10,11 +10,15 @@ import com.example.app.entity.Notification;
 import com.example.app.entity.User;
 
 import java.util.List;
+import java.util.Optional;
+
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     int countByToUserAndReaded(User toUser, Boolean readed);
 
     List<Notification> findByToUser(User toUser);
+
+    Optional<Notification> findById(Long id);
 
     List<Notification> findByToUserAndReadedOrderByTimeDesc(User toUser, Boolean readed);
 

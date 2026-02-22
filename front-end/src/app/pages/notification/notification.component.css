@@ -10,3 +10,6 @@
     font-size: 0.8rem;
     color: gray;
 }
+.clickeable {
+    cursor: pointer;
+}

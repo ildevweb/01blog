@@ -10,6 +10,7 @@ import com.example.app.entity.Notification;
 import com.example.app.repository.NotificationRepository;
 import java.util.Map;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 
@@ -44,6 +45,7 @@ public class NotificationService {
                     return new NotificationInfos(
                         notif.getId(),
                         fromUser.getName(),
+                        fromUser.getId(),
                         PostService.timeAgo(notif.getTime()),
                         "has created a post",
                         notif.getReaded()
@@ -64,5 +66,27 @@ public class NotificationService {
 
             notificationRepository.save(notification);
         }
+    }
+
+    public ResponseEntity<?> toggleRead(Long id) {
+        Optional<Notification> notification = notificationRepository.findById(id);
+
+        
+        if (notification.isPresent()) {
+            Notification notif = notification.get();
+            boolean readed = notif.getReaded();
+            notif.setReaded(!readed);
+            notificationRepository.save(notif);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "readed", !readed
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "success", false,
+            "message", "notification not found"
+        ));
     }
 }

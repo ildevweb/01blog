@@ -34,4 +34,9 @@ public class NotificationController {
     public void markAllAsRead() {
         notificationService.markAllAsRead();        
     }
+
+    @GetMapping("/toggle_read/{id}")
+    public ResponseEntity<?> toggleRead(@PathVariable Long id) {
+        return notificationService.toggleRead(id);
+    }
 }

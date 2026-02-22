@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { NotificationService } from '../../core/services/notification.service';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-notifications',
@@ -18,7 +18,7 @@ export class NotificationComponent implements OnInit {
 
   private readonly notifications_API = 'http://localhost:8080/api/notifications';
 
-  constructor(private notificationService: NotificationService, private http: HttpClient,) {}
+  constructor(private notificationService: NotificationService, private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     this.loadNotifications();
@@ -38,6 +38,7 @@ export class NotificationComponent implements OnInit {
     });
   }
 
+  //send request to mark all as read
   markAllAsRead() {
     this.http
       .get(`${this.notifications_API}/unread/mark_all_as_read`)
@@ -53,6 +54,36 @@ export class NotificationComponent implements OnInit {
             console.log("mark all as read failed");
           }
       });
+  }
+
+  //toggle read/unread
+  toggleRead(notifId: number) {
+    this.http
+      .get(`${this.notifications_API}/toggle_read/${notifId}`)
+      .subscribe({
+          next: (res: any) => {
+            if (!res.success) {
+              return;
+            }
+            console.log("toggle read successfully");
+            const updated = this.notifications.value.map(notif =>
+              notif.id === notifId
+                ? { ...notif, readed: res.readed }
+                : notif
+            );
+            this.notifications.next(updated);
+            this.notificationService.unreadCountSubject.next(0);
+            this.notificationService.refreshUnreadCount();
+          },
+          error: () => {
+            console.log("toggle read failed");
+          }
+      });
+  }
+
+  //redirect to user profile
+  goToProfile(id: number) {
+    this.router.navigate(['/profile', id]);
   }
 }
 
