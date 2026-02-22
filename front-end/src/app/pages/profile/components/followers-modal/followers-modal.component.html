@@ -1,0 +1,24 @@
+<div class="modal fade" id="followersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let user of users" class="d-flex align-items-center mb-3">
+          <img [src]="user.avatar || 'assets/images/avatar.png'" class="rounded-circle me-2" width="40" height="40" alt="Avatar" />
+          <span (click)="goToProfile.emit(user.id)" class="clickable flex-grow-1">{{ user.username }}</span>
+          <button
+            (click)="follow.emit(user.id)"
+            class="btn ms-auto"
+            [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'"
+          >
+            <i class="bi me-1" [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'"></i>
+            {{ user.followed ? 'Unfollow' : 'Follow' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

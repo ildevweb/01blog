@@ -4,400 +4,66 @@
 
 <app-navbar></app-navbar>
 
-<!-- Profile Header -->
-<header class="profile-header">
-  <img src="../../../assets/images/banner.jpg" class="profile-banner" />
-
-  <div class="profile-info container">
-    <img src="../../../assets/images/avatar.png" class="profile-photo" />
-
-    <div class="ms-3" *ngIf="profileData$ | async as data">
-      <h2> {{ data.username }} </h2>
-      <div class="d-flex gap-3 text-muted">
-        <div class="clickable" (click)="openFollowsModal('followers')"><strong> {{ data.followers }} </strong> Followers</div>
-        <div class="clickable" (click)="openFollowsModal('followeds')"><strong> {{ data.followeds }} </strong> Following</div>
-
-        <button
-          *ngIf="!(mine$ | async)"
-          (click)="follow(data.id)"
-          class="btn"
-          [ngClass]="data.followed ? 'btn-outline-danger' : 'btn-outline-primary'"
-        >
-          <i class="bi me-1" [ngClass]="data.followed ? 'bi-person-dash' : 'bi-person-plus'"></i>
-          {{ data.followed ? 'Unfollow' : 'Follow' }}
-        </button>
-
-        <button
-          *ngIf="!(mine$ | async)"
-          class="btn btn-outline-danger"
-          (click)="openReportModal(data.id, 'user')"
-        >
-          <i class="bi bi-flag"></i>
-          Report User
-        </button>
-        
-      </div>
-    </div>
-  </div>
-</header>
-
+<app-profile-header
+  [profileData]="profileData$ | async"
+  [isMine]="mine$ | async"
+  (openFollowsModal)="openFollowsModal($event)"
+  (follow)="follow($event)"
+  (reportUser)="openReportModal($event.id, $event.type)"
+></app-profile-header>
 
 <div class="container">
   <div class="row justify-content-center">
-
-    <!-- My Posts -->
     <section class="col-12 col-md-8 col-lg-6">
-
-      <!-- Posts feed -->
       <div id="feed">
-
-        <!-- Posts list -->
-        <div *ngFor="let post of posts$ | async" class="card mb-3 shadow-sm">
-
-          <!-- Header -->
-          <div class="card-header d-flex align-items-center gap-2">
-            <img
-              src="../../../assets/images/avatar.png"
-              alt="Avatar"
-              class="avatar-sm"
-            />
-            <strong>{{ post.username }}</strong>
-            <small class="text-muted ms-auto">
-              {{ post.time }}
-            </small>
-
-            <!-- 3 dots menu -->
-            <div class="dropdown ms-2">
-              <button
-                class="btn btn-sm btn-light border-0"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i class="bi bi-three-dots-vertical"></i>
-              </button>
-
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li *ngIf="post.mine">
-                  <button 
-                    (click)="openEditModal(post)"
-                    class="dropdown-item d-flex align-items-center gap-2">
-                    <i class="bi bi-pencil"></i>
-                    Edit
-                  </button>
-                </li>
-                <li *ngIf="post.mine">
-                  <button
-                    (click)="deletePost(post.id)"
-                    class="dropdown-item text-danger d-flex align-items-center gap-2"
-                  >
-                    <i class="bi bi-trash"></i>
-                    Delete
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item text-danger d-flex align-items-center gap-2"
-                    (click)="openReportModal(post.id, 'post')"
-                  >
-                    <i class="bi bi-flag"></i>
-                    Report Post
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Body -->
-          <div class="card-body">
-            <p *ngIf="post.content">
-              {{ post.content }}
-            </p>
-
-            <div *ngIf="post.media">
-              <img class="post-img rounded" *ngIf="post.media.endsWith('.png') || post.media.endsWith('.jpg')" [src]="'http://localhost:8080/' + post.media" />
-              <video class="post-img rounded" *ngIf="post.media.endsWith('.mp4')" controls [src]="'http://localhost:8080/' + post.media"></video>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="card-footer d-flex justify-content-between">
-            <button
-              type="button"
-              class="btn btn-sm d-flex align-items-center gap-1"
-              [ngClass]="post.liked ? 'btn-primary' : 'btn-outline-primary'"
-              (click)="likePosts(post)"
-            >
-              <i
-                class="bi"
-                [ngClass]="post.liked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"
-              ></i>
-              <span>{{ post.count }}</span>
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              (click)="openComments(post)"
-            >
-              Comment
-            </button>
-          </div>
-
-        </div>
+        <app-post-card
+          *ngFor="let post of posts$ | async"
+          [post]="post"
+          (edit)="openEditModal($event)"
+          (delete)="deletePost($event)"
+          (like)="likePosts($event)"
+          (comment)="openComments($event)"
+          (report)="openReportModal($event.id, $event.type)"
+        ></app-post-card>
       </div>
-
-      <!-- Load more -->
       <div class="d-grid">
-        <button
-          id="loadMoreBtn"
-          (click)="loadMore()"
-          *ngIf="(posts$ | async)?.length"
-          class="btn btn-outline-primary mb-3"
-        >
+        <button id="loadMoreBtn" (click)="loadMore()" *ngIf="(posts$ | async)?.length" class="btn btn-outline-primary mb-3">
           Load more
         </button>
       </div>
-
     </section>
-
   </div>
 </div>
 
+<app-comments-modal
+  [comments]="(comments$ | async) ?? []"
+  [commentContent]="commentData.content"
+  [commentError]="commentErrorMessage$ | async"
+  [isSubmitting]="isSubmittingComment"
+  [hasComments]="((comments$ | async)?.length ?? 0) > 0"
+  (commentContentChange)="commentData.content = $event"
+  (submitComment)="submitComment()"
+  (likeComment)="likeComments($event)"
+  (loadMoreComments)="loadMoreComments()"
+></app-comments-modal>
 
+<app-followers-modal
+  [title]="(followers$ | async)?.length ? 'Followers' : 'Following'"
+  [users]="(activeUsers$ | async) ?? []"
+  (goToProfile)="goToProfile($event)"
+  (follow)="follow($event, false)"
+></app-followers-modal>
 
-<!-- Comments Modal -->
-<div class="modal fade" id="commentsModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
+<app-edit-post-modal
+  [content]="contentUpdate"
+  [imagePreview]="imagePreviewUpdate | async"
+  [selectedImage]="selectedImageUpdate"
+  [errorMessage]="errorMessage$ | async"
+  [successMessage]="successMessage$ | async"
+  (contentChange)="contentUpdate = $event"
+  (imageSelected)="onImageSelected($event)"
+  (update)="onUpdatePost()"
+  (removeMedia)="removeMedia()"
+></app-edit-post-modal>
 
-      <!-- Header -->
-      <div class="modal-header">
-        <h5 class="modal-title">Comments</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <!-- Comment Form -->
-        <form (ngSubmit)="submitComment()" class="mb-4">
-
-          <div class="d-flex gap-3">
-            <!-- Avatar -->
-            <img src="../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40"/>
-
-            <!-- Input -->
-            <div class="flex-grow-1">
-              <textarea
-                class="form-control"
-                rows="2"
-                placeholder="Write a comment..."
-                [(ngModel)]="commentData.content"
-                name="comment"
-                required
-              ></textarea>
-
-              <div class="text-end mt-2">
-                <button class="btn btn-primary btn-sm" type="submit" [disabled]="isSubmittingComment || !commentData.content.trim()">
-                  Comment
-                </button>
-              </div>
-            </div>
-          </div>
-          <div *ngIf="commentErrorMessage$ | async as error" class="alert alert-danger text-center mt-2">
-            {{ error }}
-          </div>
-        </form>
-
-
-        <div *ngFor="let comment of (comments$ | async)" class="d-flex gap-3 mb-3 pb-3 border-bottom">
-          <img src="../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40"/>
-
-          <div class="flex-grow-1">
-            <div class="d-flex align-items-center gap-2">
-              <strong>{{ comment.username }}</strong>
-              <small class="text-muted">
-                {{ comment.time }}
-              </small>
-            </div>
-
-            <p class="mb-1">
-              {{ comment.content }}
-            </p>
-
-            <button
-              class="btn btn-sm p-0 d-flex align-items-center gap-1"
-              [ngClass]="comment.liked ? 'text-primary' : 'text-muted'"
-              (click)="likeComments(comment)"
-            >
-              <i class="bi" [ngClass]="comment.liked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
-              <span>{{ comment.count }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Empty state -->
-        <div *ngIf="(comments$ | async)?.length === 0" class="text-muted text-center">
-          No comments yet
-        </div>
-
-        <div *ngIf="(comments$ | async)?.length" class="d-grid">
-          <button (click)="loadMoreComments()" id="loadMoreBtn" class="btn btn-outline-primary mb-3">Load more</button>
-        </div>
-
-      </div>
-
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Close
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- Followers Modal -->
-<div class="modal fade" id="followersModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"> {{ (followers$ | async)?.length ? 'Followers' : 'Following' }} </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <div *ngFor="let user of (activeUsers$ | async)" class="d-flex align-items-center mb-3">
-          <img [src]="user.avatar || 'assets/images/avatar.png'" class="rounded-circle me-2" width="40" height="40" />
-
-          <span (click)="goToProfile(user.id)" class="clickable flex-grow-1">{{ user.username }}</span>
-
-          <button
-            (click)="follow(user.id, false)"
-            class="btn ms-auto"
-            [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'">
-
-            <i
-              class="bi me-1"
-              [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'">
-            </i>
-
-            {{ user.followed ? 'Unfollow' : 'Follow' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Edit Post Modal -->
-<div class="modal fade" id="editPostModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body">
-        <form>
-          <textarea [(ngModel)]="contentUpdate" name="postTextUpdate" class="form-control" rows="3" placeholder="Update your post" required></textarea>
-
-          <input #fileInputUpdate type="file" class="form-control mt-2" accept="image/*,video/*" (change)="onImageSelected($event)">
-
-          <div *ngIf="imagePreviewUpdate | async as preview" class="mt-2">
-            <img
-              *ngIf="(selectedImageUpdate?.type?.startsWith('image/') || (typeof preview === 'string' && (preview.endsWith('.png') || preview.endsWith('.jpg') || preview.endsWith('.jpeg') || preview.endsWith('.gif'))))"
-              [src]="preview"
-              class="img-fluid rounded"
-              style="max-height:300px;"
-            />
-            <video
-              *ngIf="(selectedImageUpdate?.type?.startsWith('video/') || (typeof preview === 'string' && preview.endsWith('.mp4')))"
-              [src]="preview"
-              controls
-              class="w-100 rounded"
-              style="max-height:300px;"
-            ></video>
-          </div>
-
-          <button type="button" class="btn btn-primary mt-2" (click)="onUpdatePost()">Update Post</button>
-        </form>
-      </div>
-      <div *ngIf="errorMessage$ | async as error" class="alert alert-danger text-center mt-2">
-        {{ error }}
-      </div>
-      <div *ngIf="successMessage$ | async as success" class="alert alert-success text-center mt-2">
-        {{ success }}
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<!-- Report User Modal -->
-<div class="modal fade" id="reportUserModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      
-      <div class="modal-header">
-        <h5 class="modal-title">Report User</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <p>Select a reason for reporting:</p>
-
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="reportReason" id="reasonSpam" #reasonSpam>
-          <label class="form-check-label" for="reasonSpam">Spam</label>
-        </div>
-
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="reportReason" id="reasonHate" #reasonHate>
-          <label class="form-check-label" for="reasonHate">Hate Speech</label>
-        </div>
-
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="reportReason" id="reasonInappropriate" #reasonInappropriate>
-          <label class="form-check-label" for="reasonInappropriate">Inappropriate Content</label>
-        </div>
-
-        <!-- Other reason radio -->
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="reportReason"
-            id="reasonOther"
-            #reasonOther
-            (change)="additionalReason.disabled = !reasonOther.checked"
-          >
-          <label class="form-check-label" for="reasonOther">
-            Other reason:
-          </label>
-
-          <input
-            type="text"
-            class="form-control mt-1"
-            placeholder="Type your reason here..."
-            #additionalReason
-            [disabled]="true"
-          >
-        </div>
-
-
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Cancel
-        </button>
-        <button type="button" class="btn btn-danger"
-          (click)="submitReport(reasonSpam, reasonHate, reasonInappropriate, additionalReason)">
-          Submit Report
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
+<app-report-modal (submitReport)="submitReport($event)"></app-report-modal>

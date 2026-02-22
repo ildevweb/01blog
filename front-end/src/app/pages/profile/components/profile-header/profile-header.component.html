@@ -1,0 +1,38 @@
+<header class="profile-header">
+  <img src="../../../../../assets/images/banner.jpg" class="profile-banner" alt="Banner" />
+
+  <div class="profile-info container">
+    <img src="../../../../../assets/images/avatar.png" class="profile-photo" alt="Avatar" />
+
+    <div class="ms-3" *ngIf="profileData">
+      <h2>{{ profileData.username }}</h2>
+      <div class="d-flex gap-3 text-muted">
+        <div class="clickable" (click)="openFollowsModal.emit('followers')">
+          <strong>{{ profileData.followers }}</strong> Followers
+        </div>
+        <div class="clickable" (click)="openFollowsModal.emit('followeds')">
+          <strong>{{ profileData.followeds }}</strong> Following
+        </div>
+
+        <button
+          *ngIf="!isMine"
+          (click)="follow.emit(profileData.id)"
+          class="btn"
+          [ngClass]="profileData.followed ? 'btn-outline-danger' : 'btn-outline-primary'"
+        >
+          <i class="bi me-1" [ngClass]="profileData.followed ? 'bi-person-dash' : 'bi-person-plus'"></i>
+          {{ profileData.followed ? 'Unfollow' : 'Follow' }}
+        </button>
+
+        <button
+          *ngIf="!isMine"
+          class="btn btn-outline-danger"
+          (click)="reportUser.emit({ id: profileData.id, type: 'user' })"
+        >
+          <i class="bi bi-flag"></i>
+          Report User
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

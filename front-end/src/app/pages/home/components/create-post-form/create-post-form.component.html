@@ -1,0 +1,51 @@
+<section class="col-12 mb-4">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form id="createPostForm">
+        <textarea
+          [ngModel]="content"
+          (ngModelChange)="contentChange.emit($event)"
+          name="postTextCreate"
+          class="form-control"
+          rows="3"
+          placeholder="What's on your mind?"
+          required
+        ></textarea>
+
+        <input
+          #fileInput
+          type="file"
+          class="form-control mt-2"
+          accept="image/*,video/*"
+          (change)="imageSelected.emit($event)"
+        />
+
+        <div *ngIf="imagePreview" class="mt-2">
+          <img
+            *ngIf="selectedImage?.type?.startsWith('image/')"
+            [src]="imagePreview"
+            class="img-fluid rounded"
+            style="max-height:300px;"
+          />
+          <video
+            *ngIf="selectedImage?.type?.startsWith('video/')"
+            [src]="imagePreview"
+            controls
+            class="w-100 rounded"
+            style="max-height:300px;"
+          ></video>
+        </div>
+
+        <button type="button" class="btn btn-primary mt-2" (click)="create.emit()">
+          Post
+        </button>
+      </form>
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger text-center mt-2">
+      {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success text-center mt-2">
+      {{ successMessage }}
+    </div>
+  </div>
+</section>

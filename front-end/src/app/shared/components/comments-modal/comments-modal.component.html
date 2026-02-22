@@ -1,0 +1,45 @@
+<div class="modal fade" id="commentsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Comments</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="submitComment.emit()" class="mb-4">
+          <div class="d-flex gap-3">
+            <img src="../../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40" alt="Avatar"/>
+            <div class="flex-grow-1">
+              <textarea class="form-control" rows="2" placeholder="Write a comment..." [ngModel]="commentContent" (ngModelChange)="commentContentChange.emit($event)" name="comment" required></textarea>
+              <div class="text-end mt-2">
+                <button class="btn btn-primary btn-sm" type="submit" [disabled]="isSubmitting || !commentContent.trim()">Comment</button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="commentError" class="alert alert-danger text-center mt-2">{{ commentError }}</div>
+        </form>
+        <div *ngFor="let comment of comments" class="d-flex gap-3 mb-3 pb-3 border-bottom">
+          <img src="../../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40" alt="Avatar"/>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2">
+              <strong>{{ comment.username }}</strong>
+              <small class="text-muted">{{ comment.time }}</small>
+            </div>
+            <p class="mb-1">{{ comment.content }}</p>
+            <button class="btn btn-sm p-0 d-flex align-items-center gap-1" [ngClass]="comment.liked ? 'text-primary' : 'text-muted'" (click)="likeComment.emit(comment)">
+              <i class="bi" [ngClass]="comment.liked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+              <span>{{ comment.count }}</span>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="comments.length === 0" class="text-muted text-center">No comments yet</div>
+        <div *ngIf="hasComments" class="d-grid">
+          <button (click)="loadMoreComments.emit()" class="btn btn-outline-primary mb-3">Load more</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

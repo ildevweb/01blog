@@ -1,0 +1,49 @@
+<div [ngClass]="{ 'post-blurred': post.status === 'banned' }" class="card mb-3 shadow-sm">
+  <div *ngIf="post.status === 'banned'" class="banned-overlay">
+    BANNED
+  </div>
+
+  <div class="card-header d-flex align-items-center gap-2">
+    <img src="../../../../assets/images/avatar.png" alt="Avatar" class="avatar-sm" />
+    <strong>{{ post.username }}</strong>
+    <small class="text-muted ms-auto">{{ post.time }}</small>
+    <div class="dropdown ms-2">
+      <button class="btn btn-sm btn-light border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        <li *ngIf="post.mine">
+          <button (click)="edit.emit(post)" class="dropdown-item d-flex align-items-center gap-2">
+            <i class="bi bi-pencil"></i> Edit
+          </button>
+        </li>
+        <li *ngIf="post.mine">
+          <button (click)="delete.emit(post.id)" class="dropdown-item text-danger d-flex align-items-center gap-2">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+        </li>
+        <li>
+          <button class="dropdown-item text-danger d-flex align-items-center gap-2" (click)="report.emit({ id: post.id, type: 'post' })">
+            <i class="bi bi-flag"></i> Report Post
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <p *ngIf="post.content">{{ post.content }}</p>
+    <div *ngIf="post.media">
+      <img class="post-img rounded" *ngIf="post.media.endsWith('.png') || post.media.endsWith('.jpg')" [src]="'http://localhost:8080/' + post.media" />
+      <video class="post-img rounded" *ngIf="post.media.endsWith('.mp4')" controls [src]="'http://localhost:8080/' + post.media"></video>
+    </div>
+  </div>
+
+  <div class="card-footer d-flex justify-content-between">
+    <button type="button" class="btn btn-sm d-flex align-items-center gap-1" [ngClass]="post.liked ? 'btn-primary' : 'btn-outline-primary'" (click)="like.emit(post)">
+      <i class="bi" [ngClass]="post.liked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+      <span>{{ post.count }}</span>
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="comment.emit(post)">Comment</button>
+  </div>
+</div>

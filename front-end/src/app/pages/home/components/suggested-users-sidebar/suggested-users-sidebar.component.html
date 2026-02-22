@@ -1,0 +1,120 @@
+<aside class="col-md-3 offset-md-1 d-none d-md-block">
+  <div class="sidebar-section">
+    <div class="mb-4">
+      <h5>Suggested Users</h5>
+      <ul class="list-group list-group-flush">
+        <li
+          class="list-group-item d-flex align-items-center gap-2"
+          *ngFor="let user of users"
+          [ngClass]="{'blurred': user.status === 'banned'}"
+        >
+          <div *ngIf="user.status === 'banned'" class="banned-overlay">
+            BANNED
+          </div>
+
+          <div class="dropdown me-2">
+            <button
+              class="btn btn-sm btn-light border-0"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <button
+                  class="dropdown-item d-flex align-items-center gap-2"
+                  (click)="report.emit({ id: user.id, type: 'user' })"
+                >
+                  <i class="bi bi-flag"></i>
+                  Report User
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <img src="../../../../../assets/images/avatar.png" alt="User Avatar" class="avatar-sm"/>
+
+          <span
+            class="username clickable"
+            (click)="user.status !== 'banned' && goToProfile.emit(user.id)"
+          >
+            {{ user.username }}
+          </span>
+
+          <button
+            (click)="follow.emit(user.id)"
+            class="btn follow-btn ms-auto"
+            [ngClass]="user.followed ? 'btn-outline-danger' : 'btn-outline-primary'"
+            [disabled]="user.status === 'banned'"
+          >
+            <i
+              class="bi me-1"
+              [ngClass]="user.followed ? 'bi-person-dash' : 'bi-person-plus'"
+            ></i>
+            {{ user.followed ? 'Unfollow' : 'Follow' }}
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="d-grid">
+      <button (click)="loadMoreUsers.emit()" class="btn btn-outline-primary mb-3">Load more</button>
+    </div>
+  </div>
+</aside>
+
+
+<style>
+  .avatar-sm {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.post-img {
+  max-height: 300px;
+  object-fit: cover;
+  width: 100%;
+}
+.sidebar-section {
+  position: sticky;
+  top: 80px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.follow-btn {
+  min-width: 140px;        /* Follow width */
+  transition: min-width 0.25s ease, padding 0.25s ease;
+}
+
+.blurred {
+  filter: blur(2px);
+  pointer-events: none; /* prevent clicks */
+  opacity: 0.6;         /* optional, make it look disabled */
+}
+
+.post-blurred {
+  filter: blur(2px);
+  opacity: 0.6;
+  pointer-events: none; /* disables likes, comments, menu, etc */
+  user-select: none;
+}
+
+.banned-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(220, 53, 69, 0.9);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  z-index: 10;
+}
+</style>

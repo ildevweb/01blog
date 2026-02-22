@@ -1,0 +1,19 @@
+<div class="modal fade" id="editPostModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <form>
+          <textarea [ngModel]="content" (ngModelChange)="contentChange.emit($event)" name="postTextUpdate" class="form-control" rows="3" placeholder="Update your post" required></textarea>
+          <input #fileInput type="file" class="form-control mt-2" accept="image/*,video/*" (change)="imageSelected.emit($event)" />
+          <div *ngIf="imagePreview" class="mt-2">
+            <img *ngIf="(selectedImage?.type?.startsWith('image/') || (typeof imagePreview === 'string' && (imagePreview.endsWith('.png') || imagePreview.endsWith('.jpg') || imagePreview.endsWith('.jpeg') || imagePreview.endsWith('.gif'))))" [src]="imagePreview" class="img-fluid rounded" style="max-height:300px;" />
+            <video *ngIf="(selectedImage?.type?.startsWith('video/') || (typeof imagePreview === 'string' && imagePreview.endsWith('.mp4')))" [src]="imagePreview" controls class="w-100 rounded" style="max-height:300px;"></video>
+          </div>
+          <button type="button" class="btn btn-primary mt-2" (click)="update.emit()">Update Post</button>
+        </form>
+      </div>
+      <div *ngIf="errorMessage" class="alert alert-danger text-center mt-2">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="alert alert-success text-center mt-2">{{ successMessage }}</div>
+    </div>
+  </div>
+</div>

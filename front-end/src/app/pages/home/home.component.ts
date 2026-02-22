@@ -1,8 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef  } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { CreatePostFormComponent } from './components/create-post-form/create-post-form.component';
+import { PostCardComponent } from '../../shared/components/post-card/post-card.component';
+import { CommentsModalComponent } from '../../shared/components/comments-modal/comments-modal.component';
+import { SuggestedUsersSidebarComponent } from './components/suggested-users-sidebar/suggested-users-sidebar.component';
+import { EditPostModalComponent } from '../../shared/components/edit-post-modal/edit-post-modal.component';
+import { ReportModalComponent } from '../../shared/components/report-modal/report-modal.component';
 import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -11,7 +16,16 @@ declare var bootstrap: any;
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [
+    CommonModule,
+    NavbarComponent,
+    CreatePostFormComponent,
+    PostCardComponent,
+    CommentsModalComponent,
+    SuggestedUsersSidebarComponent,
+    EditPostModalComponent,
+    ReportModalComponent
+  ],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
@@ -29,7 +43,6 @@ export class HomeComponent implements OnInit {
   contentCreate: string = '';
   selectedImageCreate: File | null = null;
   imagePreviewCreate: string | ArrayBuffer | null = null;
-  
 
   contentUpdate: string = '';
   selectedImageUpdate: File | null = null;
@@ -37,8 +50,8 @@ export class HomeComponent implements OnInit {
 
   currentPostId?: number;
 
-  @ViewChild('fileInputCreate') fileInputCreate!: ElementRef<HTMLInputElement>;
-  @ViewChild('fileInputUpdate') fileInputUpdate!: ElementRef<HTMLInputElement>;
+  @ViewChild(CreatePostFormComponent) createPostFormRef!: CreatePostFormComponent;
+  @ViewChild(EditPostModalComponent) editPostModalRef!: EditPostModalComponent;
 
   selectedPost: any = null;
   comments$ = new BehaviorSubject<any[]>([]);
@@ -187,15 +200,14 @@ export class HomeComponent implements OnInit {
   }
 
   removeMedia(type: 'create' | 'update') {
-    if (type === 'create') { 
-      this.selectedImageCreate = null; 
-      this.imagePreviewCreate = null; 
-      this.fileInputCreate.nativeElement.value = ''; 
-    }
-    else { 
-      this.selectedImageUpdate = null; 
-      this.imagePreviewUpdate.next(null); 
-      this.fileInputUpdate.nativeElement.value = ''; 
+    if (type === 'create') {
+      this.selectedImageCreate = null;
+      this.imagePreviewCreate = null;
+      this.createPostFormRef?.clearFileInput();
+    } else {
+      this.selectedImageUpdate = null;
+      this.imagePreviewUpdate.next(null);
+      this.editPostModalRef?.clearFileInput();
     }
   }
 
@@ -346,24 +358,23 @@ export class HomeComponent implements OnInit {
     new bootstrap.Modal(document.getElementById('reportUserModal')).show();
   }
 
-  submitReport(reasonSpam: HTMLInputElement, reasonHate: HTMLInputElement, reasonInappropriate: HTMLInputElement, additionalReason: HTMLInputElement) {
-    let selectedReason = reasonSpam.checked ? 'Spam' : reasonHate.checked ? 'Hate Speech' : reasonInappropriate.checked ? 'Inappropriate Content' : additionalReason.value.trim();
+  submitReport(selectedReason: string) {
     if (!selectedReason) { alert('Please select a reason'); return; }
     if (selectedReason.trim().length >= 30) { alert("Reason length more than 30 chars"); return; }
     if (!confirm('Are you sure you want to submit this report?')) return;
 
     this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason })
-    .subscribe({ 
+    .subscribe({
       next: (res: any) => {
         if (!res.success) {
           alert(res.message);
           return;
         }
         console.log('Report success');
-      }, 
-      error: () => console.log("failed reporting") 
+      },
+      error: () => console.log("failed reporting")
     });
-    
+
     const modal = bootstrap.Modal.getInstance(document.getElementById('reportUserModal'));
     modal.hide();
   }

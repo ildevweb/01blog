@@ -1,8 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { PostCardComponent } from '../../shared/components/post-card/post-card.component';
+import { CommentsModalComponent } from '../../shared/components/comments-modal/comments-modal.component';
+import { EditPostModalComponent } from '../../shared/components/edit-post-modal/edit-post-modal.component';
+import { ReportModalComponent } from '../../shared/components/report-modal/report-modal.component';
+import { ProfileHeaderComponent } from './components/profile-header/profile-header.component';
+import { FollowersModalComponent } from './components/followers-modal/followers-modal.component';
 import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -13,8 +18,13 @@ declare var bootstrap: any;
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    NavbarComponent
+    NavbarComponent,
+    PostCardComponent,
+    CommentsModalComponent,
+    EditPostModalComponent,
+    ReportModalComponent,
+    ProfileHeaderComponent,
+    FollowersModalComponent
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
@@ -67,7 +77,7 @@ export class ProfileComponent implements OnInit {
   private currentUsersPage = 0;
   private currentCommentsPage = 0;
 
-  @ViewChild('fileInputUpdate') fileInputUpdate!: ElementRef<HTMLInputElement>;
+  @ViewChild(EditPostModalComponent) editPostModalRef!: EditPostModalComponent;
 
   private readonly postAPI = 'http://localhost:8080/api/post';
   private readonly commentAPI = 'http://localhost:8080/api/comment';
@@ -343,11 +353,10 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  //this is to remove media from input
   removeMedia() {
-    this.selectedImageUpdate = null; 
-    this.imagePreviewUpdate.next(null); 
-    this.fileInputUpdate.nativeElement.value = ''; 
+    this.selectedImageUpdate = null;
+    this.imagePreviewUpdate.next(null);
+    this.editPostModalRef?.clearFileInput();
   }
 
   //delete post
@@ -444,25 +453,23 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  //submit report
-  submitReport(reasonSpam: HTMLInputElement, reasonHate: HTMLInputElement, reasonInappropriate: HTMLInputElement, additionalReason: HTMLInputElement) {
-    let selectedReason = reasonSpam.checked ? 'Spam' : reasonHate.checked ? 'Hate Speech' : reasonInappropriate.checked ? 'Inappropriate Content' : additionalReason.value.trim();
+  submitReport(selectedReason: string) {
     if (!selectedReason) { alert('Please select a reason'); return; }
     if (selectedReason.trim().length >= 30) { alert("Reason length more than 30 chars"); return; }
     if (!confirm('Are you sure you want to submit this report?')) return;
 
     this.http.post(`${this.reportAPI}/report`, { reportedId: this.reportedId, type: this.reportType, reason: selectedReason })
-    .subscribe({ 
+    .subscribe({
       next: (res: any) => {
         if (!res.success) {
           alert(res.message);
           return;
         }
         console.log('Report success');
-      }, 
-      error: () => console.log("failed reporting") 
+      },
+      error: () => console.log("failed reporting")
     });
-    
+
     const modal = bootstrap.Modal.getInstance(document.getElementById('reportUserModal'));
     modal.hide();
   }
