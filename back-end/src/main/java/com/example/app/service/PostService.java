@@ -37,7 +37,7 @@ import java.time.Instant;
 import java.io.File;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
-
+import org.apache.tika.Tika;
 
 @AllArgsConstructor
 @Service
@@ -61,190 +61,147 @@ public class PostService {
 
     public ResponseEntity<?> createPost(String content, MultipartFile image) throws IOException {
         if (content.isEmpty() && image == null) {
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", false,
-                    "message", "Post cannot be empty"
-                )
-            );
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post cannot be empty"
+            ));
         }
 
         if (content.trim().length() > 100) {
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", false,
-                    "message", "Post content is too large"
-                )
-            );
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post content is too large"
+            ));
         }
 
-        //get owner id
+        // --- Authentication stuff ---
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         Long userId = user.getId();
         User currentUser = user.getUser();
-
-        //get time now with second
         Long nowSeconds = Instant.now().getEpochSecond();
-
 
         if (image == null) {
             Post post = new Post(content, userId, nowSeconds, "active");
             postRepository.save(post);
-
-            //Save notification to all followers
-            List<Follow> followers = followRepository.findByFollowedId(user.getId());
-
-            List<Notification> notifications = followers.stream()
-                .map(follower -> new Notification(
-                    user.getUser(),
-                    follower.getFollower(),
-                    false,
-                    nowSeconds
-                ))
-                .toList();
-
-            notificationRepository.saveAll(notifications);
+            saveNotifications(user.getUser(), nowSeconds);
 
             boolean liked = postLikeService.isLiked(post.getId(), currentUser);
-            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
+            PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(),
+                    content, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
+
+            return ResponseEntity.ok(Map.of("success", true, "infos", infos));
+        }
+
+        // --- Create upload folder ---
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
+        // --- Use Tika to detect MIME type ---
+        Tika tika = new Tika();
+        String detectedType = tika.detect(image.getInputStream());
+
+        if (!ALLOWED_MIME.contains(detectedType)) {
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "infos", infos
+                "success", false,
+                "message", "Invalid file type"
             ));
         }
 
-        // Create upload folder
-        File uploadDir = new File(UPLOAD_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        String contentType = image.getContentType(); // MIME type
-        if (!ALLOWED_MIME.contains(contentType)) {
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", false,
-                    "message", "Invalid file type"
-                )
-            );
-        }
-
-        // Generate unique file name
+        // --- Save file ---
         String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
         String filePath = UPLOAD_DIR + fileName;
-        
-
-        // Save image to disk
         Files.copy(image.getInputStream(), Paths.get(filePath));
 
-        // Save Post to DB
+        // --- Save post ---
         Post post = new Post(content, filePath, userId, nowSeconds, "active");
-
         postRepository.save(post);
+        saveNotifications(user.getUser(), nowSeconds);
 
-        //Save notification to all followers
-        List<Follow> followers = followRepository.findByFollowedId(user.getId());
-
-        List<Notification> notifications = followers.stream()
-            .map(follower -> new Notification(
-                user.getUser(),
-                follower.getFollower(),
-                false,
-                nowSeconds
-            ))
-            .toList();
-
-        notificationRepository.saveAll(notifications);
-
-        //return a response
+        // --- Return response ---
         boolean liked = postLikeService.isLiked(post.getId(), currentUser);
-        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(), content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
+        PostInfos infos = new PostInfos(post.getId(), user.getUsername(), nowSeconds.toString(),
+                content, filePath, liked, postLikeRepository.countByPostId(post.getId()), true, "active");
 
-        return ResponseEntity.ok(Map.of(
-            "success", true,
-            "infos", infos
-        ));
+        return ResponseEntity.ok(Map.of("success", true, "infos", infos));
+    }
+
+    // save notifications
+    private void saveNotifications(User owner, Long timestamp) {
+        List<Follow> followers = followRepository.findByFollowedId(owner.getId());
+        List<Notification> notifications = followers.stream()
+                .map(follower -> new Notification(owner, follower.getFollower(), false, timestamp))
+                .toList();
+        notificationRepository.saveAll(notifications);
     }
 
 
     public ResponseEntity<?> updatePost(Long id, String content, MultipartFile image) throws IOException {
         if (content.isEmpty() && image == null) {
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", false,
-                    "message", "Post cannot be empty"
-                )
-            );
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post cannot be empty"
+            ));
         }
 
         if (content.trim().length() > 100) {
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", false,
-                    "message", "Post content is too large"
-                )
-            );
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Post content is too large"
+            ));
         }
 
-        //get owner id
+        // --- Get owner id ---
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal user = (UserPrincipal) auth.getPrincipal();
         Long userId = user.getId();
 
-        //get post from db
+        // --- Fetch post from DB ---
         Post post = postRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
+        // --- If no new image, update content only ---
         if (image == null) {
             post.setContent(content);
             post.setOwnerId(userId);
             postRepository.save(post);
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", true,
-                    "message", "Post created successfuly"
-                )
-            );
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Post updated successfully"
+            ));
         }
 
-        // Create upload folder
+        // --- Ensure upload folder exists ---
         File uploadDir = new File(UPLOAD_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
+        // --- Use Tika to detect MIME type ---
+        Tika tika = new Tika();
+        String detectedType = tika.detect(image.getInputStream());
+
+        if (!ALLOWED_MIME.contains(detectedType)) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Invalid file type"
+            ));
         }
 
-        String contentType = image.getContentType(); // MIME type
-        if (!ALLOWED_MIME.contains(contentType)) {
-            return ResponseEntity.ok(
-                Map.of(
-                    "success", false,
-                    "message", "Invalid file type"
-                )
-            );
-        }
-
-        // Generate unique file name
+        // --- Generate unique filename and save ---
         String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
         String filePath = UPLOAD_DIR + fileName;
-        
-
-        // Save image to disk
         Files.copy(image.getInputStream(), Paths.get(filePath));
 
-        // Save Post to DB
+        // --- Update post ---
         post.setContent(content);
         post.setMedia(filePath);
         post.setOwnerId(userId);
-
         postRepository.save(post);
 
-        return ResponseEntity.ok(
-            Map.of(
-                "success", true,
-                "message", "Post updated successfuly"
-            )
-        );
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Post updated successfully"
+        ));
     }
 
     public ResponseEntity<?> deletePost(Long id) {

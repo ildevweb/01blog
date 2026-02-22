@@ -94,6 +94,13 @@
             <version>8.10.1</version>
         </dependency>
 
+        <!--Apache tika to check file types-->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

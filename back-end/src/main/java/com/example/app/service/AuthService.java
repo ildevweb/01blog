@@ -34,6 +34,15 @@ public class AuthService {
             );
         }
 
+        if (userRepository.existsByName(username)) {
+            return ResponseEntity.ok(
+                Map.of(
+                    "success", false,
+                    "message", "Username already exist"
+                )
+            );
+        }
+
         boolean isEmpty = !userRepository.existsBy();
 
         User user = new User();
