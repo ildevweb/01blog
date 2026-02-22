@@ -82,107 +82,154 @@ This project is built with **Spring Boot** for the backend and **Angular** for t
 ## Project Structure
 
 ```
-01blog/
-├── back-end/ 📁
-│ ├── .mvn/ 📁
-│ │ └── wrapper/ 📁
-│ │ └── maven-wrapper.properties 📄
-│ ├── src/ 📁
-│ │ ├── main/ 📁
-│ │ │ ├── java/ 📁
-│ │ │ │ └── com/example/app/ 📁
-│ │ │ │ ├── controller/ 📁
-│ │ │ │ │ ├── AdminController.java 📄
-│ │ │ │ │ ├── AuthController.java 📄
-│ │ │ │ │ ├── CommentController.java 📄
-│ │ │ │ │ ├── NotificationController.java 📄
-│ │ │ │ │ ├── PostController.java 📄
-│ │ │ │ │ ├── ReportController.java 📄
-│ │ │ │ │ └── UserController.java 📄
-│ │ │ │ ├── dto/ 📁
-│ │ │ │ │ ├── CommentInfos.java 📄
-│ │ │ │ │ ├── CommentRequest.java 📄
-│ │ │ │ │ ├── LikeRequest.java 📄
-│ │ │ │ │ ├── LoginRequest.java 📄
-│ │ │ │ │ ├── LoginResponse.java 📄
-│ │ │ │ │ ├── NotificationInfos.java 📄
-│ │ │ │ │ ├── PostInfos.java 📄
-│ │ │ │ │ ├── RegisterRequest.java 📄
-│ │ │ │ │ ├── ReportInfos.java 📄
-│ │ │ │ │ ├── ReportRequest.java 📄
-│ │ │ │ │ └── UserInfos.java 📄
-│ │ │ │ ├── entity/ 📁
-│ │ │ │ │ ├── Comment.java 📄
-│ │ │ │ │ ├── CommentLike.java 📄
-│ │ │ │ │ ├── Follow.java 📄
-│ │ │ │ │ ├── Notification.java 📄
-│ │ │ │ │ ├── Post.java 📄
-│ │ │ │ │ ├── PostLike.java 📄
-│ │ │ │ │ ├── Report.java 📄
-│ │ │ │ │ └── User.java 📄
-│ │ │ │ ├── repository/ 📁
-│ │ │ │ │ ├── CommentLikeRepository.java 📄
-│ │ │ │ │ ├── CommentRepository.java 📄
-│ │ │ │ │ ├── FollowRepository.java 📄
-│ │ │ │ │ ├── NotificationRepository.java 📄
-│ │ │ │ │ ├── PostLikeRepository.java 📄
-│ │ │ │ │ ├── PostRepository.java 📄
-│ │ │ │ │ ├── ReportRepository.java 📄
-│ │ │ │ │ └── UserRepository.java 📄
-│ │ │ │ ├── security/ 📁
-│ │ │ │ │ ├── JwtAuthenticationFilter.java 📄
-│ │ │ │ │ ├── JwtService.java 📄
-│ │ │ │ │ ├── JwtUtil.java 📄
-│ │ │ │ │ ├── SecurityConfig.java 📄
-│ │ │ │ │ ├── UserPrincipal.java 📄
-│ │ │ │ │ └── WebConfig.java 📄
-│ │ │ │ ├── service/ 📁
-│ │ │ │ │ ├── AuthService.java 📄
-│ │ │ │ │ ├── CommentLikeService.java 📄
-│ │ │ │ │ ├── CommentService.java 📄
-│ │ │ │ │ ├── FollowService.java 📄
-│ │ │ │ │ ├── PostLikeService.java 📄
-│ │ │ │ │ ├── PostService.java 📄
-│ │ │ │ │ ├── ReportService.java 📄
-│ │ │ │ │ └── UserService.java 📄
-│ │ │ │ └── AppApplication.java 📄
-│ │ │ └── resources/ 📁
-│ │ │ └── application.properties 📄
-│ │ └── test/ 📁
-│ │ └── java/com/example/app/ 📁
-│ │ └── AppApplicationTests.java 📄
-│ ├── uploads/ 📁
-│ │ └── [image/video/html files] 🖼️🌐📄
-│ ├── .gitattributes 📁
-│ ├── .gitignore 📁
-│ ├── HELP.md 📝
-│ ├── mvnw 📄
-│ ├── mvnw.cmd 📄
-│ └── pom.xml 📄
-├── front-end/ 📁
-│ ├── .angular/ 📁
-│ ├── public/ 📁
-│ │ └── favicon.ico 📄
-│ ├── src/ 📁
-│ │ ├── app/ 📁
-│ │ │ ├── core/ 📁
-│ │ │ ├── pages/ 📁
-│ │ │ ├── shared/ 📁
-│ │ │ ├── app.config.ts 📘
-│ │ │ ├── app.routes.ts 📘
-│ │ │ ├── app.spec.ts 📘
-│ │ │ └── app.ts 📘
-│ │ ├── assets/ 📁
-│ │ ├── index.html 🌐
-│ │ ├── main.ts 📘
-│ │ └── styles.css 🎨
-│ ├── .editorconfig 📄
-│ ├── .gitignore 📁
-│ ├── angular.json ⚙️
-│ ├── package-lock.json ⚙️
-│ ├── package.json 📦
-│ ├── tsconfig*.json ⚙️
-└── README.md 📝
+📁 01blog
+├─ 📁 back-end
+│  ├─ 📁 .mvn
+│  │  └─ 📁 wrapper
+│  │     └─ 📄 maven-wrapper.properties
+│  ├─ 📁 src
+│  │  ├─ 📁 main
+│  │  │  ├─ 📁 java
+│  │  │  │  └─ 📁 com
+│  │  │  │     └─ 📁 example
+│  │  │  │        └─ 📁 app
+│  │  │  │           ├─ 📁 controller
+│  │  │  │           │  ├─ 📄 AdminController.java
+│  │  │  │           │  ├─ 📄 AuthController.java
+│  │  │  │           │  ├─ 📄 CommentController.java
+│  │  │  │           │  ├─ 📄 NotificationController.java
+│  │  │  │           │  ├─ 📄 PostController.java
+│  │  │  │           │  ├─ 📄 ReportController.java
+│  │  │  │           │  └─ 📄 UserController.java
+│  │  │  │           ├─ 📁 dto
+│  │  │  │           │  ├─ 📄 CommentInfos.java
+│  │  │  │           │  ├─ 📄 CommentRequest.java
+│  │  │  │           │  ├─ 📄 LikeRequest.java
+│  │  │  │           │  ├─ 📄 LoginRequest.java
+│  │  │  │           │  ├─ 📄 LoginResponse.java
+│  │  │  │           │  ├─ 📄 NotificationInfos.java
+│  │  │  │           │  ├─ 📄 PostInfos.java
+│  │  │  │           │  ├─ 📄 RegisterRequest.java
+│  │  │  │           │  ├─ 📄 ReportInfos.java
+│  │  │  │           │  ├─ 📄 ReportRequest.java
+│  │  │  │           │  └─ 📄 UserInfos.java
+│  │  │  │           ├─ 📁 entity
+│  │  │  │           │  ├─ 📄 Comment.java
+│  │  │  │           │  ├─ 📄 CommentLike.java
+│  │  │  │           │  ├─ 📄 Follow.java
+│  │  │  │           │  ├─ 📄 Notification.java
+│  │  │  │           │  ├─ 📄 Post.java
+│  │  │  │           │  ├─ 📄 PostLike.java
+│  │  │  │           │  ├─ 📄 Report.java
+│  │  │  │           │  └─ 📄 User.java
+│  │  │  │           ├─ 📁 repository
+│  │  │  │           │  ├─ 📄 CommentLikeRepository.java
+│  │  │  │           │  ├─ 📄 CommentRepository.java
+│  │  │  │           │  ├─ 📄 FollowRepository.java
+│  │  │  │           │  ├─ 📄 NotificationRepository.java
+│  │  │  │           │  ├─ 📄 PostLikeRepository.java
+│  │  │  │           │  ├─ 📄 PostRepository.java
+│  │  │  │           │  ├─ 📄 ReportRepository.java
+│  │  │  │           │  └─ 📄 UserRepository.java
+│  │  │  │           ├─ 📁 security
+│  │  │  │           │  ├─ 📄 JwtAuthenticationFilter.java
+│  │  │  │           │  ├─ 📄 JwtService.java
+│  │  │  │           │  ├─ 📄 JwtUtil.java
+│  │  │  │           │  ├─ 📄 RateLimitFilter.java
+│  │  │  │           │  ├─ 📄 SecurityConfig.java
+│  │  │  │           │  ├─ 📄 UserPrincipal.java
+│  │  │  │           │  └─ 📄 WebConfig.java
+│  │  │  │           ├─ 📁 service
+│  │  │  │           │  ├─ 📄 AuthService.java
+│  │  │  │           │  ├─ 📄 CommentLikeService.java
+│  │  │  │           │  ├─ 📄 CommentService.java
+│  │  │  │           │  ├─ 📄 FollowService.java
+│  │  │  │           │  ├─ 📄 NotificationService.java
+│  │  │  │           │  ├─ 📄 PostLikeService.java
+│  │  │  │           │  ├─ 📄 PostService.java
+│  │  │  │           │  ├─ 📄 ReportService.java
+│  │  │  │           │  └─ 📄 UserService.java
+│  │  │  │           └─ 📄 AppApplication.java
+│  │  │  └─ 📁 resources
+│  │  │     └─ 📄 application.properties
+│  │  └─ 📁 test
+│  │     └─ 📁 java
+│  │        └─ 📁 com
+│  │           └─ 📁 example
+│  │              └─ 📁 app
+│  │                 └─ 📄 AppApplicationTests.java
+│  ├─ 📁 uploads
+│  ├─ 📁 .gitattributes
+│  ├─ 📁 .gitignore
+│  ├─ 🐳 Dockerfile
+│  ├─ 📄 mvnw
+│  ├─ 📄 mvnw.cmd
+│  └─ 📄 pom.xml
+├─ 📁 front-end
+│  ├─ 📁 .angular
+│  ├─ 📁 public
+│  │  └─ 📄 favicon.ico
+│  ├─ 📁 src
+│  │  ├─ 📁 app
+│  │  │  ├─ 📁 core
+│  │  │  │  ├─ 📁 auth
+│  │  │  │  │  ├─ 📘 auth.guard.ts
+│  │  │  │  │  ├─ 📘 auth.service.ts
+│  │  │  │  │  ├─ 📘 guest.guard.ts
+│  │  │  │  │  └─ 📘 token.interceptor.ts
+│  │  │  │  ├─ 📁 services
+│  │  │  │  │  └─ 📘 notification.service.ts
+│  │  │  │  └─ 📘 core.module.ts
+│  │  │  ├─ 📁 pages
+│  │  │  │  ├─ 📁 404
+│  │  │  │  │  ├─ 🎨 404.component.css
+│  │  │  │  │  ├─ 🌐 404.component.html
+│  │  │  │  │  └─ 📘 404.component.ts
+│  │  │  │  ├─ 📁 admin
+│  │  │  │  │  ├─ 🎨 admin.component.css
+│  │  │  │  │  ├─ 🌐 admin.component.html
+│  │  │  │  │  └─ 📘 admin.component.ts
+│  │  │  │  ├─ 📁 auth
+│  │  │  │  │  ├─ 🎨 auth.component.css
+│  │  │  │  │  ├─ 🌐 auth.component.html
+│  │  │  │  │  └─ 📘 auth.component.ts
+│  │  │  │  ├─ 📁 home
+│  │  │  │  │  ├─ 📁 components
+│  │  │  │  │  │  ├─ 📁 comments-modal
+│  │  │  │  │  │  ├─ 📁 create-post-form
+│  │  │  │  │  │  │  ├─ 🌐 create-post-form.component.html
+│  │  │  │  │  │  │  └─ 📘 create-post-form.component.ts
+│  │  │  │  │  │  ├─ 📁 suggested-users-sidebar
+│  │  │  │  │  │  │  ├─ 🌐 suggested-users-sidebar.component.html
+│  │  │  │  │  │  │  └─ 📘 suggested-users-sidebar.component.ts
+│  │  │  │  │  ├─ 🎨 home.component.css
+│  │  │  │  │  ├─ 🌐 home.component.html
+│  │  │  │  │  └─ 📘 home.component.ts
+│  │  │  │  └─ …(other pages: notification, profile)
+│  │  │  ├─ 📁 shared
+│  │  │  │  └─ 📁 components
+│  │  │  │     └─ …(comments-modal, edit-post-modal, navbar, post-card, report-modal)
+│  │  │  ├─ 📘 app.config.ts
+│  │  │  ├─ 📘 app.routes.ts
+│  │  │  ├─ 📘 app.spec.ts
+│  │  │  └─ 📘 app.ts
+│  │  ├─ 📁 assets
+│  │  │  └─ 📁 images
+│  │  ├─ 🌐 index.html
+│  │  ├─ 📘 main.ts
+│  │  └─ 🎨 styles.css
+│  ├─ 📄 .editorconfig
+│  ├─ 📁 .gitignore
+│  ├─ 🐳 Dockerfile
+│  ├─ ⚙️ angular.json
+│  ├─ 📄 default.conf
+│  ├─ ⚙️ package-lock.json
+│  ├─ 📦 package.json
+│  ├─ ⚙️ tsconfig.app.json
+│  ├─ ⚙️ tsconfig.json
+│  └─ ⚙️ tsconfig.spec.json
+├─ 📝 README.md
+└─ ⚙️ docker-compose.yml
 ```
 
 ---
