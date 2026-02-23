@@ -14,13 +14,16 @@ import java.util.Map;
 import com.example.app.dto.UserInfos;
 import com.example.app.entity.Report;
 import com.example.app.entity.User;
+import com.example.app.repository.CommentLikeRepository;
 import com.example.app.repository.FollowRepository;
 import com.example.app.repository.NotificationRepository;
 import com.example.app.repository.PostLikeRepository;
 import com.example.app.repository.ReportRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.security.UserPrincipal;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -29,15 +32,7 @@ public class UserService {
     private final PostLikeRepository postLikeRepository;
     private final NotificationRepository notificationRepository;
     private final ReportRepository reportRepository;
-
-    public UserService(UserRepository userRepository, FollowService followService, FollowRepository followRepository, PostLikeRepository postLikeRepository, NotificationRepository notificationRepository, ReportRepository reportRepository) {
-        this.userRepository = userRepository;
-        this.followService = followService;
-        this.followRepository = followRepository;
-        this.postLikeRepository = postLikeRepository;
-        this.notificationRepository = notificationRepository;
-        this.reportRepository = reportRepository;
-    }
+    private final CommentLikeRepository commentLikeRepository;
     
     public List<UserInfos> getAllUsers(int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -165,7 +160,7 @@ public class UserService {
             ));
         }
 
-
+        commentLikeRepository.deleteByUserId(userId);
         postLikeRepository.deleteByUserId(userId);
         notificationRepository.deleteByFromUserOrToUser(userId);
         followRepository.deleteByFollowedOrFollower(userId);
