@@ -18,5 +18,6 @@ export class CommentsModalComponent {
   @Output() commentContentChange = new EventEmitter<string>();
   @Output() submitComment = new EventEmitter<void>();
   @Output() likeComment = new EventEmitter<any>();
+  @Output() deleteComment = new EventEmitter<any>();
   @Output() loadMoreComments = new EventEmitter<void>();
 }

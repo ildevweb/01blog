@@ -19,15 +19,40 @@
           <div *ngIf="commentError" class="alert alert-danger text-center mt-2">{{ commentError }}</div>
         </form>
         <div *ngFor="let comment of comments" class="d-flex gap-3 mb-3 pb-3 border-bottom">
-          <img src="../../../../assets/images/avatar.png" class="rounded-circle" width="40" height="40" alt="Avatar"/>
+          <img src="../../../../assets/images/avatar.png"
+              class="rounded-circle"
+              width="40"
+              height="40"
+              alt="Avatar"/>
+
           <div class="flex-grow-1">
+            
+            <!-- Header -->
             <div class="d-flex align-items-center gap-2">
+              
               <strong>{{ comment.username }}</strong>
               <small class="text-muted">{{ comment.time }}</small>
+
+              <!-- Delete icon (only if mine === true) -->
+              <i *ngIf="comment.mine"
+                class="bi bi-trash text-danger ms-auto cursor-pointer"
+                style="cursor: pointer;"
+                (click)="deleteComment.emit(comment)"
+                >
+              </i>
+
             </div>
+
+            <!-- Content -->
             <p class="mb-1">{{ comment.content }}</p>
-            <button class="btn btn-sm p-0 d-flex align-items-center gap-1" [ngClass]="comment.liked ? 'text-primary' : 'text-muted'" (click)="likeComment.emit(comment)">
-              <i class="bi" [ngClass]="comment.liked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i>
+
+            <!-- Like -->
+            <button class="btn btn-sm p-0 d-flex align-items-center gap-1"
+                    [ngClass]="comment.liked ? 'text-primary' : 'text-muted'"
+                    (click)="likeComment.emit(comment)">
+              <i class="bi"
+                [ngClass]="comment.liked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'">
+              </i>
               <span>{{ comment.count }}</span>
             </button>
           </div>

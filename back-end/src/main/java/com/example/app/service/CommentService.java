@@ -80,6 +80,26 @@ public class CommentService {
         ));
     }
 
+    public ResponseEntity<?> deleteComment(LikeRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal user = (UserPrincipal) auth.getPrincipal();
+        User currentUser = user.getUser();
+        
+        if (!commentRepository.existsByOwnerIdAndId(currentUser.getId(), request.getCommentId())) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Comment undefined"
+            ));
+        }
+
+        commentLikeRepository.deleteByCommentId(request.getCommentId());
+        commentRepository.deleteById(request.getCommentId());
+
+        return ResponseEntity.ok(Map.of(
+            "success", true
+        ));
+    }
+
     public List<CommentInfos> getByPostId(Long postId, int page, int size) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal loggedUser = (UserPrincipal) auth.getPrincipal();
@@ -97,9 +117,12 @@ public class CommentService {
                 User owner = userRepository.findById(comment.getOwnerId())
                     .orElse(new User("deleted user"));
 
+                boolean mine = owner.getId() == user.getId();
+
                 return new CommentInfos(
                     comment.getId(),
                     owner.getName(),
+                    mine,
                     time,
                     comment.getContent(),
                     liked,

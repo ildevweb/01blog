@@ -234,6 +234,21 @@ export class ProfileComponent implements OnInit {
       });
   }
 
+  deleteComments(comment: any) {
+    const confirmed = window.confirm('Are you sure you want to delete this comment?');
+    if (!confirmed) return;
+
+    this.http.post<any>(`${this.commentAPI}/delete`, { commentId: comment.id }).subscribe({
+      next: res => {
+        if (!res.success) {
+          return;
+        }
+        this.fetchComments();
+      },
+      error: () => console.log("comment deleting failed")
+    });
+  }
+
   submitComment() {
     if (!this.commentData.content.trim() || !this.selectedPost) {
       this.commentErrorMessage$.next("input cannot be empty"); 

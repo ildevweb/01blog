@@ -14,4 +14,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByPostIdOrderByTimeDesc(Long postId, Pageable pageable);
 
     List<Comment> findByPostId(Long postId);
+    boolean existsByOwnerIdAndId(Long OwnerId, Long id);
 }

@@ -11,6 +11,7 @@ import lombok.Setter;
 public class CommentInfos {
     private Long id;
     private String username;
+    private boolean mine;
     private String time;
     private String content;
     private boolean liked;

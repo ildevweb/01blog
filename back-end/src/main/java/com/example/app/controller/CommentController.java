@@ -41,4 +41,9 @@ public class CommentController {
     public ResponseEntity<?> toggleLike( @RequestBody LikeRequest request) {
         return commentService.likeComment(request);
     }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> delete( @RequestBody LikeRequest request) {
+        return commentService.deleteComment(request);
+    }
 }
