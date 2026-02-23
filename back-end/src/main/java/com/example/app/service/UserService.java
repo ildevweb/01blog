@@ -157,6 +157,15 @@ public class UserService {
             ));
         }
 
+        User userToDelete = userRepository.findById(userId).orElse(null);
+        if (userToDelete.getRole().equals("admin")) {
+            return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "You cannot delete admin"
+            ));
+        }
+
+
         postLikeRepository.deleteByUserId(userId);
         notificationRepository.deleteByFromUserOrToUser(userId);
         followRepository.deleteByFollowedOrFollower(userId);

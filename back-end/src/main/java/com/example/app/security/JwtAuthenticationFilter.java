@@ -80,6 +80,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            if (user.getStatus().equals("banned")) {
+                sendUnauthorized(response, "USER_BANNED");
+                return;
+            }
+
             // Validate token (signature, expiration, user match)
             if (!jwtService.isTokenValid(jwt, user)) {
                 sendUnauthorized(response, "INVALID_TOKEN");
