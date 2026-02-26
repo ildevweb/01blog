@@ -8,7 +8,8 @@ This project is built with **Spring Boot** for the backend and **Angular** for t
 
 ---
 
-##Project roadmap: https://excalidraw.com/#json=ToXKl6eowdkYU46aTqnK5,IXkLwp47JwjAAPWNFl_hLg
+## Project roadmap
+https://excalidraw.com/#json=ToXKl6eowdkYU46aTqnK5,IXkLwp47JwjAAPWNFl_hLg
 
 ---
 
